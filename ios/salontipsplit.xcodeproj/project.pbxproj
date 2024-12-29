@@ -29,6 +29,7 @@
 
 /* Begin PBXFileReference section */
 		06EB838A2D2024B900DC70A8 /* salontipsplit_dev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = salontipsplit_dev.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		06EB838B2D21225C00DC70A8 /* salontipsplit copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "salontipsplit copy-Info.plist"; path = "/Users/thuantruong/Dev/pj-nailsalon/salon-tip-split/ios/salontipsplit copy-Info.plist"; sourceTree = "<absolute>"; };
 		1298A57C0C2C45F18FB95DA4 /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "salontipsplit/noop-file.swift"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* salontipsplit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = salontipsplit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = salontipsplit/AppDelegate.h; sourceTree = "<group>"; };
@@ -109,6 +110,7 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				D65327D7A22EEC0BE12398D9 /* Pods */,
 				D7E4C46ADA2E9064B798F356 /* ExpoModulesProviders */,
+				06EB838B2D21225C00DC70A8 /* salontipsplit copy-Info.plist */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";

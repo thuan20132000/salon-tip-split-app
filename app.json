@@ -11,8 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.thuan20132000.salon-tip-split",
-      "googleServicesFile": "assets/GoogleService-Info.plist",
-
+      "googleServicesFile": "assets/GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -34,9 +33,9 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
-        },
-        
-      ]
+        }
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

@@ -1,27 +1,29 @@
+import { SalonStaffState, useSalonStaffStore } from '@/store/useSalonStaffStore';
 import { StaffState, StaffType, useStaffStore } from '@/store/useStaffStore';
+import { SalonStaffType } from '@/types/staff.types';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 
 const StaffScreen = () => {
   const router = useRouter();
   const {
-    staffList,
+    getSalonStaffs,
+    salonStaffs,
+    selectPaymentStaff,
     selectedPaymentStaffs,
-    addPaymentStaffs,
-    removePaymentStaffs
-  } = useStaffStore((state: StaffState) => state);
+  } = useSalonStaffStore((state: SalonStaffState) => state);
 
   // const [selectedStaff, setSelectedStaff] = React.useState<StaffType[]>([]);
 
 
-  const onStaffPress = (staff: StaffType) => {
-    if (selectedPaymentStaffs.includes(staff)) {
-      removePaymentStaffs(staff);
-      return;
-    }
+  const onStaffPress = (staff: SalonStaffType) => {
+    // if (selectedPaymentStaffs.includes(staff)) {
+    //   removePaymentStaffs(staff);
+    //   return;
+    // }
 
-    addPaymentStaffs(staff);
+    // addPaymentStaffs(staff);
   }
 
 
@@ -36,6 +38,17 @@ const StaffScreen = () => {
     });
   }
 
+  const onSelectStaff = (staff: SalonStaffType) => {
+    selectPaymentStaff(staff);
+  }
+
+  useEffect(() => {
+    getSalonStaffs();
+  }, [])
+
+  console.log("salonStaffs", salonStaffs);
+
+
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -46,17 +59,17 @@ const StaffScreen = () => {
           flexDirection: 'row',
         }}
       >
-        {staffList.map((staff) => (
+        {salonStaffs?.map((staff) => (
           <TouchableOpacity
             key={staff.id}
-            onPress={() => onStaffPress(staff)}
+            onPress={() => onSelectStaff(staff)}
             style={[
               styles.staffBoxContainer,
               selectedPaymentStaffs.includes(staff) && styles.selectedStaffBox,
             ]}
           >
             <View key={staff.id} style={styles.staffBox}>
-              <Text style={styles.staffName}>{staff.name}</Text>
+              <Text style={styles.staffName}>{staff.first_name}</Text>
             </View>
           </TouchableOpacity>
         ))}

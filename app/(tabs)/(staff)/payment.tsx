@@ -21,6 +21,10 @@ import { PaymentMethodsEnums, PaymentRatesEnums, PaymentReceiptStatusEnums } fro
 import { PaymentReceiptType, PaymentState, StaffPriceType, usePaymentStore } from '@/store/usePaymentStore';
 import { FirestoreService } from '@/services/firestore.service';
 import { GiftcardPaymentInput } from '@/components/GiftcardPaymentInput';
+import { SalonStaffState, useSalonStaffStore } from '@/store/useSalonStaffStore';
+import { SalonPaymentReceiptType, SalonPaymentState, SalonStaffPriceType, useSalonPaymentStore } from '@/store/useSalonPaymentStore';
+import { CreateSalonReceiptType, SalonReceipt } from '@/types/receipt.type';
+import { receiptAPIs } from '@/api/receiptAPI';
 
 const TAX_RATE = PaymentRatesEnums.TAX_RATE;
 const CASH_OFF = PaymentRatesEnums.CASH_OFF;
@@ -34,9 +38,9 @@ export default function StaffPaymentScreen() {
   const { staff_ids, payment_receipt } = useLocalSearchParams();
 
   const {
-    staffList,
-    resetSelectedPaymentStaffs
-  } = useStaffStore((state: StaffState) => state);
+    salonStaffs,
+    // resetSelectedPaymentStaffs
+  } = useSalonStaffStore((state: SalonStaffState) => state);
 
   console.log('payment receipt:', payment_receipt);
 
@@ -59,24 +63,25 @@ export default function StaffPaymentScreen() {
     resetPayment,
     paymentReceipt,
     setPaymentReceipt,
-    isLoading
-  } = usePaymentStore((state: PaymentState) => state);
+    isLoading,
+    createSalonReceipt
+  } = useSalonPaymentStore((state: SalonPaymentState) => state);
 
 
 
   const handleInitialStaffPrice = () => {
     if (payment_receipt) {
-      let receipt: PaymentReceiptType = typeof payment_receipt === 'string' ? JSON.parse(payment_receipt) : payment_receipt;
+      let receipt: SalonPaymentReceiptType = typeof payment_receipt === 'string' ? JSON.parse(payment_receipt) : payment_receipt;
       setPaymentReceipt(receipt);
       // setSelectedStaffs(selectedStaffPriceList);
     } else {
 
 
-      let selectedStaffList = staffList.filter((staff) => {
+      let selectedStaffList = salonStaffs.filter((staff) => {
         return staff_ids.includes(String(staff.id));
       });
 
-      const selectedStaffPriceList: StaffPriceType[] = selectedStaffList.map((staff) => {
+      const selectedStaffPriceList: SalonStaffPriceType[] = selectedStaffList.map((staff) => {
         return {
           price: 0,
           tip: 0,
@@ -136,7 +141,7 @@ export default function StaffPaymentScreen() {
     let newStaffPrices = [...paymentReceipt?.staffs || []];
 
     newStaffPrices[index] = { ...newStaffPrices[index], price: Number(price) };
-    let newPaymentReceipt: PaymentReceiptType = {
+    let newPaymentReceipt: SalonPaymentReceiptType = {
       ...paymentReceipt,
       staffs: newStaffPrices
     }
@@ -153,10 +158,10 @@ export default function StaffPaymentScreen() {
 
     try {
 
-      const receipt: PaymentReceiptType = {
+      const receipt: SalonPaymentReceiptType = {
         ...paymentReceipt,
         subtotal: calculatePayments().subtotal,
-        returnAmount: Number(calculatePayments().returnAmount.toFixed(2)),
+        returnAmount: Number(calculatePayments().returnAmount),
         tip: tipPrice,
         // selectedPayment: selectedPayment || { method: '', price: 0 },
         status: PaymentReceiptStatusEnums.PAID,
@@ -164,10 +169,10 @@ export default function StaffPaymentScreen() {
 
       console.log('Receipt:', receipt);
       if (receipt.id) {
-        let res = await FirestoreService.updateDocument<PaymentReceiptType>('payments', receipt.id, receipt);
+        let res = await FirestoreService.updateDocument<SalonPaymentReceiptType>('payments', receipt.id, receipt);
         console.log('Payment updated:', res);
       } else {
-        let res = await FirestoreService.createDocument<PaymentReceiptType>('payments', receipt);
+        let res = await FirestoreService.createDocument<SalonPaymentReceiptType>('payments', receipt);
         console.log('Payment created:', res);
 
       }
@@ -178,7 +183,7 @@ export default function StaffPaymentScreen() {
     } catch (err) {
       console.error('Error adding todo:', err);
     } finally {
-      resetSelectedPaymentStaffs();
+      // resetSelectedPaymentStaffs();
       router.back();
     }
 
@@ -186,27 +191,59 @@ export default function StaffPaymentScreen() {
 
   const onSavePaymentReceipt = async () => {
     try {
-      let receipt: PaymentReceiptType = {
-        ...paymentReceipt,
-        subtotal: calculatePayments().subtotal,
-        returnAmount: Number(calculatePayments().returnAmount.toFixed(2)),
-        tip: tipPrice,
-        status: PaymentReceiptStatusEnums.PENDING,
-        selectedPayment: selectedPayment || { method: '', price: 0 },
+      // let receipt: SalonPaymentReceiptType = {
+      //   ...paymentReceipt,
+      //   subtotal: calculatePayments().subtotal,
+      //   returnAmount: Number(calculatePayments().returnAmount.toFixed(2)),
+      //   tip: tipPrice,
+      //   status: PaymentReceiptStatusEnums.PENDING,
+      //   selectedPayment: selectedPayment || { method: '', price: 0 },
 
+      // }
+
+      let salonReceipt:CreateSalonReceiptType = {
+        payment_method: paymentReceipt?.selectedPayment?.method || '',
+        payment_method_price: Number(paymentReceipt?.selectedPayment?.price?.toFixed(2)) || 0,
+        return_amount: Number(calculatePayments().returnAmount),
+        tip_total_amount: tipPrice,
+        sub_total_amount: calculatePayments().subtotal,
+        staff_bills: paymentReceipt?.staffs?.map((staff) => {
+          return {
+              receipt: 1,
+              service_amount: staff.price,
+              tip_amount: staff.tip,
+              service_name: staff.staff.first_name,
+              staff: staff.staff.id || null
+        
+          }
+        }) || []
       }
-      if (receipt.id) {
-        let res = await FirestoreService.updateDocument<PaymentReceiptType>('payments', receipt.id, receipt);
-        console.log('Payment updated:', res);
-      } else {
-        let res = await FirestoreService.createDocument<PaymentReceiptType>('payments', receipt);
-        console.log('Payment saved:', res);
-      }
+
+      console.log('====================================');
+      console.log('Receipt:', salonReceipt);
+      // console.log('receipt staffs: ',receipt.staffs);
+      
+      console.log('====================================');
+      
+      let res = await receiptAPIs.createSalonReceipt(salonReceipt);
+
+      console.log('====================================');
+      console.log('Receipt created:', res);
+      console.log('====================================');
+      
+
+      // if (receipt.id) {
+      //   let res = await FirestoreService.updateDocument<SalonPaymentReceiptType>('payments', receipt.id, receipt);
+      //   console.log('Payment updated:', res);
+      // } else {
+      //   let res = await FirestoreService.createDocument<SalonPaymentReceiptType>('payments', receipt);
+      //   console.log('Payment saved:', res);
+      // }
     } catch (err) {
       console.error('Error save payment:', err);
     } finally {
-      resetSelectedPaymentStaffs();
-      router.back();
+      // resetSelectedPaymentStaffs();
+      // router.back();
     }
   }
 
@@ -229,7 +266,7 @@ export default function StaffPaymentScreen() {
 
     return () => {
       resetPayment();
-      resetSelectedPaymentStaffs();
+      // resetSelectedPaymentStaffs();
     }
   }, [])
 
@@ -259,7 +296,7 @@ export default function StaffPaymentScreen() {
           {/* Staff  Price Input */}
           {paymentReceipt?.staffs?.map((staff, index) => (
             <View key={index} style={styles.staffRow}>
-              <Text style={styles.staffName}>{staff.staff.name}</Text>
+              <Text style={styles.staffName}>{staff.staff.first_name}</Text>
               <CurrencyInput
                 value={staff.price}
                 onChangeValue={(value) => updateReceiptStaffPrice(index, value)}
@@ -525,11 +562,11 @@ export default function StaffPaymentScreen() {
                   alignItems: 'center',
                 }}
               >
-                <Text style={styles.returnPrice}>${(returnAmount).toFixed(2)}</Text>
+                <Text style={styles.returnPrice}>${(returnAmount)}</Text>
                 <TouchableOpacity
                   style={{ padding: 8 }}
                   onPress={() => {
-                    setTipPrice(returnAmount);
+                    setTipPrice(Number(returnAmount));
                   }}
                 >
                   <Text style={{ color: '#007AFF', fontSize: 16, fontWeight: 'bold' }}>Add to Tip</Text>

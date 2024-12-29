@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  FlatList,
 } from 'react-native';
 import { Receipt, GroupedReceipts } from '../../types/receipt';
 import { formatCurrency, formatTime, groupReceiptsByDate } from '../../utils/receiptUtils';
@@ -15,18 +16,26 @@ import { FirestoreService } from '@/services/firestore.service';
 import { useIsFocused } from '@react-navigation/native';
 import { router, useFocusEffect } from 'expo-router';
 import { PaymentReceiptType } from '@/store/usePaymentStore';
+import { SalonPaymentState, useSalonPaymentStore } from '@/store/useSalonPaymentStore';
+import { SalonReceipt } from '@/types/receipt.type';
 
 export default function ReceiptHistoryScreen() {
   const [receipts, setReceipts] = useState<GroupedReceipts[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const {
+    salonReceipts,
+    getSalonPaymentReceipts
+  } = useSalonPaymentStore((state:SalonPaymentState) => state);
+
   useFocusEffect(
     // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
     useCallback(() => {
       // Invoked whenever the route is focused.
       console.log('Hello, Im focused!');
-      loadReceipts();
+      getSalonPaymentReceipts();
+      // loadReceipts();
 
       // Return function is invoked whenever the route gets out of focus.
       return () => {
@@ -101,7 +110,7 @@ export default function ReceiptHistoryScreen() {
     );
   }
 
-  const renderReceiptItem = ({ item }: { item: Receipt }) => {
+  const renderReceiptItem = ({ item }: { item: SalonReceipt }) => {
     return (
       <View
         style={styles.receiptCard}
@@ -109,11 +118,11 @@ export default function ReceiptHistoryScreen() {
 
 
         <View style={styles.receiptHeader}>
-          <Text style={styles.receiptTime}>{formatTime(item.createdAt)}</Text>
-          <Text style={styles.receiptStatus}>{item.status.toUpperCase()}</Text>
+          <Text style={styles.receiptTime}>{item.created_at?.toString()}</Text>
+          <Text style={styles.receiptStatus}>{item.payment_status.toUpperCase()}</Text>
           <TouchableOpacity
             style={styles.deleteButton}
-            onPress={() => onConfirmDeleteReceipt(item)}
+            // onPress={() => onConfirmDeleteReceipt(item)}
           >
             <Text style={styles.paymentMethod}>
               Delete?
@@ -122,36 +131,36 @@ export default function ReceiptHistoryScreen() {
         </View>
         <TouchableOpacity
           // style={styles.receiptCard}
-          onPress={() => showReceiptDetail(item)}
+          // onPress={() => showReceiptDetail(item)}
         >
           <View style={styles.receiptDetails}>
             <View style={styles.staffList}>
-              {item.staffs?.map((staffItem, index) => (
+              {item.staff_receipts?.map((staffItem, index) => (
                 <Text key={index} style={styles.staffItem}>
-                  {staffItem.staff.name} - {formatCurrency(staffItem.price)}
-                  {staffItem.tip > 0 && ` (Tip: ${formatCurrency(staffItem.tip)})`}
+                  {/* {staffItem.first_name} - {formatCurrency(staffItem.)} */}
+                  {/* {staffItem.tip > 0 && ` (Tip: ${formatCurrency(staffItem.tip)})`} */}
                 </Text>
               ))}
             </View>
 
             <View style={styles.paymentDetails}>
               <Text style={styles.subtotalText}>
-                Subtotal: {formatCurrency(item.subtotal)}
+                Subtotal: {item.sub_total_amount}
               </Text>
-              <Text style={styles.subtotalText}>
-                Gift Amount: {formatCurrency(item.giftcardAmount)}
-              </Text>
+              {/* <Text style={styles.subtotalText}>
+                Gift Amount: {item.giftcardAmount)}
+              </Text> */}
               <Text style={styles.tipText}>
-                Tip: {formatCurrency(item.tip)}
+                Tip: {item.tip_total_amount}
               </Text>
               <Text style={styles.totalText}>
-                Total: {formatCurrency(item?.selectedPayment?.price)}
+                Total: {item?.payment_method_price}
               </Text>
               <Text style={styles.paymentMethod}>
-                Paid via {item.selectedPayment?.method.toUpperCase()}
+                Paid via {item.payment_method?.toUpperCase()}
               </Text>
               <Text style={styles.paymentMethod}>
-                Updated at {formatTime(item.updatedAt)}
+                Updated at {item.created_at}
               </Text>
             </View>
           </View>
@@ -161,39 +170,13 @@ export default function ReceiptHistoryScreen() {
     );
   };
 
-  if (loading) {
-    return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity onPress={loadReceipts}>
-          <Text style={styles.retryButton}>Retry</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
-      <SectionList
-        sections={receipts}
-        keyExtractor={(item) => item.id}
+      <FlatList
+        data={salonReceipts}
         renderItem={renderReceiptItem}
-        renderSectionHeader={({ section: { title } }) => (
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionHeaderText}>{title}</Text>
-          </View>
-        )}
-        stickySectionHeadersEnabled
+        keyExtractor={(item) => item?.id?.toString() || ''}
         contentContainerStyle={styles.listContent}
-      // inverted
       />
     </View>
   );
