@@ -9,7 +9,10 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.thuan20132000.salon-tip-split",
+      "googleServicesFile": "assets/GoogleService-Info.plist",
+
     },
     "android": {
       "adaptiveIcon": {
@@ -31,7 +34,8 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
-        }
+        },
+        
       ]
     ],
     "experiments": {
