@@ -10,7 +10,12 @@ export default function StaffLayout() {
         }}
       >
         {/* Add your screens here */}
-        <Stack.Screen name="index" />
+        <Stack.Screen
+          name="index"
+          options={{
+            title: 'Staff Receipts',
+          }}
+        />
 
       </Stack>
     </KeyboardProvider>

@@ -156,36 +156,36 @@ export default function StaffPaymentScreen() {
   const onPaymentPress = async () => {
 
 
-    try {
+    // try {
 
-      const receipt: SalonPaymentReceiptType = {
-        ...paymentReceipt,
-        subtotal: calculatePayments().subtotal,
-        returnAmount: Number(calculatePayments().returnAmount),
-        tip: tipPrice,
-        // selectedPayment: selectedPayment || { method: '', price: 0 },
-        status: PaymentReceiptStatusEnums.PAID,
-      }
+    //   const receipt: SalonPaymentReceiptType = {
+    //     ...paymentReceipt,
+    //     subtotal: calculatePayments().subtotal,
+    //     returnAmount: Number(calculatePayments().returnAmount),
+    //     tip: tipPrice,
+    //     // selectedPayment: selectedPayment || { method: '', price: 0 },
+    //     status: PaymentReceiptStatusEnums.PAID,
+    //   }
 
-      console.log('Receipt:', receipt);
-      if (receipt.id) {
-        let res = await FirestoreService.updateDocument<SalonPaymentReceiptType>('payments', receipt.id, receipt);
-        console.log('Payment updated:', res);
-      } else {
-        let res = await FirestoreService.createDocument<SalonPaymentReceiptType>('payments', receipt);
-        console.log('Payment created:', res);
+    //   console.log('Receipt:', receipt);
+    //   if (receipt.id) {
+    //     let res = await FirestoreService.updateDocument<SalonPaymentReceiptType>('payments', receipt.id, receipt);
+    //     console.log('Payment updated:', res);
+    //   } else {
+    //     let res = await FirestoreService.createDocument<SalonPaymentReceiptType>('payments', receipt);
+    //     console.log('Payment created:', res);
 
-      }
+    //   }
 
-      Alert.alert('Payment Success', 'Payment has been successfully processed');
+    //   Alert.alert('Payment Success', 'Payment has been successfully processed');
 
 
-    } catch (err) {
-      console.error('Error adding todo:', err);
-    } finally {
-      // resetSelectedPaymentStaffs();
-      router.back();
-    }
+    // } catch (err) {
+    //   console.error('Error adding todo:', err);
+    // } finally {
+    //   // resetSelectedPaymentStaffs();
+    //   router.back();
+    // }
 
   }
 
@@ -207,17 +207,19 @@ export default function StaffPaymentScreen() {
         return_amount: Number(calculatePayments().returnAmount),
         tip_total_amount: tipPrice,
         sub_total_amount: calculatePayments().subtotal,
-        staff_bills: paymentReceipt?.staffs?.map((staff) => {
+        staff_receipts: paymentReceipt?.staffs?.map((staff) => {
           return {
-              receipt: 1,
-              service_amount: staff.price,
-              tip_amount: staff.tip,
-              service_name: staff.staff.first_name,
-              staff: staff.staff.id || null
-        
+            service_amount: staff.price,
+            tip_amount: staff.tip,
+            staff: Number(staff.staff.id),
+            service_name: 'Service Name',
+            status: 'PENDING',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           }
         }) || []
       }
+
 
       console.log('====================================');
       console.log('Receipt:', salonReceipt);

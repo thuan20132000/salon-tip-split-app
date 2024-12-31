@@ -4,7 +4,7 @@ import { PaymentMethodsEnums, PaymentRatesEnums } from '@/enums/PaymentEnums';
 import { StaffType } from './useStaffStore';
 import { SalonStaffType } from '@/types/staff.types';
 import { receiptAPIs } from '@/api/receiptAPI';
-import { SalonReceipt } from '@/types/receipt.type';
+import { CreateSalonReceiptInput, CreateSalonReceiptType, SalonReceipt } from '@/types/receipt.type';
 import { formatCurrency } from '@/utils/receiptUtils';
 
 export type SalonPaymentMethodType = {
@@ -19,7 +19,7 @@ export type SalonStaffPriceType = {
 }
 
 export type SalonPaymentReceiptType = {
-  id?: string;
+  id?: number;
   subtotal?: number;
   tip?: number;
   selectedPayment?: SalonPaymentMethodType;
@@ -28,6 +28,11 @@ export type SalonPaymentReceiptType = {
   status?: string;
   note?: string;
   giftcardAmount?: number;
+}
+
+export type SalonReceiptFilterInputType = {
+  date?: Date;
+  staff?: SalonStaffType;
 }
 
 export interface SalonPaymentState {
@@ -60,7 +65,7 @@ export interface SalonPaymentState {
   setPaymentReceipt: (receipt: SalonPaymentReceiptType) => void;
   setIsLoading: (loading: boolean) => void;
   getSalonPaymentReceipts: () => Promise<SalonReceipt[]>;
-  createSalonReceipt: (receipt: SalonReceipt) => Promise<SalonReceipt | null>;
+  createSalonReceipt: (receipt: CreateSalonReceiptType) => Promise<SalonReceipt | null>;
 }
 
 interface SalonPaymentCalculations {
@@ -79,6 +84,7 @@ interface SalonPaymentCalculations {
   isGiftcardPayment: boolean;
 }
 
+
 export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
   selectedStaffs: [],
   subtotal: 0,
@@ -93,9 +99,6 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
   getSalonPaymentReceipts: async () => {
     try {
       const res = await receiptAPIs.getSalonReceipts();
-      console.log('====================================');
-      console.log('Salon Receipts: ', res.data);
-      console.log('====================================');
       set({ salonReceipts: res.data });
       return res.data;
 

@@ -33,8 +33,16 @@ export interface APIError {
 }
 
 export interface ApiResponse<T> {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  result: T;  // Changed from 'data' to 'result'
+  data: T;
+  status: number | string | null;
+  message: string;
+}
+
+export interface StaffReceiptApiResponseType<T> {
+  data: T;
+  status: number;
+  message: string;
+  total_amount: number;
+  total_tip: number;
+  total_turn: number;
 }

@@ -11,13 +11,15 @@ import {
   FlatList,
 } from 'react-native';
 import { Receipt, GroupedReceipts } from '../../types/receipt';
-import { formatCurrency, formatTime, groupReceiptsByDate } from '../../utils/receiptUtils';
+import { formatCurrency, formatDate, formatDateTime, formatTime, groupReceiptsByDate } from '../../utils/receiptUtils';
 import { FirestoreService } from '@/services/firestore.service';
 import { useIsFocused } from '@react-navigation/native';
 import { router, useFocusEffect } from 'expo-router';
 import { PaymentReceiptType } from '@/store/usePaymentStore';
 import { SalonPaymentState, useSalonPaymentStore } from '@/store/useSalonPaymentStore';
-import { SalonReceipt } from '@/types/receipt.type';
+import { SalonReceipt, StaffBillType } from '@/types/receipt.type';
+import FilterBar from '@/components/FilterBar';
+import SummaryCard from '@/components/SummaryCard';
 
 export default function ReceiptHistoryScreen() {
   const [receipts, setReceipts] = useState<GroupedReceipts[]>([]);
@@ -27,7 +29,7 @@ export default function ReceiptHistoryScreen() {
   const {
     salonReceipts,
     getSalonPaymentReceipts
-  } = useSalonPaymentStore((state:SalonPaymentState) => state);
+  } = useSalonPaymentStore((state: SalonPaymentState) => state);
 
   useFocusEffect(
     // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
@@ -118,11 +120,11 @@ export default function ReceiptHistoryScreen() {
 
 
         <View style={styles.receiptHeader}>
-          <Text style={styles.receiptTime}>{item.created_at?.toString()}</Text>
-          <Text style={styles.receiptStatus}>{item.payment_status.toUpperCase()}</Text>
+          <Text style={styles.receiptTime}>{formatDateTime(item.created_at?.toString())}</Text>
+          <Text style={styles.receiptStatus}>{item.payment_status?.toUpperCase()}</Text>
           <TouchableOpacity
             style={styles.deleteButton}
-            // onPress={() => onConfirmDeleteReceipt(item)}
+          // onPress={() => onConfirmDeleteReceipt(item)}
           >
             <Text style={styles.paymentMethod}>
               Delete?
@@ -130,15 +132,15 @@ export default function ReceiptHistoryScreen() {
           </TouchableOpacity>
         </View>
         <TouchableOpacity
-          // style={styles.receiptCard}
-          // onPress={() => showReceiptDetail(item)}
+        // style={styles.receiptCard}
+        // onPress={() => showReceiptDetail(item)}
         >
           <View style={styles.receiptDetails}>
             <View style={styles.staffList}>
               {item.staff_receipts?.map((staffItem, index) => (
                 <Text key={index} style={styles.staffItem}>
-                  {/* {staffItem.first_name} - {formatCurrency(staffItem.)} */}
-                  {/* {staffItem.tip > 0 && ` (Tip: ${formatCurrency(staffItem.tip)})`} */}
+                  {staffItem.staff?.first_name} - {formatCurrency(Number(staffItem.service_amount))}
+                  {Number(staffItem.tip_amount) > 0 && ` (Tip: ${formatCurrency(Number(staffItem.tip_amount))})`}
                 </Text>
               ))}
             </View>
@@ -160,7 +162,7 @@ export default function ReceiptHistoryScreen() {
                 Paid via {item.payment_method?.toUpperCase()}
               </Text>
               <Text style={styles.paymentMethod}>
-                Updated at {item.created_at}
+                Updated at {formatDateTime(item.updated_at?.toString())}
               </Text>
             </View>
           </View>
@@ -172,6 +174,12 @@ export default function ReceiptHistoryScreen() {
 
   return (
     <View style={styles.container}>
+      {/* <SummaryCard
+        totalAmount={salonReceipts?.reduce((sum, receipt) => sum + Number(receipt.payment_method_price), 0) || 0}
+        totalTip={salonReceipts?.reduce((sum, receipt) => sum + Number(receipt.tip_total_amount), 0) || 0}
+        period="Today"
+        onPeriodChange={() => { }}
+      /> */}
       <FlatList
         data={salonReceipts}
         renderItem={renderReceiptItem}
