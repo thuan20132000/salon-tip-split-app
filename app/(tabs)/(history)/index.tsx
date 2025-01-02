@@ -23,6 +23,7 @@ import SummaryCard from '@/components/SummaryCard';
 import { PaymentDiscountRateEnums } from '@/enums/PaymentEnums';
 import Badge from '@/components/commons/Badge';
 import ButtonText from '@/components/commons/ButtonText';
+import { receiptAPIs } from '@/api/receiptAPI';
 
 export default function ReceiptHistoryScreen() {
   const [receipts, setReceipts] = useState<GroupedReceipts[]>([]);
@@ -85,16 +86,17 @@ export default function ReceiptHistoryScreen() {
     });
   }
 
-  const onDeleteReceipt = async (receipt: Receipt) => {
+  const onDeleteReceipt = async (receipt: SalonReceipt) => {
     try {
-      await FirestoreService.deleteDocument('payments', receipt.id);
-      loadReceipts();
+      await receiptAPIs.deleteSalonReceipt(Number(receipt.id));
+      Alert.alert('Receipt deleted successfully');
+      getSalonPaymentReceipts();
     } catch (err) {
       console.error('Error deleting receipt:', err);
     }
   }
 
-  const onConfirmDeleteReceipt = (receipt: Receipt) => {
+  const onConfirmDeleteReceipt = (receipt: SalonReceipt) => {
     console.log('====================================');
     console.log('Delete receipt:', receipt);
     console.log('================================');
@@ -162,7 +164,7 @@ export default function ReceiptHistoryScreen() {
           <Text style={styles.receiptStatus}>{item.payment_status?.toUpperCase()}</Text>
           <TouchableOpacity
             style={styles.deleteButton}
-          // onPress={() => onConfirmDeleteReceipt(item)}
+            onPress={() => onConfirmDeleteReceipt(item)}
           >
             <Text style={styles.paymentMethod}>
               Delete?

@@ -10,4 +10,5 @@ export const receiptAPIs = {
   }),
   getSalonReceipt: (id: number) => api.get<SalonReceipt>(`/receipt/${id}/`),
   updateSalonReceipt: (id: number, data?: SalonReceipt) => api.put<SalonReceipt>(`/receipt/${id}/update-receipt/`, data),
+  deleteSalonReceipt: (id: number) => api.delete(`/receipt/${id}/`),
 };

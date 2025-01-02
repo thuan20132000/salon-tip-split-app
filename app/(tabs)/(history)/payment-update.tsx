@@ -62,7 +62,8 @@ export default function StaffPaymentScreen() {
     resetSelectedPaymentStaffs,
     selectedSalonReceipt,
     setSelectedSalonReceipt,
-    onUpdateTipRate
+    onUpdateTipRate,
+    setPaymentReceipt,
   } = useSalonPaymentUpdateStore((state: SalonPaymentUpdateState) => state);
 
 
@@ -155,46 +156,25 @@ export default function StaffPaymentScreen() {
   }
 
   const onCompletePaymentPress = async (paymentStatus?: PaymentReceiptStatusEnums) => {
-    // try {
+    try {
 
-    // let salonReceipt: CreateSalonReceiptType = {
-    //   payment_method: selectedSalonReceipt?.payment_method || '',
-    //   payment_method_price: Number(paymentReceipt?.selectedPayment?.price?.toFixed(2)) || 0,
-    //   return_amount: Number(calculatePayments().returnAmount),
-    //   tip_total_amount: tipPrice,
-    //   sub_total_amount: calculatePayments().paymentInvoice.total_service_amount,
-    //   payment_status: paymentStatus || PaymentReceiptStatusEnums.PENDING,
-    //   staff_receipts: calculatePayments().paymentInvoice.staff_services?.map((staff) => {
-    //     return {
-    //       service_amount: staff.price,
-    //       tip_amount: staff.tip,
-    //       staff: Number(staff.staff.id),
-    //       service_name: 'Service Name',
-    //       status: true,
-    //       discount_percent: staff.discount_percent,
-    //       discount_price: staff.discount_price,
 
-    //     }
-    //   }) || []
-    // }
-    let receiptUpdate: SalonReceipt = {
-      ...selectedSalonReceipt,
-      tip_total_amount: tipPrice?.toFixed(2),
-      payment_status: paymentStatus || PaymentReceiptStatusEnums.PAID,
+      let receiptUpdate: SalonReceipt = {
+        ...selectedSalonReceipt,
+        tip_total_amount: tipPrice?.toFixed(2),
+        payment_status: paymentStatus || PaymentReceiptStatusEnums.PAID,
+      }
+
+      let res = await receiptAPIs.updateSalonReceipt(Number(selectedSalonReceipt?.id), receiptUpdate);
+
+      Alert.alert('Update Payment Success', 'Update Payment has been successfully processed');
+
+    } catch (err) {
+      console.error('Error save payment:', err);
+    } finally {
+      resetPayment();
+      router.back();
     }
-
-    let res = await receiptAPIs.updateSalonReceipt(Number(selectedSalonReceipt?.id), receiptUpdate);
-
-    console.log('====================================');
-    console.log('Receipt Updated:', res);
-    console.log('====================================');
-
-    // } catch (err) {
-    //   console.error('Error save payment:', err);
-    // } finally {
-    //   resetSelectedPaymentStaffs();
-    //   router.back();
-    // }
   }
 
   const {
@@ -640,7 +620,7 @@ export default function StaffPaymentScreen() {
           <ButtonIcon
             title="Save"
             iconName="save"
-            onPress={()=>onCompletePaymentPress(PaymentReceiptStatusEnums.PENDING)}
+            onPress={() => onCompletePaymentPress(PaymentReceiptStatusEnums.PENDING)}
             containerStyle={{
               // flex: 1,
               backgroundColor: '#f8f9fa',
