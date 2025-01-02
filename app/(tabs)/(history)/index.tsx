@@ -10,8 +10,8 @@ import {
   Alert,
   FlatList,
 } from 'react-native';
-import { Receipt, GroupedReceipts } from '../../types/receipt';
-import { formatCurrency, formatDate, formatDateTime, formatTime, groupReceiptsByDate } from '../../utils/receiptUtils';
+import { Receipt, GroupedReceipts } from '../../../types/receipt';
+import { formatCurrency, formatDate, formatDateTime, formatTime, groupReceiptsByDate, handleNumberToPercent } from '../../../utils/receiptUtils';
 import { FirestoreService } from '@/services/firestore.service';
 import { useIsFocused } from '@react-navigation/native';
 import { router, useFocusEffect } from 'expo-router';
@@ -20,6 +20,9 @@ import { SalonPaymentState, useSalonPaymentStore } from '@/store/useSalonPayment
 import { SalonReceipt, StaffBillType } from '@/types/receipt.type';
 import FilterBar from '@/components/FilterBar';
 import SummaryCard from '@/components/SummaryCard';
+import { PaymentDiscountRateEnums } from '@/enums/PaymentEnums';
+import Badge from '@/components/commons/Badge';
+import ButtonText from '@/components/commons/ButtonText';
 
 export default function ReceiptHistoryScreen() {
   const [receipts, setReceipts] = useState<GroupedReceipts[]>([]);
@@ -112,6 +115,41 @@ export default function ReceiptHistoryScreen() {
     );
   }
 
+  const showPaymentUpdateScreen = (receipt: SalonReceipt) => {
+    router.push({
+      pathname: '/(tabs)/(history)/payment-update',
+      params: {
+        payment_receipt: JSON.stringify(receipt),
+      },
+    });
+  }
+
+  const renderStaffBillItem = (staffReceipts?: StaffBillType[]) => {
+    return staffReceipts?.map((staffItem, index) => (
+      <View
+        key={index}
+        style={{
+          flexDirection: 'row',
+          // justifyContent: 'space',
+        }}
+      >
+        <Text key={index} style={styles.staffItem}>
+          {staffItem.staff?.first_name} - {formatCurrency(Number(staffItem.service_amount))}
+          {Number(staffItem.tip_amount) > 0 && ` (Tip: ${formatCurrency(Number(staffItem.tip_amount))})`}
+        </Text>
+        {
+          Number(staffItem?.discount_price) > PaymentDiscountRateEnums.DISC_0_PERCENT &&
+          <Badge
+            text={handleNumberToPercent(Number(staffItem.discount_percent)) + ' OFF'}
+            backgroundColor='#4CAF50'
+          />
+
+        }
+
+      </View>
+    ));
+  }
+
   const renderReceiptItem = ({ item }: { item: SalonReceipt }) => {
     return (
       <View
@@ -130,6 +168,10 @@ export default function ReceiptHistoryScreen() {
               Delete?
             </Text>
           </TouchableOpacity>
+          <ButtonText
+            title='Update'
+            onPress={() => showPaymentUpdateScreen(item)}
+          />
         </View>
         <TouchableOpacity
         // style={styles.receiptCard}
@@ -137,12 +179,7 @@ export default function ReceiptHistoryScreen() {
         >
           <View style={styles.receiptDetails}>
             <View style={styles.staffList}>
-              {item.staff_receipts?.map((staffItem, index) => (
-                <Text key={index} style={styles.staffItem}>
-                  {staffItem.staff?.first_name} - {formatCurrency(Number(staffItem.service_amount))}
-                  {Number(staffItem.tip_amount) > 0 && ` (Tip: ${formatCurrency(Number(staffItem.tip_amount))})`}
-                </Text>
-              ))}
+              {renderStaffBillItem(item.staff_receipts)}
             </View>
 
             <View style={styles.paymentDetails}>

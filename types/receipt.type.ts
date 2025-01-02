@@ -1,6 +1,7 @@
 
 // types/salon-receipt.types.ts
 
+import { PaymentMethodsEnums, PaymentReceiptStatusEnums } from "@/enums/PaymentEnums";
 import { SalonStaffType } from "./staff.types";
 
 // Payment status enum
@@ -19,26 +20,40 @@ export const PAYMENT_STATUS_CHOICES: PaymentStatusOption[] = [
 ];
 
 // Main receipt interface
+// export interface SalonReceipt {
+//   id?: number;
+//   sub_total_amount?: number | null;
+//   return_amount?: number | null;
+//   tip_total_amount?: number | null;
+//   payment_method?: string | null;
+//   payment_method_price?: number;
+//   payment_status?: PaymentStatus;
+//   created_at?: string; // ISO datetime string
+//   updated_at?: string; // ISO datetime string
+//   staff_receipts?: StaffBillType[];
+// }
 export interface SalonReceipt {
   id?: number;
-  sub_total_amount?: number | null;
-  return_amount?: number | null;
-  tip_total_amount?: number | null;
-  payment_method?: string | null;
-  payment_method_price?: number;
-  payment_status?: PaymentStatus;
-  created_at?: string; // ISO datetime string
-  updated_at?: string; // ISO datetime string
   staff_receipts?: StaffBillType[];
+  sub_total_amount?: string | null;
+  return_amount?: string | null;
+  tip_total_amount?: string | number | null;
+  payment_method?: PaymentMethodsEnums;
+  payment_method_price?: string;
+  payment_status?: 'PAID' | 'PENDING' | 'CANCELLED';
+  created_at?: string | null;
+  updated_at?: string | null;
 }
 
 export interface StaffBillType {
   id?: number;
-  staff?: SalonStaffType | null;
+  staff?: SalonStaffType;
   service_amount: number | null;
   service_name: string | null;
   receipt?: any;
   tip_amount: number | null;
+  discount_price?: number | null;
+  discount_percent?: number | null;
   status?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
@@ -48,6 +63,35 @@ export interface CreateStaffBillInputType {
   staff: number;
   service_amount: number;
   tip_amount: number;
+  service_name?: string;
+  discount_price?: number;
+  discount_percent?: number;
+  status?: boolean;
+  
+}
+
+export interface UpdateStaffBillInputType {
+  id: number;
+  staff: number;
+  service_amount: number;
+  tip_amount: number;
+  service_name?: string;
+  discount_price?: number;
+  discount_percent?: number;
+  status?: boolean;
+}
+
+export interface UpdateSalonReceiptInputType {
+  id?: number;
+  staff_receipts?: UpdateStaffBillInputType[];
+  sub_total_amount?: string | null;
+  return_amount?: string | null;
+  tip_total_amount?: string | null;
+  payment_method?: PaymentMethodsEnums;
+  payment_method_price?: string;
+  payment_status?: 'PAID' | 'PENDING' | 'CANCELLED';
+  created_at?: string | null;
+  updated_at?: string | null;
 }
 
 export interface CreateSalonReceiptType {
@@ -57,6 +101,7 @@ export interface CreateSalonReceiptType {
   payment_method?: string | null;
   payment_method_price?: number;
   staff_receipts?: CreateStaffBillInputType[];
+  payment_status?: PaymentReceiptStatusEnums;
 }
 
 // Type for creating a new receipt (partial type without auto-generated fields)
@@ -86,18 +131,36 @@ export interface StaffReceiptSummary {
 }
 
 // Example usage:
-const newReceipt: CreateSalonReceiptInput = {
-  sub_total_amount: 100.50,
-  return_amount: 0,
-  tip_total_amount: 20.00,
-  payment_method: 'CREDIT_CARD',
-  payment_method_price: 120.50,
-  payment_status: 'PENDING'
-};
+// const newReceipt: CreateSalonReceiptInput = {
+//   sub_total_amount: '100.50',
+//   return_amount: 0,
+//   tip_total_amount: 20.00,
+//   payment_method: 'CREDIT_CARD',
+//   payment_method_price: 120.50,
+//   payment_status: 'PENDING'
+// };
 
-const updateReceipt: UpdateSalonReceiptInput = {
-  id: 1,
-  payment_status: 'PAID',
-  tip_total_amount: 25.00
-};
+// const updateReceipt: UpdateSalonReceiptInput = {
+//   id: 1,
+//   payment_status: 'PAID',
+//   tip_total_amount: 25.00
+// };
 
+export type SalonStaffPriceType = {
+  service_name?: string;
+  service_price?: number;
+  discount_price: number;
+  discount_percent?: number;
+  price: number;
+  tip: number;
+  staff: SalonStaffType;
+}
+
+export interface PaymentInvoiceDetailType {
+  id?: number;
+  staff_services?: SalonStaffPriceType[];
+  total_service_amount: number;
+  total_tip_amount: number;
+  payment_method?: string;
+
+}

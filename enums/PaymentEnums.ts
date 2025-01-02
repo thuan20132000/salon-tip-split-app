@@ -20,6 +20,18 @@ export enum PaymentRatesEnums {
 }
 
 export enum PaymentReceiptStatusEnums {
-  PENDING = 'pending',
-  PAID = 'paid',
+  PENDING = 'PENDING',
+  PAID = 'PAID',
 }
+
+export enum PaymentDiscountRateEnums {
+  DISC_5_PERCENT = 0.05,
+  DISC_10_PERCENT = 0.10,
+  DISC_15_PERCENT = 0.15,
+  DISC_20_PERCENT = 0.20,
+  DISC_25_PERCENT = 0.25,
+  DISC_30_PERCENT = 0.30,
+  DISC_0_PERCENT = 0,
+}
+
+

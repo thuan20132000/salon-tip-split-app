@@ -3,13 +3,16 @@ import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import Constants from 'expo-constants';
 import { AuthResponse, APIError } from '../types/api.types';
 
+const API_URL = "http://192.168.2.226:8000/api/";
+// const API_URL = "https://salon-tipsplit.thuandev.site/api/";
+
 class APIClient {
   private static instance: APIClient;
   private api: AxiosInstance;
 
   private constructor() {
     this.api = axios.create({
-      baseURL: 'http://192.168.2.226:8000/api',
+      baseURL: API_URL,
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',

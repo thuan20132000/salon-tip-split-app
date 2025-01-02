@@ -6,6 +6,7 @@ interface SummaryCardProps {
   totalAmount: number;
   totalTip: number;
   period?: string;
+  totalTurn?: number;
   onPeriodChange?: () => void;
 }
 
@@ -13,6 +14,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   totalAmount,
   totalTip,
   period,
+  totalTurn,
   onPeriodChange,
 }) => {
   const grandTotal = totalAmount + totalTip;
@@ -54,6 +56,17 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
           </View>
           <Text style={[styles.amount, styles.tipsAmount]}>
             ${totalTip.toFixed(2)}
+          </Text>
+        </View>
+
+        {/* Turn Card */}
+        <View style={[styles.card, styles.tipsCard]}>
+          <View style={styles.cardHeader}>
+            <Ionicons name="gift-outline" size={24} color="#FF9800" />
+            <Text style={styles.cardLabel}>Turns</Text>
+          </View>
+          <Text style={[styles.amount, styles.tipsAmount]}>
+            {totalTurn}
           </Text>
         </View>
       </View>
@@ -100,7 +113,7 @@ const styles = StyleSheet.create({
   cardsContainer: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 16,
+    marginBottom: 4,
   },
   card: {
     flex: 1,

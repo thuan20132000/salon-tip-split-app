@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { SalonStaffPriceType } from './useSalonPaymentStore';
 import { StaffBillType, StaffReceiptFilterInput, StaffReceiptSummary } from '@/types/receipt.type';
 import { receiptAPIs } from '@/api/receiptAPI';
 

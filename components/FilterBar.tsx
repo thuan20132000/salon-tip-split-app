@@ -64,31 +64,12 @@ const FilterBar: React.FC<FilterComponentProps> = ({
   const [selectedStaff, setSelectedStaff] = useState<SalonStaffType | null>(initialFilters?.staff || null);
 
   // State for showing/hiding pickers
-  const [showDateTimePicker, setShowDateTimePicker] = useState<boolean>(false);
   const [showStaffModal, setShowStaffModal] = useState<boolean>(false);
 
-  // // Handle date selection
-  // const handleDateChange = (event: DateTimePickerEvent, selectedDate?: Date): void => {
-  //   setShowDatePicker(false);
-  //   if (selectedDate) {
-  //     setDateFilter(selectedDate);
-  //   }
-  // };
-
-  // // Handle datetime selection
-  // const handleDateTimeChange = (event: DateTimePickerEvent, selectedDateTime?: Date): void => {
-  //   setShowDateTimePicker(false);
-  //   if (selectedDateTime) {
-  //     setDateTimeFilter(selectedDateTime);
-  //   }
-  // };
 
   // Handle staff selection
   const handleStaffSelect = (staff: SalonStaffType): void => {
     setSelectedStaff(staff);
-    console.log('====================================');
-    console.log('Selected Staff:', staff);
-    console.log('====================================');
     setShowStaffModal(false);
     // getStaffReceipts({staff: staff.id, created_at_from: dateFilter?.toString()});
   };
@@ -98,22 +79,11 @@ const FilterBar: React.FC<FilterComponentProps> = ({
 
   useEffect(() => {
 
-    console.log('====================================');
-    console.log('Selected Staff:', selectedStaff);
-    console.log('Date Filter:', dateFilterFrom);
-    console.log('Date Filter:', dateFilterTo);
-    console.log('====================================');
-
     let filter_input:StaffReceiptFilterInput = {
       staff: selectedStaff?.id,
       created_at_after: dateFilterFrom?.toString(),
       created_at_before: dateFilterTo?.toString()
     }
-
-    console.log('====================================');
-    console.log('Filter Input:', filter_input);
-    console.log('====================================');
-
     getStaffReceipts(filter_input);
     
  
@@ -217,17 +187,16 @@ const FilterBar: React.FC<FilterComponentProps> = ({
           >
             <Ionicons name="calendar-outline" size={24} color="#007AFF" />
             <Text style={styles.filterButtonText}>
-              {dateFilterFrom ? dateFilterFrom : 'Select Date From'}
+              {dateFilterFrom ? dateFilterFrom : 'From'}
             </Text>
           </TouchableOpacity>
-          <Text>~</Text>
           <TouchableOpacity
             style={styles.filterButton}
             onPress={() => handleShowDateTimePicker(ShowDateTimePickerType.TO)}
           >
             <Ionicons name="calendar-outline" size={24} color="#007AFF" />
             <Text style={styles.filterButtonText}>
-              {dateFilterTo ? dateFilterTo : 'Select Date To'}
+              {dateFilterTo ? dateFilterTo : 'To'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -237,31 +206,21 @@ const FilterBar: React.FC<FilterComponentProps> = ({
           onPress={() => setShowStaffModal(true)}
         >
           <Ionicons name="people-outline" size={24} color="#007AFF" />
-          <Text style={styles.filterButtonText}>
-            {selectedStaff ? selectedStaff.first_name : 'Select Staff'}
-          </Text>
+          {
+            selectedStaff &&
+            <Text style={styles.filterButtonText}>
+              {selectedStaff.first_name}
+            </Text>
+          }
         </TouchableOpacity>
 
       </View>
 
       {/* Action Buttons */}
-      {/* <View style={styles.actionButtons}>
-        <TouchableOpacity
-          style={[styles.button, styles.clearButton]}
-          onPress={clearFilters}
-        >
-          <Text style={styles.buttonText}>Clear</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.applyButton]}
-          onPress={applyFilters}
-        >
-          <Text style={[styles.buttonText, styles.applyButtonText]}>Apply</Text>
-        </TouchableOpacity>
-      </View> */}
       <SummaryCard
         totalAmount={staffBillsSummary?.total_amount || 0}
         totalTip={staffBillsSummary?.total_tip || 0}
+        totalTurn={staffBillsSummary?.total_turn || 0}
         period="Today"
         onPeriodChange={() => { }}
       />

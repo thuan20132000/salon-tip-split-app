@@ -15,6 +15,7 @@ import { StaffBillType } from '@/types/receipt.type';
 import { useFocusEffect } from 'expo-router';
 import { formatCurrency, formatDateTime } from '@/utils/receiptUtils';
 import dayjs from 'dayjs';
+import StaffBillItem from '@/components/StaffBillItem';
 
 // Interfaces
 // interface Staff {
@@ -155,7 +156,7 @@ const StaffReceiptScreen: React.FC = () => {
       ) : (
         <FlatList
           data={staffBills}
-          renderItem={renderReceiptItem}
+          renderItem={({ item }) => <StaffBillItem staffBill={item} />}
           keyExtractor={(item) => item?.id?.toString() || ''}
           contentContainerStyle={styles.listContainer}
           ListEmptyComponent={

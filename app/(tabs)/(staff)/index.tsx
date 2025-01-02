@@ -1,3 +1,4 @@
+import { SalonPaymentState, useSalonPaymentStore } from '@/store/useSalonPaymentStore';
 import { SalonStaffState, useSalonStaffStore } from '@/store/useSalonStaffStore';
 import { StaffState, StaffType, useStaffStore } from '@/store/useStaffStore';
 import { SalonStaffType } from '@/types/staff.types';
@@ -10,21 +11,15 @@ const StaffScreen = () => {
   const {
     getSalonStaffs,
     salonStaffs,
-    selectPaymentStaff,
-    selectedPaymentStaffs,
+    // selectPaymentStaff,
+    // selectedPaymentStaffs,
   } = useSalonStaffStore((state: SalonStaffState) => state);
 
-  // const [selectedStaff, setSelectedStaff] = React.useState<StaffType[]>([]);
+  const {
+    selectPaymentStaff,
+    selectedPaymentStaffs
+  } = useSalonPaymentStore((state:SalonPaymentState) => state);
 
-
-  const onStaffPress = (staff: SalonStaffType) => {
-    // if (selectedPaymentStaffs.includes(staff)) {
-    //   removePaymentStaffs(staff);
-    //   return;
-    // }
-
-    // addPaymentStaffs(staff);
-  }
 
 
 

@@ -5,20 +5,57 @@ import { StaffType } from './useStaffStore';
 import { SalonStaffType } from '@/types/staff.types';
 import { receiptAPIs } from '@/api/receiptAPI';
 import { CreateSalonReceiptInput, CreateSalonReceiptType, PaymentInvoiceDetailType, SalonReceipt, SalonStaffPriceType, StaffBillType } from '@/types/receipt.type';
-import { formatCurrency, getCashPayment, getDebitPayment, getSubtotalDiscountPrice, getSubtotalWithoutDiscountPrice, getTotalServicePrice, handleDiscountPrice } from '@/utils/receiptUtils';
+import { formatCurrency, getCashPayment, getDebitPayment, handleDiscountPrice } from '@/utils/receiptUtils';
+import { getSubtotalDiscountPrice, getSubtotalWithoutDiscountPrice, getTotalServicePrice } from '@/utils/receiptUpdateUtils';
 
-export type SalonPaymentMethodType = {
-  method: string;
-  price: number;
+
+
+interface Staff {
+  id: number;
+  full_name: string;
+  first_name: string;
+  last_name: string | null;
+  email: string | null;
+  phone: string;
+  address: string;
+  gender: 'M' | 'F';
+  date_of_birth: string | null;
+  hire_date: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 
+// Example type guard to check if a payment method is valid
+// function isValidPaymentMethod(method: string): method is SalonReceipt['payment_method'] {
+//   return ['CASH', 'CARD', 'DIGITAL'].includes(method);
+// }
+
+// // Example type guard to check if a payment status is valid
+// function isValidPaymentStatus(status: string): status is SalonReceipt['payment_status'] {
+//   return ['PAID', 'PENDING', 'CANCELLED'].includes(status);
+// }
+
+// Optional: Helper type for monetary values
+type MonetaryAmount = string;
+
+// Optional: Helper function to parse monetary amounts
+function parseMonetaryAmount(amount: MonetaryAmount): number {
+  return parseFloat(amount);
+}
+
+
+export {
+  // isValidPaymentMethod,
+  // isValidPaymentStatus,
+  parseMonetaryAmount
+};
 
 export type SalonPaymentReceiptType = {
   id?: number;
   subtotal?: number;
   tip?: number;
-  selectedPayment?: SalonPaymentMethodType;
   returnAmount?: number;
   staffs?: SalonStaffPriceType[];
   status?: string;
@@ -31,7 +68,7 @@ export type SalonReceiptFilterInputType = {
   staff?: SalonStaffType;
 }
 
-export interface SalonPaymentState {
+export interface SalonPaymentUpdateState {
   // Payment amounts
   selectedStaffs: SalonStaffPriceType[];
   paymentReceipt?: SalonPaymentReceiptType;
@@ -46,6 +83,7 @@ export interface SalonPaymentState {
   isLoading: boolean;
   salonReceipts: SalonReceipt[];
   selectedPaymentStaffs: SalonStaffType[];
+  selectedSalonReceipt?: SalonReceipt;
 
 
 
@@ -59,16 +97,17 @@ export interface SalonPaymentState {
   selectPaymentMethod: (method: string, price: number) => void;
   calculatePayments: () => SalonPaymentCalculations;
   resetPayment: () => void;
-  setSelectedPayment: (payment: SalonPaymentState['selectedPayment']) => void;
+  setSelectedPayment: (payment: SalonPaymentUpdateState['selectedPayment']) => void;
   setPaymentReceipt: (receipt: SalonPaymentReceiptType) => void;
   setIsLoading: (loading: boolean) => void;
-  getSalonPaymentReceipts: () => Promise<SalonReceipt[]>;
   createSalonReceipt: (receipt: CreateSalonReceiptType) => Promise<SalonReceipt | null>;
-  addStaffBillDiscount: (staff: SalonStaffPriceType, discount: PaymentDiscountRateEnums) => void;
+  addStaffBillDiscount: (staff: StaffBillType, discount: PaymentDiscountRateEnums) => void;
   selectPaymentStaff: (staff: SalonStaffType) => void;
   resetSelectedPaymentStaffs: () => void;
   setSelectedPaymentStaffs: (staff?: SalonStaffType[]) => void;
   getSalonPaymentReceipt: (id: number) => Promise<SalonReceipt | null>;
+  setSelectedSalonReceipt: (receipt: SalonReceipt) => void;
+  onUpdateTipRate: (amount: number) => void;
 
 }
 
@@ -81,16 +120,16 @@ interface SalonPaymentCalculations {
   cashGeneralDiscount: number;
   debitGeneralDiscount: number;
   debitPaymentPrice: number;
-  returnAmount: string;
+  returnAmount: string | number;
   isPayable: boolean;
   giftcardPaymentWithCash: number;
   giftcardPaymentWithDebit: number;
   isGiftcardPayment: boolean;
-  paymentInvoice: PaymentInvoiceDetailType;
+  // paymentInvoice: PaymentInvoiceDetailType;
 }
 
 
-export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
+export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, get) => ({
   selectedStaffs: [],
   subtotal: 0,
   receive: 0,
@@ -104,7 +143,7 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
   getSalonPaymentReceipts: async () => {
     try {
       const res = await receiptAPIs.getSalonReceipts();
-      set({ salonReceipts: res.data });
+      // set({ salonReceipts: res.data });
       return res.data;
 
     } catch (error) {
@@ -116,22 +155,7 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
   getSalonPaymentReceipt: async (id) => {
     try {
       const res = await receiptAPIs.getSalonReceipt(id);
-      set({
-        paymentReceipt: {
-          id: res.data.id,
-          subtotal: Number(res.data.sub_total_amount),
-          tip: Number(res.data.tip_total_amount),
-          selectedPayment: {
-            method: String(res.data.payment_method),
-            price: Number(res.data.payment_method_price)
-          } ,
-          returnAmount: 0,
-          // staffs: res.data.staff_receipts,
-          // status: res.data.status,
-          // note: res.data.note,
-          // giftcardAmount: res.data.giftcardAmount
-        }
-      });
+      set({ selectedSalonReceipt: res.data });
       return res.data;
     } catch (error) {
       console.error(error);
@@ -155,6 +179,27 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
         selectedStaffs: newStaffs,
         selectedPayment: undefined,
         receive: 0
+      };
+    });
+  },
+
+  onUpdateTipRate: (amount) => {
+    set((state) => {
+
+      const subtotal = getTotalServicePrice(state.selectedSalonReceipt?.staff_receipts);
+
+      const newStaffsReceipts = state.selectedSalonReceipt?.staff_receipts?.map(staff => ({
+        ...staff,
+        tip_amount: Number((Number(staff.service_amount) * (amount / subtotal)).toFixed(2)) || 0,
+      })) || [];
+
+      return {
+        tipPrice: amount,
+        selectedSalonReceipt: {
+          ...state.selectedSalonReceipt,
+          staff_receipts: newStaffsReceipts,
+          tip_total_amount: amount
+        }
       };
     });
   },
@@ -190,10 +235,12 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
     });
   },
 
+
+
   addStaffBillDiscount: (staff, discount) => {
     set((state) => {
       const newStaffs = state.paymentReceipt?.staffs?.map(s => {
-        if (s.staff.id === staff.staff.id) {
+        if (s.staff.id === staff.id) {
           if (discount <= PaymentDiscountRateEnums.DISC_0_PERCENT) {
             return { ...s, discount_price: 0 };
           }
@@ -239,12 +286,29 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
     const state = get();
     // const subtotal = state.paymentReceipt?.staffs?.reduce((sum, staff) => sum + staff.price, 0) || 0;
     // const tax = subtotal * PaymentRatesEnums.TAX_RATE;
-    let subtotal = getSubtotalWithoutDiscountPrice(state.paymentReceipt?.staffs);
-    let total_service_price = getTotalServicePrice(state.paymentReceipt?.staffs);
+    let subtotal = getSubtotalWithoutDiscountPrice(state.selectedSalonReceipt?.staff_receipts);
+    // let total_service_price = getTotalServicePrice(state.paymentReceipt?.staffs);
 
     // Calculate by payment method
-    const debitPayment = getDebitPayment(subtotal) + getSubtotalDiscountPrice(state.paymentReceipt?.staffs);
-    const cashPayment = getCashPayment(subtotal) + getSubtotalDiscountPrice(state.paymentReceipt?.staffs);
+    const debitPayment = getDebitPayment(subtotal) + getSubtotalDiscountPrice(state.selectedSalonReceipt?.staff_receipts);
+    const cashPayment = getCashPayment(subtotal) + getSubtotalDiscountPrice(state.selectedSalonReceipt?.staff_receipts);
+
+    console.log('====================================');
+    console.log('aa:: ', state.selectedSalonReceipt?.staff_receipts);
+    let dd = state.selectedSalonReceipt?.staff_receipts?.reduce((sum, staff) => {
+      console.log('staff:: ', staff);
+      console.log('sum:: ', sum);
+      return sum + (Number(staff.service_amount) || 0);
+    }, 0)
+    console.log('====================================');
+    console.log('dd:: ', dd);
+    console.log('====================================');
+    console.log('subtotal:: ', subtotal);
+    console.log('debitPayment:: ', debitPayment);
+    console.log('cashPayment:: ', cashPayment);
+    console.log('====================================');
+
+
 
     // Calculate discounts
     const loyaltyDiscount = debitPayment - (debitPayment * PaymentRatesEnums.LOYALTY);
@@ -253,12 +317,12 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
     const debitGeneralDiscount = debitPayment - (debitPayment * PaymentRatesEnums.DISCOUNT);
 
     // Calculate combination payment
-    const debitPaymentPrice = state.paymentReceipt?.selectedPayment?.method === PaymentMethodsEnums.COMBINATION_CASH_DEBIT
+    const debitPaymentPrice = state.selectedSalonReceipt?.payment_method === PaymentMethodsEnums.COMBINATION_CASH_DEBIT
       ? cashPayment - state.cashPaymentPrice + ((cashPayment - state.cashPaymentPrice) * PaymentRatesEnums.CASH_OFF)
       : 0;
 
-    const returnAmount = (Number(state.receive) - Number(state.paymentReceipt?.selectedPayment?.price)).toFixed(2) || '0';
-    const isPayable = !!state.paymentReceipt?.selectedPayment?.method;
+    const returnAmount = (Number(state.receive) - Number(state.selectedSalonReceipt?.payment_method_price));
+    const isPayable = !!state.selectedSalonReceipt?.payment_method;
 
     let giftcardAmount = state.paymentReceipt?.giftcardAmount || 0;
     const giftcardPaymentWithCash = ((subtotal + (subtotal * PaymentRatesEnums.TAX_RATE)) - giftcardAmount) - ((subtotal + (subtotal * PaymentRatesEnums.TAX_RATE) - giftcardAmount) * PaymentRatesEnums.CASH_OFF)
@@ -269,19 +333,15 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
     console.log('giftcardPaymentWithCash:: ', giftcardPaymentWithCash);
     console.log('giftcardPaymentWithDebit:: ', giftcardPaymentWithDebit);
 
-    const isGiftcardPayment = state.paymentReceipt?.selectedPayment?.method === PaymentMethodsEnums.GIFT_CARD_CASH || state.paymentReceipt?.selectedPayment?.method === PaymentMethodsEnums.GIFT_CARD_DEBIT || state.paymentReceipt?.selectedPayment?.method === PaymentMethodsEnums.GIFT_CARD;
+    const isGiftcardPayment = state.selectedSalonReceipt?.payment_method === PaymentMethodsEnums.GIFT_CARD_CASH || state.selectedSalonReceipt?.payment_method === PaymentMethodsEnums.GIFT_CARD_DEBIT || state.selectedSalonReceipt?.payment_method === PaymentMethodsEnums.GIFT_CARD;
 
 
-    const paymentInvoice: PaymentInvoiceDetailType = {
-      payment_method: state.paymentReceipt?.selectedPayment?.method,
-      staff_services: state.paymentReceipt?.staffs,
-      total_service_amount: total_service_price,
-      total_tip_amount: state.paymentReceipt?.staffs?.reduce((sum, staff) => sum + staff.tip, 0) || 0
-    }
-
-    console.log('====================================');
-    console.log('paymentInvoice:: ', paymentInvoice);
-    console.log('====================================');
+    // const paymentInvoice: PaymentInvoiceDetailType = {
+    //   payment_method: state.selectedSalonReceipt?.payment_method,
+    //   staff_services: state.selectedSalonReceipt?.staff_receipts,
+    //   total_service_amount: total_service_price,
+    //   total_tip_amount: state.selectedSalonReceipt?.staffs?.reduce((sum, staff) => sum + staff.tip, 0) || 0
+    // }
 
     return {
       subtotal,
@@ -297,7 +357,6 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
       giftcardPaymentWithCash,
       giftcardPaymentWithDebit,
       isGiftcardPayment,
-      paymentInvoice
 
     };
   },
@@ -332,20 +391,21 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
   },
 
   resetSelectedPaymentStaffs: () => {
-    set({ selectedPaymentStaffs: [] });
+    set({ selectedPaymentStaffs: [], selectedSalonReceipt: undefined });
   },
 
   createSalonReceipt: async (receipt) => {
     try {
       const res = await receiptAPIs.createSalonReceipt(receipt);
-      console.log('====================================');
-      console.log('Create Salon Receipt: ', res.data);
-      console.log('====================================');
       return res.data;
     } catch (error) {
       console.error(error);
       return null;
     }
+  },
+
+  setSelectedSalonReceipt: (receipt) => {
+    set({ selectedSalonReceipt: receipt });
   }
 
 
