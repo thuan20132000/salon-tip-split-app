@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import SubText from './commons/SubText';
 import Badge from './commons/Badge';
+import ButtonIcon from './commons/ButtonIcon';
 
 type BillStatus = 'PENDING' | 'PAID' | 'CANCELLED';
 
@@ -22,6 +23,7 @@ interface StaffBillProps {
   status?: BillStatus;
   onStatusChange?: (newStatus: BillStatus) => void;
   staffBill?: StaffBillType;
+  onDeletePress?: () => void;
 }
 
 
@@ -51,13 +53,9 @@ const StatusBadge: React.FC<{ status: BillStatus }> = ({ status }) => {
 
 const StaffBillItem: React.FC<StaffBillProps> = ({
   staffName,
-  servicePrice,
-  serviceTip,
-  discount,
-  discountPercentage,
-  status,
   staffBill,
   onStatusChange,
+  onDeletePress
 }) => {
 
   const BillRow = ({ label, value }: { label: string; value: string | JSX.Element }) => (
@@ -76,11 +74,6 @@ const StaffBillItem: React.FC<StaffBillProps> = ({
   };
 
   const renderDiscount = () => {
-    console.log('====================================');
-    console.log(staffBill);
-    console.log(staffBill?.discount_percent);
-    
-    console.log('====================================');
     if (staffBill?.discount_percent) {
       return `${formatCurrency(Number(staffBill?.discount_price))} (${handleNumberToPercent(Number(staffBill?.discount_percent))})`;
     }
@@ -92,12 +85,19 @@ const StaffBillItem: React.FC<StaffBillProps> = ({
       <View style={styles.header}>
         <Text style={styles.staffName}>{staffName}</Text>
         <StatusBadge status={'PAID'} />
+        <ButtonIcon
+          iconName='trash'
+          color="red"
+          size={24}
+          onPress={onDeletePress as any}
+          containerStyle={{ padding: 0, backgroundColor: 'transparent' }}
+        />
       </View>
       <View style={styles.header}>
-          <Badge 
-            text={staffBill?.staff?.first_name?.toString()} 
-            textStyle={{ fontSize: 16, fontWeight: 'bold' }}
-          />
+        <Badge
+          text={staffBill?.staff?.first_name?.toString()}
+          textStyle={{ fontSize: 16, fontWeight: 'bold' }}
+        />
       </View>
       <View style={styles.content}>
         <View style={styles.row}>
@@ -109,10 +109,6 @@ const StaffBillItem: React.FC<StaffBillProps> = ({
             label="Discount: "
             value={renderDiscount()}
           />
-          {/* <BillRow
-          label="Price After Discount"
-          value={formatCurrency(totalAfterDiscount)}
-        /> */}
           <BillRow
             label="Tip: "
             value={formatCurrency(Number(staffBill?.tip_amount))}
@@ -123,9 +119,9 @@ const StaffBillItem: React.FC<StaffBillProps> = ({
         <View>
         </View>
       </View>
-            <SubText>
-              <Text>{formatDateTime(String(staffBill?.created_at))}</Text>
-            </SubText>
+      <SubText>
+        <Text>{formatDateTime(String(staffBill?.created_at))}</Text>
+      </SubText>
       {onStatusChange && (
         <View style={styles.statusActions}>
           <TouchableOpacity

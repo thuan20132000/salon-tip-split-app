@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { StaffBillType, StaffReceiptFilterInput, StaffReceiptSummary } from '@/types/receipt.type';
 import { receiptAPIs } from '@/api/receiptAPI';
+import dayjs from 'dayjs';
 
 
 
@@ -17,6 +18,10 @@ const useStaffReceiptStore = create<StaffReceiptStore>((set) => ({
   staffBillsSummary: undefined,
   getStaffReceipts: async (filter_input?: StaffReceiptFilterInput) => {
     try {
+      filter_input = {
+        ...filter_input,
+        created_at_after: filter_input?.created_at_after || dayjs(new Date()).format('YYYY-MM-DD'),
+      };
       const staffBills = await receiptAPIs.getStaffReceipts(filter_input);
 
 

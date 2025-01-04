@@ -4,8 +4,9 @@ import { PaymentDiscountRateEnums, PaymentMethodsEnums, PaymentRatesEnums } from
 import { StaffType } from './useStaffStore';
 import { SalonStaffType } from '@/types/staff.types';
 import { receiptAPIs } from '@/api/receiptAPI';
-import { CreateSalonReceiptInput, CreateSalonReceiptType, PaymentInvoiceDetailType, SalonReceipt, SalonStaffPriceType, StaffBillType } from '@/types/receipt.type';
+import { CreateSalonReceiptInput, CreateSalonReceiptType, PaymentInvoiceDetailType, SalonReceipt, SalonReceiptFilterInput, SalonStaffPriceType, StaffBillType } from '@/types/receipt.type';
 import { formatCurrency, getCashPayment, getDebitPayment, getSubtotalDiscountPrice, getSubtotalWithoutDiscountPrice, getTotalServicePrice, handleDiscountPrice } from '@/utils/receiptUtils';
+import dayjs from 'dayjs';
 
 export type SalonPaymentMethodType = {
   method: string;
@@ -26,10 +27,10 @@ export type SalonPaymentReceiptType = {
   giftcardAmount?: number;
 }
 
-export type SalonReceiptFilterInputType = {
-  date?: Date;
-  staff?: SalonStaffType;
-}
+// export type SalonReceiptFilterInputType = {
+//   date?: Date;
+//   staff?: SalonStaffType;
+// }
 
 export interface SalonPaymentState {
   // Payment amounts
@@ -62,7 +63,7 @@ export interface SalonPaymentState {
   setSelectedPayment: (payment: SalonPaymentState['selectedPayment']) => void;
   setPaymentReceipt: (receipt: SalonPaymentReceiptType) => void;
   setIsLoading: (loading: boolean) => void;
-  getSalonPaymentReceipts: () => Promise<SalonReceipt[]>;
+  getSalonPaymentReceipts: (filter?: SalonReceiptFilterInput) => Promise<SalonReceipt[]>;
   createSalonReceipt: (receipt: CreateSalonReceiptType) => Promise<SalonReceipt | null>;
   addStaffBillDiscount: (staff: SalonStaffPriceType, discount: PaymentDiscountRateEnums) => void;
   selectPaymentStaff: (staff: SalonStaffType) => void;
@@ -101,9 +102,15 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
   isLoading: false,
   salonReceipts: [],
   selectedPaymentStaffs: [],
-  getSalonPaymentReceipts: async () => {
+  getSalonPaymentReceipts: async (filter) => {
     try {
-      const res = await receiptAPIs.getSalonReceipts();
+
+      let filter_params: SalonReceiptFilterInput = {
+        ...filter,
+        created_at: filter?.created_at || dayjs(new Date()).format('YYYY-MM-DD'),
+      }
+
+      const res = await receiptAPIs.getSalonReceipts(filter_params);
       set({ salonReceipts: res.data });
       return res.data;
 
@@ -124,7 +131,7 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
           selectedPayment: {
             method: String(res.data.payment_method),
             price: Number(res.data.payment_method_price)
-          } ,
+          },
           returnAmount: 0,
           // staffs: res.data.staff_receipts,
           // status: res.data.status,
@@ -261,13 +268,12 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
     const isPayable = !!state.paymentReceipt?.selectedPayment?.method;
 
     let giftcardAmount = state.paymentReceipt?.giftcardAmount || 0;
+
+
     const giftcardPaymentWithCash = ((subtotal + (subtotal * PaymentRatesEnums.TAX_RATE)) - giftcardAmount) - ((subtotal + (subtotal * PaymentRatesEnums.TAX_RATE) - giftcardAmount) * PaymentRatesEnums.CASH_OFF)
 
 
     const giftcardPaymentWithDebit = debitPayment - giftcardAmount
-
-    console.log('giftcardPaymentWithCash:: ', giftcardPaymentWithCash);
-    console.log('giftcardPaymentWithDebit:: ', giftcardPaymentWithDebit);
 
     const isGiftcardPayment = state.paymentReceipt?.selectedPayment?.method === PaymentMethodsEnums.GIFT_CARD_CASH || state.paymentReceipt?.selectedPayment?.method === PaymentMethodsEnums.GIFT_CARD_DEBIT || state.paymentReceipt?.selectedPayment?.method === PaymentMethodsEnums.GIFT_CARD;
 
@@ -279,9 +285,9 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
       total_tip_amount: state.paymentReceipt?.staffs?.reduce((sum, staff) => sum + staff.tip, 0) || 0
     }
 
-    console.log('====================================');
-    console.log('paymentInvoice:: ', paymentInvoice);
-    console.log('====================================');
+    // console.log('====================================');
+    // console.log('paymentInvoice:: ', paymentInvoice);
+    // console.log('====================================');
 
     return {
       subtotal,
@@ -304,13 +310,17 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
 
   selectPaymentStaff: (staff) => {
     set((state) => {
-      const selectedStaffs = [...state.selectedPaymentStaffs];
-      const index = selectedStaffs.findIndex(s => s.id === staff.id);
-      if (index > -1) {
-        selectedStaffs.splice(index, 1);
-      } else {
+      let selectedStaffs = [...state.selectedPaymentStaffs];
+      if (selectedStaffs.includes(staff)) {
+        selectedStaffs = selectedStaffs.filter((s) => s.id !== staff.id);
+      }
+      else {
         selectedStaffs.push(staff);
       }
+
+      console.log('====================================');
+      console.log('selecedStaffs:: ', selectedStaffs);
+      console.log('====================================');
       return { selectedPaymentStaffs: selectedStaffs };
     });
   },
@@ -326,9 +336,9 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
       receive: 0,
       tipPrice: 0,
       cashPaymentPrice: 0,
-      selectedPayment: undefined
+      selectedPayment: undefined,
+      paymentReceipt: undefined,
     });
-    set({ paymentReceipt: undefined });
   },
 
   resetSelectedPaymentStaffs: () => {

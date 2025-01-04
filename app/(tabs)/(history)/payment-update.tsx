@@ -46,24 +46,17 @@ export default function StaffPaymentScreen() {
   const {
     receive,
     tipPrice,
-    selectedStaffs,
-    selectedPayment,
     cashPaymentPrice,
-    setSelectedStaffs,
-    updateStaffPrice,
     setReceive,
     setTipPrice,
     setCashPaymentPrice,
     calculatePayments,
     resetPayment,
     isLoading,
-    createSalonReceipt,
     addStaffBillDiscount,
-    resetSelectedPaymentStaffs,
     selectedSalonReceipt,
     setSelectedSalonReceipt,
     onUpdateTipRate,
-    setPaymentReceipt,
   } = useSalonPaymentUpdateStore((state: SalonPaymentUpdateState) => state);
 
 
@@ -116,44 +109,23 @@ export default function StaffPaymentScreen() {
 
   }
 
+  const updateReceiptStaffTip = (staff: StaffBillType, tip: number) => {
+    const newSelectedStaffs = selectedSalonReceipt?.staff_receipts?.map((staffItem) => {
+      if (staffItem.staff?.id == staff.staff?.id) {
+        return {
+          ...staffItem,
+          tip_amount: tip
+        }
+      }
+      return staffItem;
+    })
 
-
-  const onPaymentPress = async () => {
-
-    setIsShowConfirmModal(true);
-
-    // try {
-
-    //   const receipt: SalonPaymentReceiptType = {
-    //     ...paymentReceipt,
-    //     subtotal: calculatePayments().subtotal,
-    //     returnAmount: Number(calculatePayments().returnAmount),
-    //     tip: tipPrice,
-    //     // selectedPayment: selectedPayment || { method: '', price: 0 },
-    //     status: PaymentReceiptStatusEnums.PAID,
-    //   }
-
-    //   console.log('Receipt:', receipt);
-    //   if (receipt.id) {
-    //     let res = await FirestoreService.updateDocument<SalonPaymentReceiptType>('payments', receipt.id, receipt);
-    //     console.log('Payment updated:', res);
-    //   } else {
-    //     let res = await FirestoreService.createDocument<SalonPaymentReceiptType>('payments', receipt);
-    //     console.log('Payment created:', res);
-
-    //   }
-
-    //   Alert.alert('Payment Success', 'Payment has been successfully processed');
-
-
-    // } catch (err) {
-    //   console.error('Error adding todo:', err);
-    // } finally {
-    //   // resetSelectedPaymentStaffs();
-    //   router.back();
-    // }
-
+    setSelectedSalonReceipt({
+      ...selectedSalonReceipt,
+      staff_receipts: newSelectedStaffs
+    })
   }
+
 
   const onCompletePaymentPress = async (paymentStatus?: PaymentReceiptStatusEnums) => {
     try {
@@ -163,7 +135,10 @@ export default function StaffPaymentScreen() {
         ...selectedSalonReceipt,
         tip_total_amount: tipPrice?.toFixed(2),
         payment_status: paymentStatus || PaymentReceiptStatusEnums.PAID,
+        payment_method_price: Number(selectedSalonReceipt?.payment_method_price).toFixed(2),
       }
+
+
 
       let res = await receiptAPIs.updateSalonReceipt(Number(selectedSalonReceipt?.id), receiptUpdate);
 
@@ -309,11 +284,7 @@ export default function StaffPaymentScreen() {
               </View>
               <CurrencyInput
                 value={staff.tip_amount}
-                // onChangeValue={(value) => {
-                //   const newStaffPrices = [...selectedStaffs];
-                //   newStaffPrices[index] = { ...newStaffPrices[index], tip: value ?? 0 };
-                //   setSelectedStaffs(newStaffPrices);
-                // }}
+                onChangeValue={(value) => updateReceiptStaffTip(staff, Number(value))}
                 prefix="$ "
                 delimiter="."
                 separator="."
@@ -517,7 +488,18 @@ export default function StaffPaymentScreen() {
           {
             calculatePayments().isGiftcardPayment &&
             <GiftcardPaymentInput
-              onSelectPaymentMethod={() => onSelectPaymentMethod(PaymentMethodsEnums.GIFT_CARD, 0)}
+              onSelectPaymentMethod={onSelectPaymentMethod}
+              giftcardAmount={Number(selectedSalonReceipt?.gift_value)}
+              onChangeGiftcardAmount={(value) => {
+                setSelectedSalonReceipt({
+                  ...selectedSalonReceipt,
+                  gift_value: Number(value)
+                })
+              }}
+              cashPayment={giftcardPaymentWithCash}
+              debitPayment={giftcardPaymentWithDebit}
+              paymentMethod={selectedSalonReceipt?.payment_method}
+
             />
 
           }

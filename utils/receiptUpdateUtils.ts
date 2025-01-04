@@ -11,7 +11,6 @@ export const getSubtotalDiscountPrice = (staffBills?: StaffBillType[]) => {
 
 
 export const getSubtotalWithoutDiscountPrice = (staffBills?: StaffBillType[]) => {
-  console.log('staffBills', staffBills);
   if (!staffBills) {
 
     return 0;

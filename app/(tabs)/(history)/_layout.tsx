@@ -7,10 +7,17 @@ export default function StaffLayout() {
       <Stack
         screenOptions={{
           headerShown: false,
+          title: 'Staff Turn Tracker',
         }}
       >
         {/* Add your screens here */}
-        <Stack.Screen name="index" />
+        <Stack.Screen 
+          name="index" 
+          options={{
+            title: 'Staff Turn Tracker',
+            headerShown: false,
+          }}
+        />
         <Stack.Screen 
           name="payment-update" 
           options={{

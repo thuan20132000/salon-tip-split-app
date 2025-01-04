@@ -67,15 +67,17 @@ export default function StaffPaymentScreen() {
 
 
   const handleInitialStaffPrice = () => {
+    console.log('Payment receipt:', payment_receipt);
+    
     if (payment_receipt) {
       let receipt: SalonPaymentReceiptType = typeof payment_receipt === 'string' ? JSON.parse(payment_receipt) : payment_receipt;
       setPaymentReceipt(receipt);
       // setSelectedStaffs(selectedStaffPriceList);
     } else {
 
-
+      let staff_ids_list = JSON.parse(String(staff_ids));
       let selectedStaffList = salonStaffs.filter((staff) => {
-        return staff_ids.includes(String(staff.id));
+        return staff_ids_list.includes(Number(staff.id));
       });
 
       const selectedStaffPriceList: SalonStaffPriceType[] = selectedStaffList.map((staff) => {
@@ -92,6 +94,7 @@ export default function StaffPaymentScreen() {
         }
       })
 
+
       setPaymentReceipt({
         subtotal: 0,
         returnAmount: 0,
@@ -101,6 +104,7 @@ export default function StaffPaymentScreen() {
         status: PaymentReceiptStatusEnums.PENDING,
       })
       // setSelectedStaffs(selectedStaffPriceList);
+      
 
 
     }
@@ -144,6 +148,15 @@ export default function StaffPaymentScreen() {
     setPaymentReceipt(newPaymentReceipt);
   }
 
+  const updateReceiptStaffTip = (index: number, tip: number | null) => {
+    let newStaffPrices = [...paymentReceipt?.staffs || []];
+    newStaffPrices[index] = { ...newStaffPrices[index], tip: Number(tip) };
+    let newPaymentReceipt: SalonPaymentReceiptType = {
+      ...paymentReceipt,
+      staffs: newStaffPrices
+    }
+    setPaymentReceipt(newPaymentReceipt);
+  }
 
 
   const onPaymentPress = async () => {
@@ -209,9 +222,6 @@ export default function StaffPaymentScreen() {
 
       let res = await receiptAPIs.createSalonReceipt(salonReceipt);
 
-      console.log('====================================');
-      console.log('Receipt created:', res);
-      console.log('====================================');
 
     } catch (err) {
       console.error('Error save payment:', err);
@@ -347,11 +357,7 @@ export default function StaffPaymentScreen() {
               </View>
               <CurrencyInput
                 value={staff.tip}
-                onChangeValue={(value) => {
-                  const newStaffPrices = [...selectedStaffs];
-                  newStaffPrices[index] = { ...newStaffPrices[index], tip: value ?? 0 };
-                  setSelectedStaffs(newStaffPrices);
-                }}
+                onChangeValue={(value) => updateReceiptStaffTip(index, value)}
                 prefix="$ "
                 delimiter="."
                 separator="."
@@ -556,6 +562,18 @@ export default function StaffPaymentScreen() {
             calculatePayments().isGiftcardPayment &&
             <GiftcardPaymentInput
               onSelectPaymentMethod={onSelectPaymentMethod}
+              giftcardAmount={Number(paymentReceipt?.giftcardAmount)}
+              onChangeGiftcardAmount={(value) => {
+                let newPaymentReceipt = {
+                  ...paymentReceipt,
+                  giftcardAmount: value
+                }
+                setPaymentReceipt(newPaymentReceipt);
+              }}
+
+              cashPayment={calculatePayments().giftcardPaymentWithCash}
+              debitPayment={calculatePayments().giftcardPaymentWithDebit}
+              paymentMethod={paymentReceipt?.selectedPayment?.method as PaymentMethodsEnums}
             />
 
           }

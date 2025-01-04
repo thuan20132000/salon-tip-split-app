@@ -13,23 +13,19 @@ import {
 import { Receipt, GroupedReceipts } from '../../../types/receipt';
 import { formatCurrency, formatDate, formatDateTime, formatTime, groupReceiptsByDate, handleNumberToPercent } from '../../../utils/receiptUtils';
 import { FirestoreService } from '@/services/firestore.service';
-import { useIsFocused } from '@react-navigation/native';
 import { router, useFocusEffect } from 'expo-router';
 import { PaymentReceiptType } from '@/store/usePaymentStore';
 import { SalonPaymentState, useSalonPaymentStore } from '@/store/useSalonPaymentStore';
-import { SalonReceipt, StaffBillType } from '@/types/receipt.type';
-import FilterBar from '@/components/FilterBar';
-import SummaryCard from '@/components/SummaryCard';
+import { SalonReceipt, SalonReceiptFilterInput, StaffBillType } from '@/types/receipt.type';
 import { PaymentDiscountRateEnums } from '@/enums/PaymentEnums';
 import Badge from '@/components/commons/Badge';
 import ButtonText from '@/components/commons/ButtonText';
 import { receiptAPIs } from '@/api/receiptAPI';
+import ButtonIcon from '@/components/commons/ButtonIcon';
+import NavigationDate from '@/components/NavigationDate';
+import dayjs from 'dayjs';
 
 export default function ReceiptHistoryScreen() {
-  const [receipts, setReceipts] = useState<GroupedReceipts[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   const {
     salonReceipts,
     getSalonPaymentReceipts
@@ -50,42 +46,6 @@ export default function ReceiptHistoryScreen() {
     }, [])
   );
 
-  const loadReceipts = async () => {
-    try {
-      setLoading(true);
-      const fetchedReceipts = await FirestoreService.getDocuments<Receipt>('payments');
-      const groupedReceipts = groupReceiptsByDate(fetchedReceipts);
-
-      // sort ascending
-      groupedReceipts.sort((a, b) => b.data[0].createdAt.seconds - a.data[0].createdAt.seconds);
-
-
-      setReceipts(groupedReceipts);
-      setError(null);
-    } catch (err) {
-      setError('Failed to load receipts');
-      console.error('Error loading receipts:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const showReceiptDetail = (receipt: PaymentReceiptType) => {
-
-    console.log('====================================');
-    console.log('Receipt Detail:', receipt);
-    console.log('====================================');
-
-    // Handle receipt detail navigation
-    router.push({
-      pathname: '/payment',
-      params: {
-        staff_ids: JSON.stringify(receipt.staffs?.map((staff) => staff.staff.id)),
-        payment_receipt: JSON.stringify(receipt),
-      },
-    });
-  }
-
   const onDeleteReceipt = async (receipt: SalonReceipt) => {
     try {
       await receiptAPIs.deleteSalonReceipt(Number(receipt.id));
@@ -97,9 +57,6 @@ export default function ReceiptHistoryScreen() {
   }
 
   const onConfirmDeleteReceipt = (receipt: SalonReceipt) => {
-    console.log('====================================');
-    console.log('Delete receipt:', receipt);
-    console.log('================================');
     Alert.alert(
       'Delete Receipt',
       'Are you sure you want to delete this receipt?',
@@ -157,23 +114,15 @@ export default function ReceiptHistoryScreen() {
       <View
         style={styles.receiptCard}
       >
-
-
         <View style={styles.receiptHeader}>
           <Text style={styles.receiptTime}>{formatDateTime(item.created_at?.toString())}</Text>
+          <View>
+
+
+          </View>
           <Text style={styles.receiptStatus}>{item.payment_status?.toUpperCase()}</Text>
-          <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={() => onConfirmDeleteReceipt(item)}
-          >
-            <Text style={styles.paymentMethod}>
-              Delete?
-            </Text>
-          </TouchableOpacity>
-          <ButtonText
-            title='Update'
-            onPress={() => showPaymentUpdateScreen(item)}
-          />
+
+
         </View>
         <TouchableOpacity
         // style={styles.receiptCard}
@@ -200,16 +149,46 @@ export default function ReceiptHistoryScreen() {
               <Text style={styles.paymentMethod}>
                 Paid via {item.payment_method?.toUpperCase()}
               </Text>
-              <Text style={styles.paymentMethod}>
-                Updated at {formatDateTime(item.updated_at?.toString())}
-              </Text>
             </View>
           </View>
         </TouchableOpacity>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignSelf: 'flex-start' }}>
+            <Text style={styles.paymentMethod}>
+              Updated at {formatDateTime(item.updated_at?.toString())}
+            </Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignSelf: 'flex-end' }}>
+            <ButtonIcon
+              iconName='trash'
+              color="red"
+              size={24}
+              onPress={() => onConfirmDeleteReceipt(item)}
+              containerStyle={{ padding: 0, backgroundColor: 'transparent', }}
+            />
 
+            <ButtonIcon
+              iconName='create'
+              color="#007AFF"
+              size={24}
+              onPress={() => showPaymentUpdateScreen(item)}
+              containerStyle={{ padding: 0, backgroundColor: 'transparent', }}
+            />
+          </View>
+        </View>
       </View>
     );
   };
+
+
+  const onChangeFilterDate = (date: Date) => {
+    console.log('date', date);
+    let filter: SalonReceiptFilterInput = {
+      created_at: dayjs(date).format('YYYY-MM-DD'),
+    }
+    getSalonPaymentReceipts(filter);
+  }
+
 
   return (
     <View style={styles.container}>
@@ -219,11 +198,19 @@ export default function ReceiptHistoryScreen() {
         period="Today"
         onPeriodChange={() => { }}
       /> */}
+      <NavigationDate
+        onDateChange={onChangeFilterDate}
+      />
       <FlatList
         data={salonReceipts}
         renderItem={renderReceiptItem}
         keyExtractor={(item) => item?.id?.toString() || ''}
         contentContainerStyle={styles.listContent}
+        ListEmptyComponent={
+          <View style={styles.centerContainer}>
+            <Text>No receipts found</Text>
+          </View>
+        }
       />
     </View>
   );

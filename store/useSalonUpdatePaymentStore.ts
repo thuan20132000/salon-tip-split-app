@@ -293,23 +293,6 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
     const debitPayment = getDebitPayment(subtotal) + getSubtotalDiscountPrice(state.selectedSalonReceipt?.staff_receipts);
     const cashPayment = getCashPayment(subtotal) + getSubtotalDiscountPrice(state.selectedSalonReceipt?.staff_receipts);
 
-    console.log('====================================');
-    console.log('aa:: ', state.selectedSalonReceipt?.staff_receipts);
-    let dd = state.selectedSalonReceipt?.staff_receipts?.reduce((sum, staff) => {
-      console.log('staff:: ', staff);
-      console.log('sum:: ', sum);
-      return sum + (Number(staff.service_amount) || 0);
-    }, 0)
-    console.log('====================================');
-    console.log('dd:: ', dd);
-    console.log('====================================');
-    console.log('subtotal:: ', subtotal);
-    console.log('debitPayment:: ', debitPayment);
-    console.log('cashPayment:: ', cashPayment);
-    console.log('====================================');
-
-
-
     // Calculate discounts
     const loyaltyDiscount = debitPayment - (debitPayment * PaymentRatesEnums.LOYALTY);
     const happyHourDiscount = debitPayment - (debitPayment * PaymentRatesEnums.HAPPY_HOUR);
@@ -324,14 +307,13 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
     const returnAmount = (Number(state.receive) - Number(state.selectedSalonReceipt?.payment_method_price));
     const isPayable = !!state.selectedSalonReceipt?.payment_method;
 
-    let giftcardAmount = state.paymentReceipt?.giftcardAmount || 0;
-    const giftcardPaymentWithCash = ((subtotal + (subtotal * PaymentRatesEnums.TAX_RATE)) - giftcardAmount) - ((subtotal + (subtotal * PaymentRatesEnums.TAX_RATE) - giftcardAmount) * PaymentRatesEnums.CASH_OFF)
+    // Calculate giftcard payment
+    let gift_value = state.selectedSalonReceipt?.gift_value || 0;
+    const giftcardPaymentWithCash = ((subtotal + (subtotal * PaymentRatesEnums.TAX_RATE)) - gift_value) - ((subtotal + (subtotal * PaymentRatesEnums.TAX_RATE) - gift_value) * PaymentRatesEnums.CASH_OFF)
 
 
-    const giftcardPaymentWithDebit = debitPayment - giftcardAmount
+    const giftcardPaymentWithDebit = debitPayment - gift_value
 
-    console.log('giftcardPaymentWithCash:: ', giftcardPaymentWithCash);
-    console.log('giftcardPaymentWithDebit:: ', giftcardPaymentWithDebit);
 
     const isGiftcardPayment = state.selectedSalonReceipt?.payment_method === PaymentMethodsEnums.GIFT_CARD_CASH || state.selectedSalonReceipt?.payment_method === PaymentMethodsEnums.GIFT_CARD_DEBIT || state.selectedSalonReceipt?.payment_method === PaymentMethodsEnums.GIFT_CARD;
 
@@ -406,7 +388,8 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
 
   setSelectedSalonReceipt: (receipt) => {
     set({ selectedSalonReceipt: receipt });
-  }
+  },
+
 
 
 }));

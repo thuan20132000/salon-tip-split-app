@@ -41,8 +41,6 @@ const StaffScreen = () => {
     getSalonStaffs();
   }, [])
 
-  console.log("salonStaffs", salonStaffs);
-
 
   return (
     <ScrollView

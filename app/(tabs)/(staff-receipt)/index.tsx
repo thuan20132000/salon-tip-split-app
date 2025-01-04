@@ -4,49 +4,19 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  TouchableOpacity,
   ActivityIndicator,
-  RefreshControl,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import FilterBar from '@/components/FilterBar';
 import useStaffReceiptStore, { StaffReceiptStore } from '@/store/useStaffReceiptStore';
-import { StaffBillType } from '@/types/receipt.type';
 import { useFocusEffect } from 'expo-router';
-import { formatCurrency, formatDateTime } from '@/utils/receiptUtils';
-import dayjs from 'dayjs';
 import StaffBillItem from '@/components/StaffBillItem';
+import { SalonReceipt, StaffBillType, StaffReceiptFilterInput } from '@/types/receipt.type';
+import dayjs from 'dayjs';
+import { receiptAPIs } from '@/api/receiptAPI';
 
-// Interfaces
-// interface Staff {
-//   id: number;
-//   name: string;
-// }
 
-// interface Receipt {
-//   id: number;
-//   total_amount: number;
-//   receipt_number: string;
-//   created_at: string;
-// }
-
-// interface StaffReceipt {
-//   id: number;
-//   staff: Staff;
-//   receipt: Receipt;
-//   service_amount: number;
-//   tip_amount: number;
-//   service_name: string | null;
-//   status: boolean;
-//   created_at: string;
-//   updated_at: string;
-// }
-
-interface FilterValues {
-  date: Date | null;
-  dateTime: Date | null;
-  // staff: Staff | null;
-}
 
 const StaffReceiptScreen: React.FC = () => {
 
@@ -60,6 +30,34 @@ const StaffReceiptScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
 
+  const onDeleteReceipt = async (receipt: StaffBillType) => {
+    try {
+      await receiptAPIs.deleteStaffReceipt(Number(receipt.id));
+      Alert.alert('Staff Receipt is deleted successfully');
+      getStaffReceipts();
+    } catch (err) {
+      console.error('Error deleting receipt:', err);
+    }
+  }
+
+  const onConfirmDeleteReceipt = (receipt: StaffBillType) => {
+    Alert.alert(
+      'Delete Receipt',
+      'Are you sure you want to delete this receipt?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => onDeleteReceipt(receipt),
+        },
+      ],
+    );
+  }
+
   useEffect(() => {
     // fetchStaffList();
     // fetchStaffReceipts();
@@ -69,9 +67,10 @@ const StaffReceiptScreen: React.FC = () => {
     // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
     useCallback(() => {
       // Invoked whenever the route is focused.
-      console.log('Hello, Im focused!');
-      getStaffReceipts()
-      // loadReceipts();
+      let filter: StaffReceiptFilterInput = {
+        created_at_after: dayjs(new Date()).format('YYYY-MM-DD'),
+      };
+      getStaffReceipts(filter);
 
       // Return function is invoked whenever the route gets out of focus.
       return () => {
@@ -80,83 +79,21 @@ const StaffReceiptScreen: React.FC = () => {
     }, [])
   );
 
-
-
-
-
-  // Render receipt item
-  const renderReceiptItem = ({ item }: { item: StaffBillType }) => {
-    // const formattedDate = new Date(item.created_at).toLocaleDateString();
-    // const formattedTime = new Date(item.created_at).toLocaleTimeString();
-
-    return (
-      <TouchableOpacity style={styles.receiptCard}>
-        <View style={styles.receiptHeader}>
-          <Text style={styles.staffName}>{item.staff?.first_name}</Text>
-          <View style={[
-            styles.statusBadge,
-            { backgroundColor: item.status ? '#4CAF50' : '#FFA000' }
-          ]}>
-            <Text style={styles.statusText}>
-              {item.status ? 'Completed' : 'Pending'}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.receiptDetails}>
-          <View style={styles.detailRow}>
-            <Ionicons name="receipt-outline" size={20} color="#666" />
-            <Text style={styles.detailText}>
-              Salon Receipt: {item.receipt?.id}
-            </Text>
-          </View>
-
-          <View style={styles.detailRow}>
-            <Ionicons name="cut-outline" size={20} color="#666" />
-            <Text style={styles.detailText}>
-              Service: {item.service_name || 'N/A'}
-            </Text>
-          </View>
-
-          <View style={styles.amountContainer}>
-            <View style={styles.amountItem}>
-              <Text style={styles.amountLabel}>Service</Text>
-              <Text style={styles.amountValue}>
-                {formatCurrency(Number(item.service_amount))}
-              </Text>
-            </View>
-            <View style={styles.amountItem}>
-              <Text style={styles.amountLabel}>Tip</Text>
-              <Text style={styles.amountValue}>
-                ${item.tip_amount}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.timeStamp}>
-            <Ionicons name="time-outline" size={16} color="#999" />
-            <Text style={styles.timeText}>
-              Created on {dayjs(item.created_at?.toString()).format('DD MMM YYYY, hh:mm A')}
-            </Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
   return (
     <View style={styles.container}>
-      <FilterBar
-      // onApplyFilters={handleFilters}
-      // staffList={salonStaffs}
-      />
+      <FilterBar />
 
       {loading ? (
         <ActivityIndicator size="large" color="#007AFF" style={styles.loader} />
       ) : (
         <FlatList
           data={staffBills}
-          renderItem={({ item }) => <StaffBillItem staffBill={item} />}
+          renderItem={({ item }) =>
+            <StaffBillItem
+              staffBill={item}
+              onDeletePress={() => onConfirmDeleteReceipt(item)}
+            />
+          }
           keyExtractor={(item) => item?.id?.toString() || ''}
           contentContainerStyle={styles.listContainer}
           ListEmptyComponent={

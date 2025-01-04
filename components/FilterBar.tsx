@@ -22,6 +22,7 @@ import { formatDate } from '@/utils/receiptUtils';
 import dayjs from 'dayjs';
 import { StaffReceiptFilterInput } from '@/types/receipt.type';
 import { useFocusEffect } from 'expo-router';
+import ButtonIcon from './commons/ButtonIcon';
 
 const ShowDateTimePickerType = {
   FROM: 'FROM',
@@ -65,7 +66,7 @@ const FilterBar: React.FC<FilterComponentProps> = ({
 
   // State for showing/hiding pickers
   const [showStaffModal, setShowStaffModal] = useState<boolean>(false);
-
+  const [isShowSummary, setIsShowSummary] = useState<boolean>(false);
 
   // Handle staff selection
   const handleStaffSelect = (staff: SalonStaffType): void => {
@@ -79,14 +80,14 @@ const FilterBar: React.FC<FilterComponentProps> = ({
 
   useEffect(() => {
 
-    let filter_input:StaffReceiptFilterInput = {
+    let filter_input: StaffReceiptFilterInput = {
       staff: selectedStaff?.id,
       created_at_after: dateFilterFrom?.toString(),
       created_at_before: dateFilterTo?.toString()
     }
     getStaffReceipts(filter_input);
-    
- 
+
+
 
   }, [selectedStaff, dateFilterFrom, dateFilterTo]);
 
@@ -117,6 +118,10 @@ const FilterBar: React.FC<FilterComponentProps> = ({
     // });
   };
 
+  const handleShowSummary = () => {
+    setIsShowSummary(!isShowSummary);
+  }
+
   // Apply filters
   const applyFilters = (): void => {
     // onApplyFilters({
@@ -143,9 +148,9 @@ const FilterBar: React.FC<FilterComponentProps> = ({
   };
 
   const handleConfirm = (date: any) => {
-    if(showDateTimePickerType === ShowDateTimePickerType.FROM) {
+    if (showDateTimePickerType === ShowDateTimePickerType.FROM) {
       setDateFilterFrom(dayjs(date).format('YYYY-MM-DD'));
-    }else{
+    } else {
       setDateFilterTo(dayjs(date).format('YYYY-MM-DD'));
     }
     console.warn("A date has been picked: ", date);
@@ -155,8 +160,8 @@ const FilterBar: React.FC<FilterComponentProps> = ({
 
   const [showDateTimePickerType, setShowDateTimePickerType] = useState<string>('');
   const handleShowDateTimePicker = (type: string) => {
-    console.log('type:: ',type);
-    
+    console.log('type:: ', type);
+
     showDatePicker()
     setShowDateTimePickerType(type);
   }
@@ -178,52 +183,72 @@ const FilterBar: React.FC<FilterComponentProps> = ({
         <View
           style={{
             flexDirection: 'row',
-            alignItems: 'center'
           }}
         >
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center'
+            }}
+          >
+            <TouchableOpacity
+              style={styles.filterButton}
+              onPress={() => handleShowDateTimePicker(ShowDateTimePickerType.FROM)}
+            >
+              <Ionicons name="calendar-outline" size={24} color="#007AFF" />
+              <Text style={styles.filterButtonText}>
+                {dateFilterFrom ? dateFilterFrom : 'From'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.filterButton}
+              onPress={() => handleShowDateTimePicker(ShowDateTimePickerType.TO)}
+            >
+              <Ionicons name="calendar-outline" size={24} color="#007AFF" />
+              <Text style={styles.filterButtonText}>
+                {dateFilterTo ? dateFilterTo : 'To'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {/* Staff Filter */}
           <TouchableOpacity
             style={styles.filterButton}
-            onPress={() => handleShowDateTimePicker(ShowDateTimePickerType.FROM)}
+            onPress={() => setShowStaffModal(true)}
           >
-            <Ionicons name="calendar-outline" size={24} color="#007AFF" />
-            <Text style={styles.filterButtonText}>
-              {dateFilterFrom ? dateFilterFrom : 'From'}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.filterButton}
-            onPress={() => handleShowDateTimePicker(ShowDateTimePickerType.TO)}
-          >
-            <Ionicons name="calendar-outline" size={24} color="#007AFF" />
-            <Text style={styles.filterButtonText}>
-              {dateFilterTo ? dateFilterTo : 'To'}
-            </Text>
+            <Ionicons name="people-outline" size={24} color="#007AFF" />
+            {
+              selectedStaff &&
+              <Text style={styles.filterButtonText}>
+                {selectedStaff.first_name}
+              </Text>
+            }
           </TouchableOpacity>
         </View>
-        {/* Staff Filter */}
-        <TouchableOpacity
-          style={styles.filterButton}
-          onPress={() => setShowStaffModal(true)}
-        >
-          <Ionicons name="people-outline" size={24} color="#007AFF" />
-          {
-            selectedStaff &&
-            <Text style={styles.filterButtonText}>
-              {selectedStaff.first_name}
-            </Text>
-          }
-        </TouchableOpacity>
+        <View style={{ flex: 1, alignSelf: 'flex-end' }}>
 
+        </View>
+        <ButtonIcon
+          iconName={isShowSummary ? 'chevron-up' : 'chevron-down'}
+          onPress={handleShowSummary}
+          containerStyle={{
+            padding: 0,
+            backgroundColor: '#fff',
+          }}
+        />
       </View>
 
       {/* Action Buttons */}
-      <SummaryCard
-        totalAmount={staffBillsSummary?.total_amount || 0}
-        totalTip={staffBillsSummary?.total_tip || 0}
-        totalTurn={staffBillsSummary?.total_turn || 0}
-        period="Today"
-        onPeriodChange={() => { }}
-      />
+      {
+        isShowSummary &&
+        <SummaryCard
+          totalAmount={staffBillsSummary?.total_amount || 0}
+          totalTip={staffBillsSummary?.total_tip || 0}
+          totalTurn={staffBillsSummary?.total_turn || 0}
+          period="Today"
+          onPeriodChange={() => { }}
+        />
+
+      }
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="date"

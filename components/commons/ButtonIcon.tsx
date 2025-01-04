@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 interface ButtonIconProps {
   onPress: () => void;
   iconName: keyof typeof Ionicons.glyphMap;
-  title: string;
+  title?: string;
   color?: string;
   size?: number;
   containerStyle?: ViewStyle;

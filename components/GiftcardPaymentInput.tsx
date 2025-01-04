@@ -15,24 +15,37 @@ import {
 import CurrencyInput from 'react-native-currency-input';
 
 interface GiftcardPaymentInputProps {
-  onSelectPaymentMethod: (method: string, price: number) => void;
+  onSelectPaymentMethod: (method: PaymentMethodsEnums, price: number) => void;
+  debitPayment: number;
+  cashPayment: number;
+  giftcardAmount: number;
+  onChangeGiftcardAmount: (value: number) => void;
+  paymentMethod?: PaymentMethodsEnums;
 }
 
-export const GiftcardPaymentInput: React.FC<GiftcardPaymentInputProps> = ({ onSelectPaymentMethod }) => {
+export const GiftcardPaymentInput: React.FC<GiftcardPaymentInputProps> = ({ 
+  onSelectPaymentMethod ,
+  debitPayment,
+  cashPayment,
+  giftcardAmount,
+  onChangeGiftcardAmount,
+  paymentMethod
 
-  const {
-    setPaymentReceipt,
-    paymentReceipt,
-    calculatePayments
-  } = usePaymentStore((state: PaymentState) => state);
+}) => {
 
-  const onChangeGiftcardAmount = (value: number) => {
-    // setGiftcardAmount(value);
-    setPaymentReceipt({
-      ...paymentReceipt,
-      giftcardAmount: value || 0,
-    })
-  }
+  // const {
+  //   setPaymentReceipt,
+  //   paymentReceipt,
+  //   calculatePayments
+  // } = usePaymentStore((state: PaymentState) => state);
+
+  // const onChangeGiftcardAmount = (value: number) => {
+  //   // setGiftcardAmount(value);
+  //   // setPaymentReceipt({
+  //   //   ...paymentReceipt,
+  //   //   giftcardAmount: value || 0,
+  //   // })
+  // }
 
   return (
     <View style={styles.container}>
@@ -42,7 +55,7 @@ export const GiftcardPaymentInput: React.FC<GiftcardPaymentInputProps> = ({ onSe
         <Text style={styles.label}>Gift Card Amount ($)</Text>
         <CurrencyInput
           style={styles.input}
-          value={paymentReceipt?.giftcardAmount || 0}
+          value={giftcardAmount || 0}
           onChangeValue={(value) => onChangeGiftcardAmount(Number(value))}
           prefix="$"
           keyboardType="decimal-pad"
@@ -54,36 +67,36 @@ export const GiftcardPaymentInput: React.FC<GiftcardPaymentInputProps> = ({ onSe
         <TouchableOpacity
           style={[
             styles.methodButton,
-            paymentReceipt?.selectedPayment?.method === PaymentMethodsEnums.GIFT_CARD_CASH && styles.selectedMethod
+            paymentMethod === PaymentMethodsEnums.GIFT_CARD_CASH && styles.selectedMethod
           ]}
           onPress={() => {
             onSelectPaymentMethod(
               PaymentMethodsEnums.GIFT_CARD_CASH,
-              calculatePayments().giftcardPaymentWithCash
+              cashPayment
             )
           }
           }
         >
           <Text style={[
             styles.methodText,
-          ]}>Cash {formatCurrency(calculatePayments().giftcardPaymentWithCash)}</Text>
+          ]}>Cash {formatCurrency(cashPayment)}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[
             styles.methodButton,
-            paymentReceipt?.selectedPayment?.method === PaymentMethodsEnums.GIFT_CARD_DEBIT && styles.selectedMethod
+            paymentMethod === PaymentMethodsEnums.GIFT_CARD_DEBIT && styles.selectedMethod
           ]}
           onPress={() => {
             onSelectPaymentMethod(
               PaymentMethodsEnums.GIFT_CARD_DEBIT,
-              calculatePayments().giftcardPaymentWithDebit
+              debitPayment
             )
           }}
         >
           <Text style={[
             styles.methodText,
-          ]}>Debit {formatCurrency(calculatePayments().giftcardPaymentWithDebit)}</Text>
+          ]}>Debit {formatCurrency(debitPayment)}</Text>
         </TouchableOpacity>
       </View>
 

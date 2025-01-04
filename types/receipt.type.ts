@@ -40,6 +40,7 @@ export interface SalonReceipt {
   tip_total_amount?: string | number | null;
   payment_method?: PaymentMethodsEnums;
   payment_method_price?: string;
+  gift_value?: number | null;
   payment_status?: 'PAID' | 'PENDING' | 'CANCELLED';
   created_at?: string | null;
   updated_at?: string | null;
@@ -122,6 +123,12 @@ export interface StaffReceiptFilterInput {
   staff?: SalonStaffType | number;
   created_at_after?: Date | string;
   created_at_before?: Date | string;
+}
+
+export interface SalonReceiptFilterInput {
+  created_at_after?: Date | string;
+  created_at_before?: Date | string;
+  created_at?: Date | string;
 }
 
 export interface StaffReceiptSummary {
