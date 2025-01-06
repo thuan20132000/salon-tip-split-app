@@ -24,6 +24,7 @@ export interface SalonStaffType {
   is_active: boolean;
   created_at: string; // ISO datetime string
   updated_at: string; // ISO datetime string
+  salon?: string | number; // Salon ID or name
 }
 
 // For creating new staff member (partial type without auto-generated fields)

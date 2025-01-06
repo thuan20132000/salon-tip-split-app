@@ -21,7 +21,7 @@ import { PaymentDiscountRateEnums, PaymentMethodsEnums, PaymentRatesEnums, Payme
 import { GiftcardPaymentInput } from '@/components/GiftcardPaymentInput';
 import { SalonStaffState, useSalonStaffStore } from '@/store/useSalonStaffStore';
 import { SalonPaymentReceiptType, SalonPaymentState, useSalonPaymentStore } from '@/store/useSalonPaymentStore';
-import { CreateSalonReceiptType, SalonReceipt, SalonStaffPriceType } from '@/types/receipt.type';
+import { CreateSalonReceiptType, SalonReceipt, SalonReceiptUpdateType, SalonStaffPriceType, StaffBillType, UpdateSalonReceiptInputType } from '@/types/receipt.type';
 import { receiptAPIs } from '@/api/receiptAPI';
 import { formatCurrency, handleDiscountPrice, handleNumberToPercent } from '@/utils/receiptUtils';
 import SelectDiscountModal from '@/components/SelectDiscountModal';
@@ -29,10 +29,13 @@ import ConfirmReceiptModal from '@/components/CofirmReceiptModal';
 import { Ionicons } from '@expo/vector-icons';
 import ButtonIcon from '@/components/commons/ButtonIcon';
 import ButtonText from '@/components/commons/ButtonText';
+import { SalonStaffType } from '@/types/staff.types';
+import { SalonPaymentUpdateState, useSalonPaymentUpdateStore } from '@/store/useSalonUpdatePaymentStore';
+import { SalonState, useSalonStore } from '@/store/useSalonStore';
 
 
 export default function StaffPaymentScreen() {
-  const { staff_ids, payment_receipt } = useLocalSearchParams();
+  const { payment_receipt } = useLocalSearchParams();
   const [isShowConfirmModal, setIsShowConfirmModal] = useState<boolean>(false);
 
   const {
@@ -44,189 +47,126 @@ export default function StaffPaymentScreen() {
   const {
     receive,
     tipPrice,
-    selectedStaffs,
-    selectedPayment,
     cashPaymentPrice,
-    setSelectedStaffs,
-    updateStaffPrice,
     setReceive,
     setTipPrice,
     setCashPaymentPrice,
-    selectPaymentMethod,
     calculatePayments,
-    setSelectedPayment,
     resetPayment,
-    paymentReceipt,
-    setPaymentReceipt,
     isLoading,
-    createSalonReceipt,
     addStaffBillDiscount,
-    resetSelectedPaymentStaffs
-  } = useSalonPaymentStore((state: SalonPaymentState) => state);
+    selectedSalonReceipt,
+    setSelectedSalonReceipt,
+    onUpdateTipRate,
+  } = useSalonPaymentUpdateStore((state: SalonPaymentUpdateState) => state);
 
+  const {
+    selectedSalon
+  } = useSalonStore((state:SalonState) => state);
 
 
   const handleInitialStaffPrice = () => {
-    console.log('Payment receipt:', payment_receipt);
-    
-    if (payment_receipt) {
-      let receipt: SalonPaymentReceiptType = typeof payment_receipt === 'string' ? JSON.parse(payment_receipt) : payment_receipt;
-      setPaymentReceipt(receipt);
-      // setSelectedStaffs(selectedStaffPriceList);
-    } else {
+    const selectedSalonReceipt: SalonReceipt = JSON.parse(String(payment_receipt));
 
-      let staff_ids_list = JSON.parse(String(staff_ids));
-      let selectedStaffList = salonStaffs.filter((staff) => {
-        return staff_ids_list.includes(Number(staff.id));
-      });
+    setSelectedSalonReceipt(selectedSalonReceipt);
 
-      const selectedStaffPriceList: SalonStaffPriceType[] = selectedStaffList.map((staff) => {
-        let discountPrice = 0;
-        // if (staff.id == 1) {
-        //   discountPrice = handleDiscountPrice(39, HAPPY_HOUR);
-        // }
-
-        return {
-          price: 0,
-          tip: 0,
-          staff: staff,
-          discount_price: discountPrice,
-        }
-      })
-
-
-      setPaymentReceipt({
-        subtotal: 0,
-        returnAmount: 0,
-        tip: 0,
-        selectedPayment: { method: '', price: 0 },
-        staffs: selectedStaffPriceList,
-        status: PaymentReceiptStatusEnums.PENDING,
-      })
-      // setSelectedStaffs(selectedStaffPriceList);
-      
-
-
-    }
   }
 
 
 
 
 
-  const onSelectPaymentMethod = (method: string, price: number) => {
+  const onSelectPaymentMethod = (method: PaymentMethodsEnums, price: number) => {
     let receiveFormatted = price.toString();
     receiveFormatted = new Intl.NumberFormat('en-CA', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(price);
 
-    // setSelectedPayment({ method, price });
-    // setReceive(Number(receiveFormatted));
-    // setCashPaymentPrice(0);
 
-    let newPaymentReceipt = {
-      ...paymentReceipt,
-      selectedPayment: { method, price },
-      receive: Number(receiveFormatted),
-      cashPaymentPrice: 0
-    }
-
-    setPaymentReceipt(newPaymentReceipt);
+    setSelectedSalonReceipt({
+      ...selectedSalonReceipt,
+      payment_method: method,
+      payment_method_price: String(price),
+    })
+    // setPaymentReceipt(newPaymentReceipt);
     setReceive(Number(receiveFormatted));
   }
 
-  const updateReceiptStaffPrice = (index: number, price: number | null) => {
-    let newStaffPrices = [...paymentReceipt?.staffs || []];
+  const updateReceiptStaffPrice = (staff: StaffBillType, price: number | null) => {
+    // let newStaffPrices = [...paymentReceipt?.staffs || []];
 
-    newStaffPrices[index] = { ...newStaffPrices[index], price: Number(price) };
-    let newPaymentReceipt: SalonPaymentReceiptType = {
-      ...paymentReceipt,
-      staffs: newStaffPrices
-    }
+    const newSelectedStaffs = selectedSalonReceipt?.staff_receipts?.map((staffItem) => {
+      if (staffItem.staff?.id == staff.staff?.id) {
+        return {
+          ...staffItem,
+          service_amount: price
+        }
+      }
+      return staffItem;
+    })
 
-    setPaymentReceipt(newPaymentReceipt);
-  }
-
-  const updateReceiptStaffTip = (index: number, tip: number | null) => {
-    let newStaffPrices = [...paymentReceipt?.staffs || []];
-    newStaffPrices[index] = { ...newStaffPrices[index], tip: Number(tip) };
-    let newPaymentReceipt: SalonPaymentReceiptType = {
-      ...paymentReceipt,
-      staffs: newStaffPrices
-    }
-    setPaymentReceipt(newPaymentReceipt);
-  }
-
-
-  const onPaymentPress = async () => {
-
-    setIsShowConfirmModal(true);
-
-    // try {
-
-    //   const receipt: SalonPaymentReceiptType = {
-    //     ...paymentReceipt,
-    //     subtotal: calculatePayments().subtotal,
-    //     returnAmount: Number(calculatePayments().returnAmount),
-    //     tip: tipPrice,
-    //     // selectedPayment: selectedPayment || { method: '', price: 0 },
-    //     status: PaymentReceiptStatusEnums.PAID,
-    //   }
-
-    //   console.log('Receipt:', receipt);
-    //   if (receipt.id) {
-    //     let res = await FirestoreService.updateDocument<SalonPaymentReceiptType>('payments', receipt.id, receipt);
-    //     console.log('Payment updated:', res);
-    //   } else {
-    //     let res = await FirestoreService.createDocument<SalonPaymentReceiptType>('payments', receipt);
-    //     console.log('Payment created:', res);
-
-    //   }
-
-    //   Alert.alert('Payment Success', 'Payment has been successfully processed');
-
-
-    // } catch (err) {
-    //   console.error('Error adding todo:', err);
-    // } finally {
-    //   // resetSelectedPaymentStaffs();
-    //   router.back();
-    // }
+    setSelectedSalonReceipt({
+      ...selectedSalonReceipt,
+      staff_receipts: newSelectedStaffs
+    })
 
   }
+
+  const updateReceiptStaffTip = (staff: StaffBillType, tip: number) => {
+    const newSelectedStaffs = selectedSalonReceipt?.staff_receipts?.map((staffItem) => {
+      if (staffItem.staff?.id == staff.staff?.id) {
+        return {
+          ...staffItem,
+          tip_amount: tip
+        }
+      }
+      return staffItem;
+    })
+
+    setSelectedSalonReceipt({
+      ...selectedSalonReceipt,
+      staff_receipts: newSelectedStaffs
+    })
+  }
+
 
   const onCompletePaymentPress = async (paymentStatus?: PaymentReceiptStatusEnums) => {
     try {
 
-      let salonReceipt: CreateSalonReceiptType = {
-        payment_method: paymentReceipt?.selectedPayment?.method || '',
-        payment_method_price: Number(paymentReceipt?.selectedPayment?.price?.toFixed(2)) || 0,
-        return_amount: Number(calculatePayments().returnAmount),
-        tip_total_amount: tipPrice,
-        sub_total_amount: calculatePayments().paymentInvoice.total_service_amount,
-        payment_status: paymentStatus || PaymentReceiptStatusEnums.PENDING,
-        staff_receipts: calculatePayments().paymentInvoice.staff_services?.map((staff) => {
+
+      let receiptUpdate: SalonReceiptUpdateType = {
+        ...selectedSalonReceipt,
+        tip_total_amount: tipPrice?.toFixed(2),
+        payment_status: paymentStatus || PaymentReceiptStatusEnums.PAID,
+        payment_method_price: Number(selectedSalonReceipt?.payment_method_price).toFixed(2),
+        salon: Number(selectedSalon?.id),
+        staff_receipts: calculatePayments().paymentInvoice?.staff_services?.map((staff) => {
           return {
-            service_amount: staff.price,
-            tip_amount: staff.tip,
-            staff: Number(staff.staff.id),
+            service_amount: staff.service_amount,
+            tip_amount: staff.tip_amount,
+            staff: Number(staff.staff?.id),
             service_name: 'Service Name',
-            status: true,
             discount_percent: staff.discount_percent,
             discount_price: staff.discount_price,
-
+            id: Number(staff.id),
           }
-        }) || []
+        }),
       }
 
-      let res = await receiptAPIs.createSalonReceipt(salonReceipt);
+      console.log('====================================');
+      console.log('Update Receipt:', receiptUpdate);
+      console.log('====================================');
 
+
+      let res = await receiptAPIs.updateSalonReceipt(Number(selectedSalonReceipt?.id), receiptUpdate);
+
+      Alert.alert('Update Payment Success', 'Update Payment has been successfully processed');
 
     } catch (err) {
       console.error('Error save payment:', err);
     } finally {
-      resetSelectedPaymentStaffs();
+      resetPayment();
       router.back();
     }
   }
@@ -242,14 +182,16 @@ export default function StaffPaymentScreen() {
     returnAmount,
     isPayable,
     debitPaymentPrice,
-    paymentInvoice
+    giftcardPaymentWithCash,
+    giftcardPaymentWithDebit,
+
   } = calculatePayments();
 
 
-  const [selectedStaffDiscount, setSelectedStaffDiscount] = useState<SalonStaffPriceType | null>(null);
+  const [selectedStaffDiscount, setSelectedStaffDiscount] = useState<StaffBillType | null>(null);
   const [isShowDiscountModal, setIsShowDiscountModal] = useState<boolean>(false);
 
-  const onSelectStaffDiscount = (staff: SalonStaffPriceType) => {
+  const onSelectStaffDiscount = (staff: StaffBillType) => {
     setSelectedStaffDiscount(staff);
     setIsShowDiscountModal(true);
   }
@@ -266,7 +208,7 @@ export default function StaffPaymentScreen() {
     setIsShowDiscountModal(false);
   }
 
-  const renderDiscountButton = (staff: SalonStaffPriceType) => {
+  const renderDiscountButton = (staff: StaffBillType) => {
     return (
       <TouchableOpacity
         style={{
@@ -283,12 +225,17 @@ export default function StaffPaymentScreen() {
           style={{ marginLeft: 8 }}
         />
         {
-          staff.discount_price > 0 && (
-            <Text>({handleNumberToPercent(Number(staff.discount_percent))}) {formatCurrency(staff.discount_price)}</Text>
+          Number(staff.discount_price) > 0 && (
+            <Text>({handleNumberToPercent(Number(staff.discount_percent))}) {formatCurrency(Number(staff.discount_price))}</Text>
           )
         }
       </TouchableOpacity>
     )
+  }
+
+  const onChangeTotalTip = (value: number) => {
+    onUpdateTipRate(value);
+    setTipPrice(value);
   }
 
 
@@ -319,16 +266,15 @@ export default function StaffPaymentScreen() {
 
         {/* Staff Price Inputs */}
         <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Update Payment</Text>
           <View style={styles.staffRow}>
             <Text style={{}}>Name</Text>
-            <Text style={{}}>Service Price</Text>
-            <Text style={{}}>Price</Text>
             <Text style={{}}>Tip</Text>
           </View>
           {/* Staff  Price Input */}
-          {paymentReceipt?.staffs?.map((staff, index) => (
+          {selectedSalonReceipt?.staff_receipts?.map((staff, index) => (
             <View key={index} style={styles.staffRow}>
-              <Text style={styles.staffName}>{staff.staff.first_name}</Text>
+              <Text style={styles.staffName}>{staff.staff?.first_name}</Text>
 
               <View
                 style={{
@@ -338,8 +284,8 @@ export default function StaffPaymentScreen() {
                 }}
               >
                 <CurrencyInput
-                  value={staff.price}
-                  onChangeValue={(value) => updateReceiptStaffPrice(index, value)}
+                  value={staff.service_amount}
+                  onChangeValue={(value) => updateReceiptStaffPrice(staff, value)}
                   prefix="$ "
                   delimiter="."
                   separator="."
@@ -356,8 +302,8 @@ export default function StaffPaymentScreen() {
                 }
               </View>
               <CurrencyInput
-                value={staff.tip}
-                onChangeValue={(value) => updateReceiptStaffTip(index, value)}
+                value={staff.tip_amount}
+                onChangeValue={(value) => updateReceiptStaffTip(staff, Number(value))}
                 prefix="$ "
                 delimiter="."
                 separator="."
@@ -379,7 +325,7 @@ export default function StaffPaymentScreen() {
         <View style={styles.section}>
           <View style={styles.totalRow}>
             <Text>SUB TOTAL ($)</Text>
-            <Text style={styles.totalAmount}>{formatCurrency(paymentInvoice.total_service_amount)}</Text>
+            <Text style={styles.totalAmount}>{formatCurrency(Number(selectedSalonReceipt?.sub_total_amount))}</Text>
           </View>
 
           {/* Payment Methods */}
@@ -392,7 +338,7 @@ export default function StaffPaymentScreen() {
               <TouchableOpacity
                 style={[
                   styles.selectPaymentButton,
-                  paymentReceipt?.selectedPayment?.method == PaymentMethodsEnums.DEBIT && styles.selectedPayment,
+                  selectedSalonReceipt?.payment_method == PaymentMethodsEnums.DEBIT && styles.selectedPayment,
                 ]}
                 onPress={() =>
                   onSelectPaymentMethod(PaymentMethodsEnums.DEBIT, debitPayment)
@@ -400,13 +346,13 @@ export default function StaffPaymentScreen() {
               >
                 <View style={styles.discountRow}>
                   <Text style={styles.paymentMethodTitle} >Debit (13%)</Text>
-                  <Text style={styles.paymentMethodPrice} >${debitPayment?.toFixed(2)}</Text>
+                  <Text style={styles.paymentMethodPrice} >{formatCurrency(debitPayment)}</Text>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
                   styles.selectPaymentButton,
-                  paymentReceipt?.selectedPayment?.method == PaymentMethodsEnums.CASH && styles.selectedPayment,
+                  selectedSalonReceipt?.payment_method == PaymentMethodsEnums.CASH && styles.selectedPayment,
                 ]}
                 onPress={() =>
                   onSelectPaymentMethod(PaymentMethodsEnums.CASH, cashPayment)
@@ -414,14 +360,14 @@ export default function StaffPaymentScreen() {
               >
                 <View style={styles.discountRow}>
                   <Text style={styles.paymentMethodTitle} >Cash (-10%)</Text>
-                  <Text style={styles.paymentMethodPrice} >${cashPayment.toFixed(2)}</Text>
+                  <Text style={styles.paymentMethodPrice} >{formatCurrency(cashPayment)}</Text>
                 </View>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[
                   styles.selectPaymentButton,
-                  paymentReceipt?.selectedPayment?.method == PaymentMethodsEnums.LOYALTY && styles.selectedPayment,
+                  selectedSalonReceipt?.payment_method == PaymentMethodsEnums.LOYALTY && styles.selectedPayment,
                 ]}
                 onPress={() =>
                   onSelectPaymentMethod(PaymentMethodsEnums.LOYALTY, loyaltyDiscount)
@@ -435,7 +381,7 @@ export default function StaffPaymentScreen() {
               <TouchableOpacity
                 style={[
                   styles.selectPaymentButton,
-                  paymentReceipt?.selectedPayment?.method == PaymentMethodsEnums.HAPPY_HOUR && styles.selectedPayment,
+                  selectedSalonReceipt?.payment_method == PaymentMethodsEnums.HAPPY_HOUR && styles.selectedPayment,
                 ]}
                 onPress={() =>
                   onSelectPaymentMethod(PaymentMethodsEnums.HAPPY_HOUR, happyHourDiscount)
@@ -449,7 +395,7 @@ export default function StaffPaymentScreen() {
               <TouchableOpacity
                 style={[
                   styles.selectPaymentButton,
-                  paymentReceipt?.selectedPayment?.method == PaymentMethodsEnums.DISC_5_PERCENT_CASH && styles.selectedPayment,
+                  selectedSalonReceipt?.payment_method == PaymentMethodsEnums.DISC_5_PERCENT_CASH && styles.selectedPayment,
                 ]}
                 onPress={() =>
                   onSelectPaymentMethod(PaymentMethodsEnums.DISC_5_PERCENT_CASH, cashGeneralDiscount)
@@ -463,7 +409,7 @@ export default function StaffPaymentScreen() {
               <TouchableOpacity
                 style={[
                   styles.selectPaymentButton,
-                  paymentReceipt?.selectedPayment?.method == PaymentMethodsEnums.DISC_5_PERCENT_DEBIT && styles.selectedPayment,
+                  selectedSalonReceipt?.payment_method == PaymentMethodsEnums.DISC_5_PERCENT_DEBIT && styles.selectedPayment,
                 ]}
                 onPress={() =>
                   onSelectPaymentMethod(PaymentMethodsEnums.DISC_5_PERCENT_DEBIT, debitGeneralDiscount)
@@ -477,7 +423,7 @@ export default function StaffPaymentScreen() {
               <TouchableOpacity
                 style={[
                   styles.selectPaymentButton,
-                  paymentReceipt?.selectedPayment?.method == PaymentMethodsEnums.COMBINATION_CASH_DEBIT && styles.selectedPayment,
+                  selectedSalonReceipt?.payment_method == PaymentMethodsEnums.COMBINATION_CASH_DEBIT && styles.selectedPayment,
                 ]}
                 onPress={() =>
                   onSelectPaymentMethod(PaymentMethodsEnums.COMBINATION_CASH_DEBIT, 0)
@@ -507,7 +453,7 @@ export default function StaffPaymentScreen() {
 
           {/* Pay combination of cash and debit */}
           {
-            paymentReceipt?.selectedPayment?.method == PaymentMethodsEnums.COMBINATION_CASH_DEBIT && (
+            selectedSalonReceipt?.payment_method == PaymentMethodsEnums.COMBINATION_CASH_DEBIT && (
               <View
                 style={{
                   flexDirection: 'row',
@@ -562,18 +508,17 @@ export default function StaffPaymentScreen() {
             calculatePayments().isGiftcardPayment &&
             <GiftcardPaymentInput
               onSelectPaymentMethod={onSelectPaymentMethod}
-              giftcardAmount={Number(paymentReceipt?.giftcardAmount)}
+              giftcardAmount={Number(selectedSalonReceipt?.gift_value)}
               onChangeGiftcardAmount={(value) => {
-                let newPaymentReceipt = {
-                  ...paymentReceipt,
-                  giftcardAmount: value
-                }
-                setPaymentReceipt(newPaymentReceipt);
+                setSelectedSalonReceipt({
+                  ...selectedSalonReceipt,
+                  gift_value: Number(value)
+                })
               }}
+              cashPayment={giftcardPaymentWithCash}
+              debitPayment={giftcardPaymentWithDebit}
+              paymentMethod={selectedSalonReceipt?.payment_method}
 
-              cashPayment={calculatePayments().giftcardPaymentWithCash}
-              debitPayment={calculatePayments().giftcardPaymentWithDebit}
-              paymentMethod={paymentReceipt?.selectedPayment?.method as PaymentMethodsEnums}
             />
 
           }
@@ -614,12 +559,10 @@ export default function StaffPaymentScreen() {
                   alignItems: 'center',
                 }}
               >
-                <Text style={styles.returnPrice}>${(returnAmount)}</Text>
+                <Text style={styles.returnPrice}>{formatCurrency(Number(returnAmount))}</Text>
                 <TouchableOpacity
                   style={{ padding: 8 }}
-                  onPress={() => {
-                    setTipPrice(Number(returnAmount));
-                  }}
+                  onPress={() => onChangeTotalTip(Number(returnAmount))}
                 >
                   <Text style={{ color: '#007AFF', fontSize: 16, fontWeight: 'bold' }}>Add to Tip</Text>
                 </TouchableOpacity>
@@ -636,7 +579,7 @@ export default function StaffPaymentScreen() {
               >
                 <CurrencyInput
                   value={tipPrice}
-                  onChangeValue={(value) => setTipPrice(value ?? 0)}
+                  onChangeValue={(value) => onChangeTotalTip(value ?? 0)}
                   prefix="$ "
                   delimiter="."
                   separator="."
@@ -647,7 +590,7 @@ export default function StaffPaymentScreen() {
                     console.log(formattedValue); // R$ +2.310,46
                   }}
                   style={styles.currencyInput}
-                  onFocus={() => setTipPrice(0)}
+                  onFocus={() => onChangeTotalTip(0)}
                 />
 
               </View>
@@ -658,8 +601,8 @@ export default function StaffPaymentScreen() {
 
 
             <ButtonText
-              title="Complete Payment"
-              onPress={()=>onCompletePaymentPress(PaymentReceiptStatusEnums.PAID)}
+              title="Update Payment"
+              onPress={() => onCompletePaymentPress(PaymentReceiptStatusEnums.PAID)}
               style={[
                 styles.paymentButton,
                 isPayable && styles.isPaymentActive,
@@ -678,7 +621,7 @@ export default function StaffPaymentScreen() {
           <ButtonIcon
             title="Save"
             iconName="save"
-            onPress={()=>onCompletePaymentPress(PaymentReceiptStatusEnums.PENDING)}
+            onPress={() => onCompletePaymentPress(PaymentReceiptStatusEnums.PENDING)}
             containerStyle={{
               // flex: 1,
               backgroundColor: '#f8f9fa',
@@ -695,7 +638,7 @@ export default function StaffPaymentScreen() {
         <ConfirmReceiptModal
           visible={isShowConfirmModal}
           onClose={() => { setIsShowConfirmModal(false) }}
-          receiptData={calculatePayments().paymentInvoice}
+        // receiptData={0}
         // receipt={paymentReceipt}
         />
       </KeyboardAwareScrollView>

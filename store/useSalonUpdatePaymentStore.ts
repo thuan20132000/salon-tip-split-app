@@ -4,7 +4,7 @@ import { PaymentDiscountRateEnums, PaymentMethodsEnums, PaymentRatesEnums } from
 import { StaffType } from './useStaffStore';
 import { SalonStaffType } from '@/types/staff.types';
 import { receiptAPIs } from '@/api/receiptAPI';
-import { CreateSalonReceiptInput, CreateSalonReceiptType, PaymentInvoiceDetailType, SalonReceipt, SalonStaffPriceType, StaffBillType } from '@/types/receipt.type';
+import { CreateSalonReceiptInput, CreateSalonReceiptType, PaymentInvoiceDetailType, PaymentInvoiceDetailUpdateType, SalonReceipt, SalonStaffPriceType, StaffBillType } from '@/types/receipt.type';
 import { formatCurrency, getCashPayment, getDebitPayment, handleDiscountPrice } from '@/utils/receiptUtils';
 import { getSubtotalDiscountPrice, getSubtotalWithoutDiscountPrice, getTotalServicePrice } from '@/utils/receiptUpdateUtils';
 
@@ -125,7 +125,7 @@ interface SalonPaymentCalculations {
   giftcardPaymentWithCash: number;
   giftcardPaymentWithDebit: number;
   isGiftcardPayment: boolean;
-  // paymentInvoice: PaymentInvoiceDetailType;
+  paymentInvoice: PaymentInvoiceDetailUpdateType;
 }
 
 
@@ -239,21 +239,26 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
 
   addStaffBillDiscount: (staff, discount) => {
     set((state) => {
-      const newStaffs = state.paymentReceipt?.staffs?.map(s => {
-        if (s.staff.id === staff.id) {
+      const newStaffs = state.selectedSalonReceipt?.staff_receipts?.map(s => {
+        if (s.id === staff.id) {
           if (discount <= PaymentDiscountRateEnums.DISC_0_PERCENT) {
             return { ...s, discount_price: 0 };
           }
 
-          let discountPrice = handleDiscountPrice(s.price, discount);
-          return { ...s, discount_price: discountPrice, discount_percent: discount };
+          let discountPrice = handleDiscountPrice(Number(s.service_amount), discount);
+          return { 
+              ...s, 
+              discount_price: discountPrice, 
+              discount_percent: discount,
+            };
         }
         return s;
       });
       return {
-        paymentReceipt: {
-          ...state.paymentReceipt,
-          staffs: newStaffs
+        selectedSalonReceipt:{
+          ...state.selectedSalonReceipt,
+          staff_receipts: newStaffs,
+
         }
       }
     });
@@ -287,10 +292,11 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
     // const subtotal = state.paymentReceipt?.staffs?.reduce((sum, staff) => sum + staff.price, 0) || 0;
     // const tax = subtotal * PaymentRatesEnums.TAX_RATE;
     let subtotal = getSubtotalWithoutDiscountPrice(state.selectedSalonReceipt?.staff_receipts);
-    // let total_service_price = getTotalServicePrice(state.paymentReceipt?.staffs);
-
+    let total_service_price = getTotalServicePrice(state.selectedSalonReceipt?.staff_receipts);
+    let total_tip_amount = state.selectedSalonReceipt?.staff_receipts?.reduce((sum, staff) => sum + Number(staff.tip_amount), 0) || 0;
     // Calculate by payment method
     const debitPayment = getDebitPayment(subtotal) + getSubtotalDiscountPrice(state.selectedSalonReceipt?.staff_receipts);
+   
     const cashPayment = getCashPayment(subtotal) + getSubtotalDiscountPrice(state.selectedSalonReceipt?.staff_receipts);
 
     // Calculate discounts
@@ -318,12 +324,12 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
     const isGiftcardPayment = state.selectedSalonReceipt?.payment_method === PaymentMethodsEnums.GIFT_CARD_CASH || state.selectedSalonReceipt?.payment_method === PaymentMethodsEnums.GIFT_CARD_DEBIT || state.selectedSalonReceipt?.payment_method === PaymentMethodsEnums.GIFT_CARD;
 
 
-    // const paymentInvoice: PaymentInvoiceDetailType = {
-    //   payment_method: state.selectedSalonReceipt?.payment_method,
-    //   staff_services: state.selectedSalonReceipt?.staff_receipts,
-    //   total_service_amount: total_service_price,
-    //   total_tip_amount: state.selectedSalonReceipt?.staffs?.reduce((sum, staff) => sum + staff.tip, 0) || 0
-    // }
+    const paymentInvoice: PaymentInvoiceDetailUpdateType = {
+      payment_method: state.selectedSalonReceipt?.payment_method,
+      staff_services: state.selectedSalonReceipt?.staff_receipts,
+      total_service_amount: total_service_price,
+      total_tip_amount: total_tip_amount,
+    }
 
     return {
       subtotal,
@@ -339,6 +345,7 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
       giftcardPaymentWithCash,
       giftcardPaymentWithDebit,
       isGiftcardPayment,
+      paymentInvoice
 
     };
   },

@@ -16,4 +16,6 @@ export const staffAPIs = {
 
   getStaffs: () => api.get<SalonStaffType[]>('/staff/'),
 
+  getSalonStaffs: (salon_id: string) => api.get<SalonStaffType[]>(`/salons/${salon_id}/staffs/`),
+
 };

@@ -10,33 +10,35 @@ import {
   Alert,
   FlatList,
 } from 'react-native';
-import { Receipt, GroupedReceipts } from '../../../types/receipt';
-import { formatCurrency, formatDate, formatDateTime, formatTime, groupReceiptsByDate, handleNumberToPercent } from '../../../utils/receiptUtils';
-import { FirestoreService } from '@/services/firestore.service';
+import { formatCurrency, formatDate, formatDateTime, formatTime, groupReceiptsByDate, handleNumberToPercent } from '../../../../utils/receiptUtils';
 import { router, useFocusEffect } from 'expo-router';
-import { PaymentReceiptType } from '@/store/usePaymentStore';
 import { SalonPaymentState, useSalonPaymentStore } from '@/store/useSalonPaymentStore';
 import { SalonReceipt, SalonReceiptFilterInput, StaffBillType } from '@/types/receipt.type';
 import { PaymentDiscountRateEnums } from '@/enums/PaymentEnums';
 import Badge from '@/components/commons/Badge';
-import ButtonText from '@/components/commons/ButtonText';
 import { receiptAPIs } from '@/api/receiptAPI';
 import ButtonIcon from '@/components/commons/ButtonIcon';
 import NavigationDate from '@/components/NavigationDate';
 import dayjs from 'dayjs';
+import { SalonState, useSalonStore } from '@/store/useSalonStore';
 
 export default function ReceiptHistoryScreen() {
+  // const {
+  //   salonReceipts,
+  //   getSalonPaymentReceipts
+  // } = useSalonPaymentStore((state: SalonPaymentState) => state);
+
   const {
     salonReceipts,
-    getSalonPaymentReceipts
-  } = useSalonPaymentStore((state: SalonPaymentState) => state);
+    getSalonReceipts
+  } = useSalonStore((state:SalonState) => state);
 
   useFocusEffect(
     // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
     useCallback(() => {
       // Invoked whenever the route is focused.
       console.log('Hello, Im focused!');
-      getSalonPaymentReceipts();
+      getSalonReceipts();
       // loadReceipts();
 
       // Return function is invoked whenever the route gets out of focus.
@@ -50,7 +52,7 @@ export default function ReceiptHistoryScreen() {
     try {
       await receiptAPIs.deleteSalonReceipt(Number(receipt.id));
       Alert.alert('Receipt deleted successfully');
-      getSalonPaymentReceipts();
+      getSalonReceipts();
     } catch (err) {
       console.error('Error deleting receipt:', err);
     }
@@ -76,7 +78,7 @@ export default function ReceiptHistoryScreen() {
 
   const showPaymentUpdateScreen = (receipt: SalonReceipt) => {
     router.push({
-      pathname: '/(tabs)/(history)/payment-update',
+      pathname: '/(app)/(tabs)/(history)/payment-update',
       params: {
         payment_receipt: JSON.stringify(receipt),
       },
@@ -182,11 +184,12 @@ export default function ReceiptHistoryScreen() {
 
 
   const onChangeFilterDate = (date: Date) => {
-    console.log('date', date);
     let filter: SalonReceiptFilterInput = {
       created_at: dayjs(date).format('YYYY-MM-DD'),
     }
-    getSalonPaymentReceipts(filter);
+    console.log('Filter date:', filter);
+    
+    getSalonReceipts(filter);
   }
 
 

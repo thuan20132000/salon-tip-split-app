@@ -16,7 +16,9 @@ export const getSubtotalWithoutDiscountPrice = (staffBills?: StaffBillType[]) =>
     return 0;
   }
   let subtotalWithoutDiscountPrice = staffBills?.reduce((sum, staff) => {
-
+    if(staff.discount_price  && Number(staff.discount_price) > 0) {
+      return sum + 0;
+    }
     return sum + (Number(staff.service_amount) ?? 0);
   }, 0);
 

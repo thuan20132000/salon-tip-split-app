@@ -46,9 +46,38 @@ export interface SalonReceipt {
   updated_at?: string | null;
 }
 
+export interface SalonReceiptUpdateType {
+  id?: number;
+  staff_receipts?: StaffBillUpdateType[];
+  sub_total_amount?: string | null;
+  return_amount?: string | null;
+  tip_total_amount?: string | number | null;
+  payment_method?: PaymentMethodsEnums;
+  payment_method_price?: string;
+  gift_value?: number | null;
+  payment_status?: 'PAID' | 'PENDING' | 'CANCELLED';
+  created_at?: string | null;
+  updated_at?: string | null;
+  salon?: number;
+}
+
 export interface StaffBillType {
   id?: number;
   staff?: SalonStaffType;
+  service_amount: number | null;
+  service_name: string | null;
+  receipt?: any;
+  tip_amount: number | null;
+  discount_price?: number | null;
+  discount_percent?: number | null;
+  status?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface StaffBillUpdateType {
+  id?: number;
+  staff?: number;
   service_amount: number | null;
   service_name: string | null;
   receipt?: any;
@@ -68,7 +97,7 @@ export interface CreateStaffBillInputType {
   discount_price?: number;
   discount_percent?: number;
   status?: boolean;
-  
+
 }
 
 export interface UpdateStaffBillInputType {
@@ -103,6 +132,7 @@ export interface CreateSalonReceiptType {
   payment_method_price?: number;
   staff_receipts?: CreateStaffBillInputType[];
   payment_status?: PaymentReceiptStatusEnums;
+  salon?: number;
 }
 
 // Type for creating a new receipt (partial type without auto-generated fields)
@@ -166,6 +196,16 @@ export type SalonStaffPriceType = {
 export interface PaymentInvoiceDetailType {
   id?: number;
   staff_services?: SalonStaffPriceType[];
+  total_service_amount: number;
+  total_tip_amount: number;
+  payment_method?: string;
+
+}
+
+
+export interface PaymentInvoiceDetailUpdateType {
+  id?: number;
+  staff_services?: StaffBillType[];
   total_service_amount: number;
   total_tip_amount: number;
   payment_method?: string;

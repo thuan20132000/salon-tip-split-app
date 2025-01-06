@@ -1,13 +1,16 @@
-import { Stack } from "expo-router";
+import { AuthState, useAuthStore } from "@/store/authStore";
+import { Redirect, Slot, Stack } from "expo-router";
+import { useEffect } from "react";
 
-export default function RootLayout() {
-  return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen name="(tabs)" />
-    </Stack>
-  )
+export default function Root() {
+  const {
+    isAuthenticated,
+    initialize
+  } = useAuthStore((state: AuthState) => state)
+
+  useEffect(() => {
+    initialize()
+  }, [])
+
+  return <Slot />
 }

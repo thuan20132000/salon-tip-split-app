@@ -1,5 +1,6 @@
 import { SalonPaymentState, useSalonPaymentStore } from '@/store/useSalonPaymentStore';
 import { SalonStaffState, useSalonStaffStore } from '@/store/useSalonStaffStore';
+import { SalonState, useSalonStore } from '@/store/useSalonStore';
 import { StaffState, StaffType, useStaffStore } from '@/store/useStaffStore';
 import { SalonStaffType } from '@/types/staff.types';
 import { useRouter } from 'expo-router';
@@ -8,23 +9,35 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 
 const StaffScreen = () => {
   const router = useRouter();
+  // const {
+  //   getSalonStaffs,
+  //   salonStaffs,
+  //   // selectPaymentStaff,
+  //   // selectedPaymentStaffs,
+  // } = useSalonStaffStore((state: SalonStaffState) => state);
+
   const {
     getSalonStaffs,
     salonStaffs,
-    // selectPaymentStaff,
-    // selectedPaymentStaffs,
-  } = useSalonStaffStore((state: SalonStaffState) => state);
+    initSelectedSalon,
+    selectedSalon
+  } = useSalonStore((state: SalonState) => state);
 
   const {
     selectPaymentStaff,
     selectedPaymentStaffs
-  } = useSalonPaymentStore((state:SalonPaymentState) => state);
+  } = useSalonPaymentStore((state: SalonPaymentState) => state);
 
 
 
 
   const onPaymentPress = () => {
     let staffIds = selectedPaymentStaffs.map((staff) => staff.id);
+
+    console.log('====================================');
+    console.log('staffIds: ', staffIds);
+    console.log('====================================');
+
     router.push({
       pathname: '/payment',
       params: {
@@ -38,8 +51,13 @@ const StaffScreen = () => {
   }
 
   useEffect(() => {
-    getSalonStaffs();
+    initSelectedSalon();
   }, [])
+
+  useEffect(()=>{
+    getSalonStaffs();
+
+  },[selectedSalon])
 
 
   return (

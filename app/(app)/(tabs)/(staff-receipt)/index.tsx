@@ -15,15 +15,21 @@ import StaffBillItem from '@/components/StaffBillItem';
 import { SalonReceipt, StaffBillType, StaffReceiptFilterInput } from '@/types/receipt.type';
 import dayjs from 'dayjs';
 import { receiptAPIs } from '@/api/receiptAPI';
+import { SalonState, useSalonStore } from '@/store/useSalonStore';
 
 
 
 const StaffReceiptScreen: React.FC = () => {
 
+  // const {
+  //   staffBills,
+  //   getStaffReceipts
+  // } = useStaffReceiptStore((state: StaffReceiptStore) => state);
+
   const {
-    staffBills,
-    getStaffReceipts
-  } = useStaffReceiptStore((state: StaffReceiptStore) => state);
+    salonStaffBills,
+    getSalonStaffBills
+  } = useSalonStore((state:SalonState) => state);
 
   // State
   // const [receipts, setReceipts] = useState<StaffReceipt[]>([]);
@@ -34,7 +40,7 @@ const StaffReceiptScreen: React.FC = () => {
     try {
       await receiptAPIs.deleteStaffReceipt(Number(receipt.id));
       Alert.alert('Staff Receipt is deleted successfully');
-      getStaffReceipts();
+      // getStaffReceipts();
     } catch (err) {
       console.error('Error deleting receipt:', err);
     }
@@ -70,7 +76,7 @@ const StaffReceiptScreen: React.FC = () => {
       let filter: StaffReceiptFilterInput = {
         created_at_after: dayjs(new Date()).format('YYYY-MM-DD'),
       };
-      getStaffReceipts(filter);
+      getSalonStaffBills(filter);
 
       // Return function is invoked whenever the route gets out of focus.
       return () => {
@@ -87,7 +93,7 @@ const StaffReceiptScreen: React.FC = () => {
         <ActivityIndicator size="large" color="#007AFF" style={styles.loader} />
       ) : (
         <FlatList
-          data={staffBills}
+          data={salonStaffBills}
           renderItem={({ item }) =>
             <StaffBillItem
               staffBill={item}

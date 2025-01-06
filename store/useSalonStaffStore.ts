@@ -37,6 +37,7 @@ export interface SalonStaffState {
   // resetSelectedPaymentStaffs: () => void;
   getSalonStaffs: () => Promise<SalonStaffType[]>;
   selectPaymentStaff: (staff: SalonStaffType) => void;
+  getSalonStaffsBySalonId: (salon_id: string) => Promise<SalonStaffType[]>;
 }
 
 export const useSalonStaffStore = create<SalonStaffState>((set, get) => ({
@@ -65,6 +66,19 @@ export const useSalonStaffStore = create<SalonStaffState>((set, get) => ({
       return [];
     }
   },
+
+  async getSalonStaffsBySalonId(salon_id: string) {
+    try {
+      const res = await staffAPIs.getSalonStaffs(salon_id);
+      set({ salonStaffs: res.data });
+      return res.data;
+
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  },
+
 
   selectPaymentStaff(staff: SalonStaffType) {
     set((state) => {
