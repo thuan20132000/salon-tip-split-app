@@ -1,11 +1,10 @@
 // api/axios.ts
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
-import Constants from 'expo-constants';
 import { AuthResponse, APIError } from '../types/api.types';
 import * as SecureStore from 'expo-secure-store';
 
 const API_URL = "http://192.168.2.226:8000/api/";
-// const API_URL = "https://salon-tipsplit.thuandev.site/api/";
+// const API_URL = "https://salon-tipsplit-dev.thuandev.site/api/";
 
 class APIClient {
   private static instance: APIClient;

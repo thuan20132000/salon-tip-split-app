@@ -12,7 +12,7 @@ import FilterBar from '@/components/FilterBar';
 import useStaffReceiptStore, { StaffReceiptStore } from '@/store/useStaffReceiptStore';
 import { useFocusEffect } from 'expo-router';
 import StaffBillItem from '@/components/StaffBillItem';
-import { SalonReceipt, StaffBillType, StaffReceiptFilterInput } from '@/types/receipt.type';
+import { SalonReceipt, SalonReceiptFilterInput, StaffBillType, StaffReceiptFilterInput } from '@/types/receipt.type';
 import dayjs from 'dayjs';
 import { receiptAPIs } from '@/api/receiptAPI';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
@@ -21,15 +21,15 @@ import { SalonState, useSalonStore } from '@/store/useSalonStore';
 
 const StaffReceiptScreen: React.FC = () => {
 
-  // const {
-  //   staffBills,
-  //   getStaffReceipts
-  // } = useStaffReceiptStore((state: StaffReceiptStore) => state);
-
   const {
-    salonStaffBills,
-    getSalonStaffBills
-  } = useSalonStore((state:SalonState) => state);
+    staffBills,
+    getStaffReceipts
+  } = useStaffReceiptStore((state: StaffReceiptStore) => state);
+
+  // const {
+  //   salonStaffBills,
+  //   getSalonStaffBills
+  // } = useSalonStore((state:SalonState) => state);
 
   // State
   // const [receipts, setReceipts] = useState<StaffReceipt[]>([]);
@@ -73,10 +73,10 @@ const StaffReceiptScreen: React.FC = () => {
     // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
     useCallback(() => {
       // Invoked whenever the route is focused.
-      let filter: StaffReceiptFilterInput = {
+      let filter: SalonReceiptFilterInput = {
         created_at_after: dayjs(new Date()).format('YYYY-MM-DD'),
       };
-      getSalonStaffBills(filter);
+      getStaffReceipts(filter);
 
       // Return function is invoked whenever the route gets out of focus.
       return () => {
@@ -93,7 +93,7 @@ const StaffReceiptScreen: React.FC = () => {
         <ActivityIndicator size="large" color="#007AFF" style={styles.loader} />
       ) : (
         <FlatList
-          data={salonStaffBills}
+          data={staffBills}
           renderItem={({ item }) =>
             <StaffBillItem
               staffBill={item}

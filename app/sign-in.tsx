@@ -36,7 +36,7 @@ export const LoginScreen: React.FC = () => {
   const onSubmit = async (data: FormData) => {
     try {
       await login(data.username, data.password);
-      router.replace('/(app)');
+      router.replace('/(app)/(tabs)/(staff)');
         } catch (error) {
       Alert.alert('Error');
     }

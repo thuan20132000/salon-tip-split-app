@@ -151,6 +151,7 @@ export interface SalonReceiptForm extends Omit<SalonReceipt, 'sub_total_amount' 
 
 export interface StaffReceiptFilterInput {
   staff?: SalonStaffType | number;
+  salon?: number;
   created_at_after?: Date | string;
   created_at_before?: Date | string;
 }
@@ -159,6 +160,8 @@ export interface SalonReceiptFilterInput {
   created_at_after?: Date | string;
   created_at_before?: Date | string;
   created_at?: Date | string;
+  staff?: number;
+  salon?: number;
 }
 
 export interface StaffReceiptSummary {

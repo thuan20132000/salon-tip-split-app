@@ -16,7 +16,7 @@ export interface SalonState {
   selectedSalon: Salon | null;
   salonReceipts: SalonReceipt[] | null;
   salonStaffBills: StaffBillType[] | null;
-  getSalonStaffBills: (filter_input: StaffReceiptFilterInput) => Promise<StaffBillType[]>;
+  getSalonStaffBills: (filter_input: SalonReceiptFilterInput) => Promise<StaffBillType[]>;
   getMySalons: () => Promise<void>;
   onSelectedSalon: (salon: Salon) => Promise<void>;
   salonStaffs: SalonStaffType[] | null;

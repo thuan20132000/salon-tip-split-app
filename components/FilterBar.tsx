@@ -23,6 +23,7 @@ import dayjs from 'dayjs';
 import { StaffReceiptFilterInput } from '@/types/receipt.type';
 import { useFocusEffect } from 'expo-router';
 import ButtonIcon from './commons/ButtonIcon';
+import { SalonState, useSalonStore } from '@/store/useSalonStore';
 
 const ShowDateTimePickerType = {
   FROM: 'FROM',
@@ -50,9 +51,12 @@ const FilterBar: React.FC<FilterComponentProps> = ({
   containerStyle,
   initialFilters,
 }) => {
+  
   const {
-    salonStaffs
-  } = useSalonStaffStore((state: SalonStaffState) => state);
+    getSalonStaffs,
+    salonStaffs,
+    selectedSalon,
+  } = useSalonStore((state: SalonState) => state);
 
   const {
     staffBills,
@@ -82,9 +86,14 @@ const FilterBar: React.FC<FilterComponentProps> = ({
 
     let filter_input: StaffReceiptFilterInput = {
       staff: selectedStaff?.id,
+      salon: selectedSalon?.id,
       created_at_after: dateFilterFrom?.toString(),
       created_at_before: dateFilterTo?.toString()
     }
+
+    console.log('====================================');
+    console.log('filter_input: ', filter_input);
+    console.log('====================================');
     getStaffReceipts(filter_input);
 
 

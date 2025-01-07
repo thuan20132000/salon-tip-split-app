@@ -36,7 +36,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           user: JSON.parse(user),
           isAuthenticated: true,
         });
-        router.replace('/(app)');
+        router.replace('/(app)/(tabs)/(staff)');
       }
     } catch (error) {
       console.error('Initialization error:', error);
