@@ -22,7 +22,9 @@ const ButtonIcon: React.FC<ButtonIconProps> = ({
   return (
     <TouchableOpacity style={[styles.button, containerStyle]} onPress={onPress}>
       <Ionicons name={iconName} size={size} color={color} />
-      <Text style={[styles.text, { color }]}>{title}</Text>
+      {
+        title && <Text style={[styles.text, { color }]}>{title}</Text>
+      }
     </TouchableOpacity>
   );
 };

@@ -5,7 +5,7 @@ import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
 import { salonAPI } from '@/api/salonAPI';
 import { SalonStaffType } from '@/types/staff.types';
-import { SalonReceipt, SalonReceiptFilterInput, StaffBillType, StaffReceiptFilterInput } from '@/types/receipt.type';
+import { SalonReceipt, SalonReceiptFilterInput, StaffBillType, StaffReceiptFilterInput, StaffReceiptSummary } from '@/types/receipt.type';
 import { SalonReceiptFilterInputType } from './useSalonUpdatePaymentStore';
 import dayjs from 'dayjs';
 
@@ -16,6 +16,7 @@ export interface SalonState {
   selectedSalon: Salon | null;
   salonReceipts: SalonReceipt[] | null;
   salonStaffBills: StaffBillType[] | null;
+  staffBillsSummary?: StaffReceiptSummary;
   getSalonStaffBills: (filter_input: SalonReceiptFilterInput) => Promise<StaffBillType[]>;
   getMySalons: () => Promise<void>;
   onSelectedSalon: (salon: Salon) => Promise<void>;
@@ -60,14 +61,7 @@ export const useSalonStore = create<SalonState>((set) => ({
   getSalonStaffs: async () => {
     try {
       const { selectedSalon } = get();
-
-      console.log('selectedSalon: ', selectedSalon);
-
       const res = await salonAPI.getSalonStaffs(Number(selectedSalon?.id));
-
-      console.log('====================================');
-      console.log('salonStaffs: ', res.data.data);
-      console.log('====================================');
       set({ salonStaffs: res.data.data });
       return res.data.data;
 
@@ -80,27 +74,45 @@ export const useSalonStore = create<SalonState>((set) => ({
   getSalonReceipts: async (filter) => {
     try {
       const { selectedSalon } = get();
-      const filterInput :SalonReceiptFilterInput= {
+      const filterInput: SalonReceiptFilterInput = {
         ...filter,
         created_at: filter?.created_at || dayjs(new Date()).format('YYYY-MM-DD'),
       }
 
       const res = await salonAPI.getSalonReceipts(Number(selectedSalon?.id), filterInput);
 
-      set({ salonReceipts: res.data.data });
+      console.log('====================================');
+      console.log('salon receipts: ', res.data);
+      console.log('====================================');
+      set({
+        salonReceipts: res.data.data,
+
+      });
     } catch (error) {
       console.error(error);
     }
   },
 
-  getSalonStaffBills: async (filter_input) => {
+  getSalonStaffBills: async (filter) => {
     try {
       const { selectedSalon } = get();
 
-      const res = await salonAPI.getSalonStaffReceipts(Number(selectedSalon?.id), filter_input);
+      const filterInput: SalonReceiptFilterInput = {
+        ...filter,
+        created_at: filter?.created_at || dayjs(new Date()).format('YYYY-MM-DD'),
+      }
+
+      const res = await salonAPI.getSalonStaffReceipts(Number(selectedSalon?.id), filterInput);
       console.log('salon staff bills: ', res.data.data);
 
-      set({ salonStaffBills: res.data.data });
+      set({
+        salonStaffBills: res.data.data,
+        staffBillsSummary: {
+          total_amount: res.data.total_amount,
+          total_tip: res.data.total_tip,
+          total_turn: res.data.total_turn
+        }
+      });
       return res.data.data;
     } catch (error) {
       console.error(error);

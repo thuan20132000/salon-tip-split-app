@@ -20,7 +20,7 @@ import SummaryCard from './SummaryCard';
 import useStaffReceiptStore, { StaffReceiptStore } from '@/store/useStaffReceiptStore';
 import { formatDate } from '@/utils/receiptUtils';
 import dayjs from 'dayjs';
-import { StaffReceiptFilterInput } from '@/types/receipt.type';
+import { SalonReceiptFilterInput, StaffReceiptFilterInput } from '@/types/receipt.type';
 import { useFocusEffect } from 'expo-router';
 import ButtonIcon from './commons/ButtonIcon';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
@@ -56,13 +56,20 @@ const FilterBar: React.FC<FilterComponentProps> = ({
     getSalonStaffs,
     salonStaffs,
     selectedSalon,
+    staffBillsSummary
   } = useSalonStore((state: SalonState) => state);
 
+  // const {
+  //   staffBills,
+  //   getStaffReceipts,
+  //   staffBillsSummary
+  // } = useStaffReceiptStore((state: StaffReceiptStore) => state);
+
   const {
-    staffBills,
-    getStaffReceipts,
-    staffBillsSummary
-  } = useStaffReceiptStore((state: StaffReceiptStore) => state);
+    salonStaffBills,
+    getSalonStaffBills
+  } = useSalonStore((state:SalonState) => state);
+
   // State for filter values
   const [dateFilterFrom, setDateFilterFrom] = useState<string | null>(dayjs(new Date()).format('YYYY-MM-DD'));
   const [dateFilterTo, setDateFilterTo] = useState<string | null>(dayjs(new Date()).format('YYYY-MM-DD'));
@@ -84,19 +91,13 @@ const FilterBar: React.FC<FilterComponentProps> = ({
 
   useEffect(() => {
 
-    let filter_input: StaffReceiptFilterInput = {
+    let filter_input: SalonReceiptFilterInput = {
       staff: selectedStaff?.id,
-      salon: selectedSalon?.id,
       created_at_after: dateFilterFrom?.toString(),
       created_at_before: dateFilterTo?.toString()
     }
 
-    console.log('====================================');
-    console.log('filter_input: ', filter_input);
-    console.log('====================================');
-    getStaffReceipts(filter_input);
-
-
+    getSalonStaffBills(filter_input);
 
   }, [selectedStaff, dateFilterFrom, dateFilterTo]);
 
@@ -120,31 +121,12 @@ const FilterBar: React.FC<FilterComponentProps> = ({
     setSelectedStaff(null);
     setDateFilterFrom(null);
     setDateFilterTo(null);
-    // onApplyFilters({
-    //   date: null,
-    //   dateTime: null,
-    //   staff: null,
-    // });
+  
   };
 
   const handleShowSummary = () => {
     setIsShowSummary(!isShowSummary);
   }
-
-  // Apply filters
-  const applyFilters = (): void => {
-    // onApplyFilters({
-    //   date: dateFilter,
-    //   dateTime: dateTimeFilter,
-    //   staff: selectedStaff,
-    // });
-  };
-
-  // Format datetime for display
-  const formatDateTime = (date: Date | null): string => {
-    if (!date) return '';
-    return date.toLocaleString();
-  };
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
@@ -173,12 +155,6 @@ const FilterBar: React.FC<FilterComponentProps> = ({
 
     showDatePicker()
     setShowDateTimePickerType(type);
-  }
-
-  const handleFilterApply = () => {
-    // applyFilters();
-    setDatePickerVisibility(false);
-
   }
 
   return (

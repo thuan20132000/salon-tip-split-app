@@ -97,6 +97,8 @@ export interface CreateStaffBillInputType {
   discount_price?: number;
   discount_percent?: number;
   status?: boolean;
+  created_at?: string | null;
+  updated_at?: string | null;
 
 }
 
@@ -133,6 +135,8 @@ export interface CreateSalonReceiptType {
   staff_receipts?: CreateStaffBillInputType[];
   payment_status?: PaymentReceiptStatusEnums;
   salon?: number;
+  created_at?: string | Date | null;
+  updated_at?: string | Date | null;
 }
 
 // Type for creating a new receipt (partial type without auto-generated fields)

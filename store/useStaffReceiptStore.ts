@@ -22,11 +22,9 @@ const useStaffReceiptStore = create<StaffReceiptStore>((set) => ({
         ...filter_input,
         created_at_after: filter_input?.created_at_after || dayjs(new Date()).format('YYYY-MM-DD'),
       };
-      console.log('filter_input::: ', filter_input);
       
       const staffBills = await receiptAPIs.getStaffReceipts(filter_input);
 
-      console.log('staffBills::: ', staffBills.data.data);
       
       set({
         staffBills: staffBills.data.data,

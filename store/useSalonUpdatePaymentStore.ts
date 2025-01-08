@@ -108,6 +108,9 @@ export interface SalonPaymentUpdateState {
   getSalonPaymentReceipt: (id: number) => Promise<SalonReceipt | null>;
   setSelectedSalonReceipt: (receipt: SalonReceipt) => void;
   onUpdateTipRate: (amount: number) => void;
+  addSelectedSalonReceiptStaff: (staff: StaffBillType) => void;
+  removeSelectedSalonReceiptStaff: (staff: StaffBillType) => void;
+  deleteStaffReceipt: (staffReceipt: StaffBillType) => void;
 
 }
 
@@ -397,6 +400,38 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
     set({ selectedSalonReceipt: receipt });
   },
 
+  addSelectedSalonReceiptStaff: (staff) => {
+    set((state) => {
+      const staffs = state.selectedSalonReceipt?.staff_receipts || [];
+      return {
+        selectedSalonReceipt: {
+          ...state.selectedSalonReceipt,
+          staff_receipts: [...staffs, staff]
+        }
+      };
+    });
+  },
+
+  removeSelectedSalonReceiptStaff: (staff) => {
+    set((state) => {
+      const staffs = state.selectedSalonReceipt?.staff_receipts || [];
+      const filtered_staffs = staffs.filter(s => s.id != staff.id);
+      return {
+        selectedSalonReceipt: {
+          ...state.selectedSalonReceipt,
+          staff_receipts: filtered_staffs
+        }
+      };
+    });
+  },
+  
+  deleteStaffReceipt: async (staffReceipt) => {
+    try {
+      await receiptAPIs.deleteStaffReceipt(Number(staffReceipt.id));
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
 
 }));

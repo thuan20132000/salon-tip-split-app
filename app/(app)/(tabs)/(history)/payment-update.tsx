@@ -21,7 +21,7 @@ import { PaymentDiscountRateEnums, PaymentMethodsEnums, PaymentRatesEnums, Payme
 import { GiftcardPaymentInput } from '@/components/GiftcardPaymentInput';
 import { SalonStaffState, useSalonStaffStore } from '@/store/useSalonStaffStore';
 import { SalonPaymentReceiptType, SalonPaymentState, useSalonPaymentStore } from '@/store/useSalonPaymentStore';
-import { CreateSalonReceiptType, SalonReceipt, SalonReceiptUpdateType, SalonStaffPriceType, StaffBillType, UpdateSalonReceiptInputType } from '@/types/receipt.type';
+import { CreateSalonReceiptType, SalonReceipt, SalonReceiptUpdateType, SalonStaffPriceType, StaffBillType, StaffBillUpdateType, UpdateSalonReceiptInputType } from '@/types/receipt.type';
 import { receiptAPIs } from '@/api/receiptAPI';
 import { formatCurrency, handleDiscountPrice, handleNumberToPercent } from '@/utils/receiptUtils';
 import SelectDiscountModal from '@/components/SelectDiscountModal';
@@ -32,17 +32,13 @@ import ButtonText from '@/components/commons/ButtonText';
 import { SalonStaffType } from '@/types/staff.types';
 import { SalonPaymentUpdateState, useSalonPaymentUpdateStore } from '@/store/useSalonUpdatePaymentStore';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
+import SelectStaffModal from '@/components/SelectStaffModal';
 
 
 export default function StaffPaymentScreen() {
   const { payment_receipt } = useLocalSearchParams();
   const [isShowConfirmModal, setIsShowConfirmModal] = useState<boolean>(false);
-
-  const {
-    salonStaffs,
-  } = useSalonStaffStore((state: SalonStaffState) => state);
-
-
+  const [isShowSelectStaffModal, setIsShowSelectStaffModal] = useState<boolean>(false);
 
   const {
     receive,
@@ -58,11 +54,14 @@ export default function StaffPaymentScreen() {
     selectedSalonReceipt,
     setSelectedSalonReceipt,
     onUpdateTipRate,
+    addSelectedSalonReceiptStaff,
+    removeSelectedSalonReceiptStaff,
+    deleteStaffReceipt
   } = useSalonPaymentUpdateStore((state: SalonPaymentUpdateState) => state);
 
   const {
     selectedSalon
-  } = useSalonStore((state:SalonState) => state);
+  } = useSalonStore((state: SalonState) => state);
 
 
   const handleInitialStaffPrice = () => {
@@ -197,7 +196,6 @@ export default function StaffPaymentScreen() {
   }
 
   const onSelectDiscount = (discount: PaymentDiscountRateEnums) => {
-    console.log('Selected discount:', discount);
     if (selectedStaffDiscount) {
       addStaffBillDiscount(selectedStaffDiscount, discount);
     }
@@ -206,6 +204,25 @@ export default function StaffPaymentScreen() {
 
   const hideDiscountModal = () => {
     setIsShowDiscountModal(false);
+  }
+
+  const handleAddPaymentStaff = (staff: SalonStaffType) => {
+
+    let newStaff: StaffBillType = {
+      staff: staff,
+      service_amount: 0,
+      tip_amount: 0,
+      discount_percent: 0,
+      discount_price: 0,
+      service_name: 'Service Name',
+    }
+    addSelectedSalonReceiptStaff(newStaff);
+    setIsShowSelectStaffModal(false);
+
+  }
+
+  const showSelectStaffModal = () => {
+    setIsShowSelectStaffModal(true);
   }
 
   const renderDiscountButton = (staff: StaffBillType) => {
@@ -238,13 +255,22 @@ export default function StaffPaymentScreen() {
     setTipPrice(value);
   }
 
+  const handleRemoveStaffBill = (staffBill: StaffBillType) => {
+    if (staffBill.id) {
+      deleteStaffReceipt(staffBill);
+    }
+    removeSelectedSalonReceiptStaff(staffBill);
+
+  }
+
+
+
 
   useEffect(() => {
     handleInitialStaffPrice()
 
     return () => {
       resetPayment();
-      // resetSelectedPaymentStaffs();
     }
   }, [])
 
@@ -266,7 +292,6 @@ export default function StaffPaymentScreen() {
 
         {/* Staff Price Inputs */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Update Payment</Text>
           <View style={styles.staffRow}>
             <Text style={{}}>Name</Text>
             <Text style={{}}>Tip</Text>
@@ -274,6 +299,22 @@ export default function StaffPaymentScreen() {
           {/* Staff  Price Input */}
           {selectedSalonReceipt?.staff_receipts?.map((staff, index) => (
             <View key={index} style={styles.staffRow}>
+              <ButtonIcon
+                iconName="remove"
+                onPress={() => handleRemoveStaffBill(staff)}
+                containerStyle={{
+                  // flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0,
+                  alignContent: 'center',
+                  backgroundColor: '#f8f9fa',
+                  paddingHorizontal: 6,
+                  marginRight: 8,
+
+                }}
+                size={18}
+              />
               <Text style={styles.staffName}>{staff.staff?.first_name}</Text>
 
               <View
@@ -317,7 +358,16 @@ export default function StaffPaymentScreen() {
               />
             </View>
           ))}
-
+          <ButtonIcon
+            title="Add Staff"
+            iconName="add"
+            onPress={showSelectStaffModal}
+            containerStyle={{
+              // flex: 1,
+              backgroundColor: '#f8f9fa',
+              alignSelf: 'flex-start',
+            }}
+          />
 
         </View>
 
@@ -640,6 +690,12 @@ export default function StaffPaymentScreen() {
           onClose={() => { setIsShowConfirmModal(false) }}
         // receiptData={0}
         // receipt={paymentReceipt}
+        />
+        <SelectStaffModal
+          visible={isShowSelectStaffModal}
+          onSelect={handleAddPaymentStaff}
+          onCancel={() => { setIsShowSelectStaffModal(false) }}
+
         />
       </KeyboardAwareScrollView>
     </>

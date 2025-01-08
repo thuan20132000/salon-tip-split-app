@@ -21,15 +21,15 @@ import { SalonState, useSalonStore } from '@/store/useSalonStore';
 
 const StaffReceiptScreen: React.FC = () => {
 
-  const {
-    staffBills,
-    getStaffReceipts
-  } = useStaffReceiptStore((state: StaffReceiptStore) => state);
-
   // const {
-  //   salonStaffBills,
-  //   getSalonStaffBills
-  // } = useSalonStore((state:SalonState) => state);
+  //   staffBills,
+  //   getStaffReceipts
+  // } = useStaffReceiptStore((state: StaffReceiptStore) => state);
+
+  const {
+    salonStaffBills,
+    getSalonStaffBills
+  } = useSalonStore((state:SalonState) => state);
 
   // State
   // const [receipts, setReceipts] = useState<StaffReceipt[]>([]);
@@ -64,11 +64,6 @@ const StaffReceiptScreen: React.FC = () => {
     );
   }
 
-  useEffect(() => {
-    // fetchStaffList();
-    // fetchStaffReceipts();
-  }, []);
-
   useFocusEffect(
     // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
     useCallback(() => {
@@ -76,7 +71,7 @@ const StaffReceiptScreen: React.FC = () => {
       let filter: SalonReceiptFilterInput = {
         created_at_after: dayjs(new Date()).format('YYYY-MM-DD'),
       };
-      getStaffReceipts(filter);
+      getSalonStaffBills(filter);
 
       // Return function is invoked whenever the route gets out of focus.
       return () => {
@@ -93,7 +88,7 @@ const StaffReceiptScreen: React.FC = () => {
         <ActivityIndicator size="large" color="#007AFF" style={styles.loader} />
       ) : (
         <FlatList
-          data={staffBills}
+          data={salonStaffBills}
           renderItem={({ item }) =>
             <StaffBillItem
               staffBill={item}

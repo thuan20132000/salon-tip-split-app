@@ -30,12 +30,16 @@ import { Ionicons } from '@expo/vector-icons';
 import ButtonIcon from '@/components/commons/ButtonIcon';
 import ButtonText from '@/components/commons/ButtonText';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
+import CustomDateTimePicker from '@/components/DateTimePicker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import dayjs from 'dayjs';
 
 
 export default function StaffPaymentScreen() {
   const { staff_ids, payment_receipt } = useLocalSearchParams();
   const [isShowConfirmModal, setIsShowConfirmModal] = useState<boolean>(false);
-
+  const [isShowDatetimePicker, setIsShowDateTimePicker] = useState<boolean>(false);
+  const [selectedPaymentDate, setSelectedPaymentDate] = useState<Date | null>(new Date());
   // const {
   //   salonStaffs,
   // } = useSalonStaffStore((state: SalonStaffState) => state);
@@ -183,11 +187,17 @@ export default function StaffPaymentScreen() {
             status: true,
             discount_percent: staff.discount_percent,
             discount_price: staff.discount_price,
-
+            created_at: dayjs(selectedPaymentDate).format(),
+            updated_at: dayjs(selectedPaymentDate).format(),
           }
         },
-        ) || []
+        ) || [],
+        created_at: dayjs(selectedPaymentDate).format(),
+        updated_at: dayjs(selectedPaymentDate).format(),
       }
+
+      console.log('Salon Receipt:', salonReceipt);
+      
 
       await receiptAPIs.createSalonReceipt(salonReceipt);
 
@@ -233,6 +243,17 @@ export default function StaffPaymentScreen() {
   const hideDiscountModal = () => {
     setIsShowDiscountModal(false);
   }
+
+
+  const hideDatePicker = () => {
+    setIsShowDateTimePicker(false);
+  };
+
+  const handleConfirm = (date: Date) => {
+    console.warn("A date has been picked: ", date);
+    setSelectedPaymentDate(date);
+    hideDatePicker();
+  };
 
   const renderDiscountButton = (staff: SalonStaffPriceType) => {
     return (
@@ -620,6 +641,29 @@ export default function StaffPaymentScreen() {
 
               </View>
             </View>
+
+          </View>
+          <View>
+
+            <ButtonIcon
+              title={selectedPaymentDate ? selectedPaymentDate.toDateString() : 'Select Payment Date'}
+              iconName="calendar"
+              onPress={() => setIsShowDateTimePicker(true)}
+              containerStyle={{
+                // flex: 1,
+                backgroundColor: '#f8f9fa',
+                alignSelf: 'flex-start',
+                marginBottom: 16,
+              }}
+            />
+            <DateTimePickerModal
+              isVisible={isShowDatetimePicker}
+              mode="datetime"
+              onConfirm={handleConfirm}
+              onCancel={hideDatePicker}
+              display='inline'
+              
+            />
           </View>
           {/* Payment Method */}
           <View style={styles.paymentSection}>
