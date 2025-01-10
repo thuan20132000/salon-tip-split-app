@@ -33,6 +33,9 @@ import { SalonState, useSalonStore } from '@/store/useSalonStore';
 import CustomDateTimePicker from '@/components/DateTimePicker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import dayjs from 'dayjs';
+import { ms, mvs, scale } from 'react-native-size-matters';
+import TipBadge from '@/components/TipBadge';
+import AddStaffTipModal from '@/components/AddStaffTipModal';
 
 
 export default function StaffPaymentScreen() {
@@ -40,9 +43,7 @@ export default function StaffPaymentScreen() {
   const [isShowConfirmModal, setIsShowConfirmModal] = useState<boolean>(false);
   const [isShowDatetimePicker, setIsShowDateTimePicker] = useState<boolean>(false);
   const [selectedPaymentDate, setSelectedPaymentDate] = useState<Date | null>(new Date());
-  // const {
-  //   salonStaffs,
-  // } = useSalonStaffStore((state: SalonStaffState) => state);
+  const [isShowAddStaffTipModal, setIsShowAddStaffTipModal] = useState<boolean>(false);
 
   const {
     salonStaffs,
@@ -197,7 +198,7 @@ export default function StaffPaymentScreen() {
       }
 
       console.log('Salon Receipt:', salonReceipt);
-      
+
 
       await receiptAPIs.createSalonReceipt(salonReceipt);
 
@@ -262,6 +263,7 @@ export default function StaffPaymentScreen() {
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
+          minWidth: 100,
         }}
         onPress={() => onSelectStaffDiscount(staff)}
       >
@@ -308,57 +310,65 @@ export default function StaffPaymentScreen() {
 
         {/* Staff Price Inputs */}
         <View style={styles.section}>
-          <View style={styles.staffRow}>
-            <Text style={{}}>Name</Text>
-            <Text style={{}}>Service Price</Text>
-            <Text style={{}}>Price</Text>
-            <Text style={{}}>Tip</Text>
-          </View>
           {/* Staff  Price Input */}
           {paymentReceipt?.staffs?.map((staff, index) => (
-            <View key={index} style={styles.staffRow}>
-              <Text style={styles.staffName}>{staff.staff.first_name}</Text>
+            <ScrollView
+              horizontal
+            >
+              <View style={styles.staffRow}>
 
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  flex: 1,
-                }}
-              >
-                <CurrencyInput
-                  value={staff.price}
-                  onChangeValue={(value) => updateReceiptStaffPrice(index, value)}
-                  prefix="$ "
-                  delimiter="."
-                  separator="."
-                  precision={2}
-                  minValue={0}
-                  showPositiveSign={false}
-                  onChangeText={(formattedValue) => {
-                    console.log(formattedValue); // R$ +2.310,46
+                <Text style={styles.staffName}>{staff.staff.first_name}</Text>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    flex: 1,
                   }}
-                  style={styles.priceInput}
-                />
-                {
-                  renderDiscountButton(staff)
-                }
+                >
+                  <CurrencyInput
+                    value={staff.price}
+                    onChangeValue={(value) => updateReceiptStaffPrice(index, value)}
+                    prefix="$ "
+                    delimiter="."
+                    separator="."
+                    precision={2}
+                    minValue={0}
+                    showPositiveSign={false}
+                    onChangeText={(formattedValue) => {
+                      console.log(formattedValue); // R$ +2.310,46
+                    }}
+                    style={[styles.priceInput, { minWidth: ms(100) }]}
+                  />
+                  {
+                    renderDiscountButton(staff)
+                  }
+                  {
+                    staff?.tip > 0 && (
+                      <TipBadge amount={staff.tip} />
+                    )
+                  }
+                </View>
+                {/* <View style={{flex: 1}}>
+                  <CurrencyInput
+                    value={staff.tip}
+                    onChangeValue={(value) => updateReceiptStaffTip(index, value)}
+                    prefix="$ "
+                    delimiter="."
+                    separator="."
+                    precision={2}
+                    minValue={0}
+                    showPositiveSign={false}
+                    onChangeText={(formattedValue) => {
+                      console.log(formattedValue); // R$ +2.310,46
+                    }}
+                    style={styles.priceInput}
+                  />
+
+                </View> */}
               </View>
-              <CurrencyInput
-                value={staff.tip}
-                onChangeValue={(value) => updateReceiptStaffTip(index, value)}
-                prefix="$ "
-                delimiter="."
-                separator="."
-                precision={2}
-                minValue={0}
-                showPositiveSign={false}
-                onChangeText={(formattedValue) => {
-                  console.log(formattedValue); // R$ +2.310,46
-                }}
-                style={styles.priceInput}
-              />
-            </View>
+
+            </ScrollView>
           ))}
 
 
@@ -610,7 +620,7 @@ export default function StaffPaymentScreen() {
                     setTipPrice(Number(returnAmount));
                   }}
                 >
-                  <Text style={{ color: '#007AFF', fontSize: 16, fontWeight: 'bold' }}>Add to Tip</Text>
+                  <Text style={{ color: '#007AFF', fontSize: ms(12), fontWeight: 'bold' }}>Add to Tip</Text>
                 </TouchableOpacity>
 
               </View>
@@ -638,6 +648,14 @@ export default function StaffPaymentScreen() {
                   style={styles.currencyInput}
                   onFocus={() => setTipPrice(0)}
                 />
+                <TouchableOpacity
+                  style={{ padding: 8 }}
+                  onPress={() => {
+                    setIsShowAddStaffTipModal(true);
+                  }}
+                >
+                  <Text style={{ color: '#007AFF', fontSize: ms(12), fontWeight: 'bold' }}>Custom Tip</Text>
+                </TouchableOpacity>
 
               </View>
             </View>
@@ -662,7 +680,7 @@ export default function StaffPaymentScreen() {
               onConfirm={handleConfirm}
               onCancel={hideDatePicker}
               display='inline'
-              
+
             />
           </View>
           {/* Payment Method */}
@@ -710,6 +728,12 @@ export default function StaffPaymentScreen() {
           receiptData={calculatePayments().paymentInvoice}
         // receipt={paymentReceipt}
         />
+        <AddStaffTipModal
+          visible={isShowAddStaffTipModal}
+          onClose={() => { setIsShowAddStaffTipModal(false) }}
+          paymentReceipts={paymentReceipt}
+          updateReceiptStaffTip={updateReceiptStaffTip}
+        />
       </KeyboardAwareScrollView>
     </>
 
@@ -735,6 +759,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 12,
+    flex: 1,
   },
   staffName: {
     fontSize: 16,
@@ -743,8 +768,8 @@ const styles = StyleSheet.create({
   },
   priceInput: {
     // flex: 1,
-    minWidth: 200,
-    fontSize: 22,
+    // minWidth: 200,
+    fontSize: ms(12),
     height: 48,
     borderWidth: 1,
     borderRadius: 8,
@@ -763,6 +788,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
+    flexWrap: 'wrap',
   },
   totalAmount: {
     fontSize: 18,
@@ -777,7 +803,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap'
   },
   discountTitle: {
-    fontSize: 16,
+    fontSize: ms(12),
     fontWeight: '600',
     marginBottom: 12,
   },
@@ -786,9 +812,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 8,
     backgroundColor: '#fff',
-    borderRadius: 4,
-    width: 180,
-    height: '100%',
+    borderRadius: 6,
+    width: ms(120),
     flex: 1,
     marginRight: 8,
 
@@ -840,16 +865,16 @@ const styles = StyleSheet.create({
     color: '#007AFF',
   },
   paymentMethodTitle: {
-    fontSize: 16,
+    fontSize: mvs(14),
     fontWeight: 'bold'
   },
   paymentMethodPrice: {
-    fontSize: 22,
+    fontSize: mvs(12),
     fontWeight: 'bold',
     // color: '#007AFF'
   },
   returnPrice: {
-    fontSize: 22,
+    fontSize: ms(16),
     fontWeight: 'bold',
   },
   currencyInput: {
@@ -858,8 +883,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderRadius: 8,
     height: 45,
-    width: 180,
-    fontSize: 16,
+    width: ms(120),
+    fontSize: ms(14),
     fontWeight: 'bold',
   },
   isPaymentActive: {
