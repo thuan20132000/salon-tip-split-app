@@ -1,3 +1,4 @@
+import StaffPaymentItem from '@/components/StaffPaymentItem';
 import { SalonPaymentState, useSalonPaymentStore } from '@/store/useSalonPaymentStore';
 import { SalonStaffState, useSalonStaffStore } from '@/store/useSalonStaffStore';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
@@ -54,10 +55,10 @@ const StaffScreen = () => {
     initSelectedSalon();
   }, [])
 
-  useEffect(()=>{
+  useEffect(() => {
     getSalonStaffs();
 
-  },[selectedSalon])
+  }, [selectedSalon])
 
 
   return (
@@ -66,23 +67,23 @@ const StaffScreen = () => {
     >
       <View
         style={{
+          flex: 1,
           flexWrap: 'wrap',
           flexDirection: 'row',
         }}
       >
         {salonStaffs?.map((staff) => (
-          <TouchableOpacity
+
+          <StaffPaymentItem
             key={staff.id}
+            staff={staff}
             onPress={() => onSelectStaff(staff)}
-            style={[
-              styles.staffBoxContainer,
-              selectedPaymentStaffs.includes(staff) && styles.selectedStaffBox,
-            ]}
-          >
-            <View key={staff.id} style={styles.staffBox}>
-              <Text style={styles.staffName}>{staff.first_name}</Text>
-            </View>
-          </TouchableOpacity>
+            customStyle={{
+              backgroundColor: selectedPaymentStaffs.includes(staff) ? '#ffd33d' : 'white',
+              borderColor: selectedPaymentStaffs.includes(staff) ? 'blue' : 'white',
+            }}
+
+          />
         ))}
       </View>
       <TouchableOpacity
@@ -136,9 +137,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10,
+    marginTop: 120,
     width: '50%',
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
 });
 
