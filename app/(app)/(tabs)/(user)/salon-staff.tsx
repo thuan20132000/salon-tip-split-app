@@ -69,7 +69,7 @@ export default function SalonStaffScreen() {
         {item.email && <Text style={styles.staffDetails}>{item.email}</Text>}
       </View>
 
-      <View style={styles.actionButtons}>
+      {/* <View style={styles.actionButtons}>
         <TouchableOpacity
           onPress={() => {
             setSelectedStaff(item);
@@ -86,13 +86,13 @@ export default function SalonStaffScreen() {
         >
           <AntDesign name="delete" size={20} color="#FF3B30" />
         </TouchableOpacity>
-      </View>
+      </View> */}
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={styles.addButton}
         onPress={() => {
           setSelectedStaff(null);
@@ -101,7 +101,7 @@ export default function SalonStaffScreen() {
       >
         <AntDesign name="plus" size={20} color="white" />
         <Text style={styles.addButtonText}>Add Staff</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <FlatList
         data={salonStaffs}

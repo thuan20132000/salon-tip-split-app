@@ -84,7 +84,7 @@ const StaffBillItem: React.FC<StaffBillProps> = ({
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.staffName}>{staffName}</Text>
-        <StatusBadge status={'PAID'} />
+        {/* <StatusBadge status={'PAID'} /> */}
         <ButtonIcon
           iconName='trash'
           color="red"

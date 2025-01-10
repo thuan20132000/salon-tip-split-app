@@ -41,7 +41,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
         <View style={[styles.card, styles.serviceCard]}>
           <View style={styles.cardHeader}>
             <Ionicons name="cash-outline" size={24} color="#4CAF50" />
-            <Text style={styles.cardLabel}>Services</Text>
+            <Text style={styles.cardLabel}>Service Sale</Text>
           </View>
           <Text style={[styles.amount, styles.serviceAmount]}>
             ${totalAmount.toFixed(2)}

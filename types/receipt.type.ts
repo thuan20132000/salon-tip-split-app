@@ -161,8 +161,8 @@ export interface StaffReceiptFilterInput {
 }
 
 export interface SalonReceiptFilterInput {
-  created_at_after?: Date | string;
-  created_at_before?: Date | string;
+  created_at_range_after?: Date | string;
+  created_at_range_before?: Date | string;
   created_at?: Date | string;
   staff?: number;
   salon?: number;

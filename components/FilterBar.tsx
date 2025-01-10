@@ -93,8 +93,8 @@ const FilterBar: React.FC<FilterComponentProps> = ({
 
     let filter_input: SalonReceiptFilterInput = {
       staff: selectedStaff?.id,
-      created_at_after: dateFilterFrom?.toString(),
-      created_at_before: dateFilterTo?.toString()
+      created_at_range_after: dateFilterFrom?.toString(),
+      created_at_range_before: dateFilterTo?.toString()
     }
 
     getSalonStaffBills(filter_input);

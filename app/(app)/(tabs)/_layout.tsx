@@ -43,17 +43,6 @@ export default function TabLayout() {
         }}
 
       />
-
-      <Tabs.Screen
-        name="(staff-receipt)"
-        options={{
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="receipt" color={color} size={24} />
-          ),
-          title: 'Receipt',
-        }}
-      />
-
       <Tabs.Screen
         name="(user)"
         options={{

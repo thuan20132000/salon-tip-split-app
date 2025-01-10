@@ -38,7 +38,11 @@ export default function ReceiptHistoryScreen() {
     useCallback(() => {
       // Invoked whenever the route is focused.
       console.log('Hello, Im focused!');
-      getSalonReceipts();
+
+      let filter: SalonReceiptFilterInput = {
+        created_at: dayjs(new Date()).format('YYYY-MM-DD'),
+      }
+      getSalonReceipts(filter);
       // loadReceipts();
 
       // Return function is invoked whenever the route gets out of focus.

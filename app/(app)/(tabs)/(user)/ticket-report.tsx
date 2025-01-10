@@ -13,13 +13,16 @@ import useStaffReceiptStore, { StaffReceiptStore } from '@/store/useStaffReceipt
 import { useFocusEffect } from 'expo-router';
 import StaffBillItem from '@/components/StaffBillItem';
 import { SalonReceipt, SalonReceiptFilterInput, StaffBillType, StaffReceiptFilterInput } from '@/types/receipt.type';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { receiptAPIs } from '@/api/receiptAPI';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
+import DateTimePicker, { DateType, ModeType } from 'react-native-ui-datepicker';
+import DateRangePickerModal from '@/components/DateRangePickerModal';
+import TicketReportFilter from '@/components/TicketReportFilter';
 
 
 
-const StaffReceiptScreen: React.FC = () => {
+const TicketReportScreen: React.FC = () => {
 
   // const {
   //   staffBills,
@@ -29,7 +32,7 @@ const StaffReceiptScreen: React.FC = () => {
   const {
     salonStaffBills,
     getSalonStaffBills
-  } = useSalonStore((state:SalonState) => state);
+  } = useSalonStore((state: SalonState) => state);
 
   // State
   // const [receipts, setReceipts] = useState<StaffReceipt[]>([]);
@@ -69,7 +72,7 @@ const StaffReceiptScreen: React.FC = () => {
     useCallback(() => {
       // Invoked whenever the route is focused.
       let filter: SalonReceiptFilterInput = {
-        created_at_after: dayjs(new Date()).format('YYYY-MM-DD'),
+        created_at: dayjs(new Date()).format('YYYY-MM-DD'),
       };
       getSalonStaffBills(filter);
 
@@ -82,8 +85,7 @@ const StaffReceiptScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <FilterBar />
-
+      <TicketReportFilter/>
       {loading ? (
         <ActivityIndicator size="large" color="#007AFF" style={styles.loader} />
       ) : (
@@ -212,4 +214,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StaffReceiptScreen;
+export default TicketReportScreen;

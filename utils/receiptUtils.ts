@@ -18,12 +18,8 @@ export const formatDate = (timestamp?: string): string => {
   if (!timestamp) {
     return '';
   }
-  const date = new Date(timestamp);
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  const dt = dayjs(timestamp).format('MMM DD, YYYY');
+  return dt;
 };
 
 export const formatDateTime = (timestamp?: string): string => {

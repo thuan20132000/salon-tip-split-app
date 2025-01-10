@@ -19,7 +19,7 @@ import { SalonState, useSalonStore } from '@/store/useSalonStore';
 
 
 interface UserScreenProps {
-  
+
 }
 
 const UserInfoRow: React.FC<{ label: string; value: string }> = ({ label, value }) => (
@@ -38,7 +38,7 @@ const UserScreen: React.FC<UserScreenProps> = () => {
 
   const {
     initSelectedSalon
-  } = useSalonStore((state:SalonState) => state);
+  } = useSalonStore((state: SalonState) => state);
 
   const handleLogout = async () => {
     try {
@@ -67,9 +67,17 @@ const UserScreen: React.FC<UserScreenProps> = () => {
     router.push('/(app)/(tabs)/(user)/salons');
   }
 
+  const showTicketReport = () => {
+    router.push('/(app)/(tabs)/(user)/ticket-report');
+  }
+
+  const showSalonReport = () => {
+    router.push('/(app)/(tabs)/(user)/salon-report');
+  }
+
   useEffect(() => {
     initSelectedSalon()
-  },[])
+  }, [])
 
   return (
     <SafeAreaView style={styles.container}>
@@ -115,6 +123,18 @@ const UserScreen: React.FC<UserScreenProps> = () => {
           <ButtonText
             title="Staffs"
             onPress={showStaffManagement}
+            style={styles.managementItem}
+          />
+
+          <ButtonText
+            title="Ticket Reports"
+            onPress={showTicketReport}
+            style={styles.managementItem}
+          />
+
+          <ButtonText
+            title="Salon Reports"
+            onPress={showSalonReport}
             style={styles.managementItem}
           />
         </View>
@@ -230,7 +250,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 8,
   },
-  managementItem:{
+  managementItem: {
     marginBottom: 8,
     backgroundColor: '#007AFF',
     padding: 12,

@@ -107,7 +107,7 @@ export default function StaffPaymentScreen() {
 
     setSelectedSalonReceipt({
       ...selectedSalonReceipt,
-      staff_receipts: newSelectedStaffs
+      staff_receipts: newSelectedStaffs,
     })
 
   }
@@ -183,6 +183,7 @@ export default function StaffPaymentScreen() {
     debitPaymentPrice,
     giftcardPaymentWithCash,
     giftcardPaymentWithDebit,
+    paymentInvoice
 
   } = calculatePayments();
 
@@ -375,7 +376,7 @@ export default function StaffPaymentScreen() {
         <View style={styles.section}>
           <View style={styles.totalRow}>
             <Text>SUB TOTAL ($)</Text>
-            <Text style={styles.totalAmount}>{formatCurrency(Number(selectedSalonReceipt?.sub_total_amount))}</Text>
+            <Text style={styles.totalAmount}>{formatCurrency(Number(paymentInvoice?.total_service_amount))}</Text>
           </View>
 
           {/* Payment Methods */}

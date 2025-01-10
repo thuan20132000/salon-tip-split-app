@@ -76,7 +76,6 @@ export const useSalonStore = create<SalonState>((set) => ({
       const { selectedSalon } = get();
       const filterInput: SalonReceiptFilterInput = {
         ...filter,
-        created_at: filter?.created_at || dayjs(new Date()).format('YYYY-MM-DD'),
       }
 
       const res = await salonAPI.getSalonReceipts(Number(selectedSalon?.id), filterInput);
@@ -99,11 +98,9 @@ export const useSalonStore = create<SalonState>((set) => ({
 
       const filterInput: SalonReceiptFilterInput = {
         ...filter,
-        created_at: filter?.created_at || dayjs(new Date()).format('YYYY-MM-DD'),
       }
 
       const res = await salonAPI.getSalonStaffReceipts(Number(selectedSalon?.id), filterInput);
-      console.log('salon staff bills: ', res.data.data);
 
       set({
         salonStaffBills: res.data.data,

@@ -13,17 +13,17 @@ export const GENDER_CHOICES: GenderOption[] = [
 
 export interface SalonStaffType {
   id?: number;
-  first_name: string | null;
-  last_name: string | null;
-  email: string | null;
-  phone: string;
-  address: string | null;
-  gender: Gender;
-  date_of_birth: string | null; // ISO date string 'YYYY-MM-DD'
-  hire_date: string; // ISO date string 'YYYY-MM-DD'
-  is_active: boolean;
-  created_at: string; // ISO datetime string
-  updated_at: string; // ISO datetime string
+  first_name?: string | null;
+  last_name?: string | null;
+  email?: string | null;
+  phone?: string;
+  address?: string | null;
+  gender?: Gender;
+  date_of_birth?: string | null; // ISO date string 'YYYY-MM-DD'
+  hire_date?: string; // ISO date string 'YYYY-MM-DD'
+  is_active?: boolean;
+  created_at?: string; // ISO datetime string
+  updated_at?: string; // ISO datetime string
   salon?: string | number; // Salon ID or name
 }
 

@@ -9,7 +9,6 @@ import {
 interface ButtonTextProps extends TouchableOpacityProps {
   title: string;
   textStyle?: TextStyle;
-
 }
 
 const ButtonText: React.FC<ButtonTextProps> = (props) => {
