@@ -8,16 +8,12 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import FilterBar from '@/components/FilterBar';
-import useStaffReceiptStore, { StaffReceiptStore } from '@/store/useStaffReceiptStore';
 import { useFocusEffect } from 'expo-router';
 import StaffBillItem from '@/components/StaffBillItem';
 import { SalonReceipt, SalonReceiptFilterInput, StaffBillType, StaffReceiptFilterInput } from '@/types/receipt.type';
 import dayjs, { Dayjs } from 'dayjs';
 import { receiptAPIs } from '@/api/receiptAPI';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
-import DateTimePicker, { DateType, ModeType } from 'react-native-ui-datepicker';
-import DateRangePickerModal from '@/components/DateRangePickerModal';
 import TicketReportFilter from '@/components/TicketReportFilter';
 
 

@@ -8,6 +8,8 @@ import dayjs from 'dayjs';
 import { SalonStaffType } from '@/types/staff.types';
 import { SalonReceiptFilterInput } from '@/types/receipt.type';
 import useSalonSalaryReportStore, { SalonSalaryReportState } from '@/store/useSalonSalaryReportStore';
+import ButtonIcon from './commons/ButtonIcon';
+import { ms } from 'react-native-size-matters';
 
 interface SalonReportFilterProps {
   onFilter?: (startDate: string, endDate: string) => void;
@@ -19,6 +21,7 @@ const SalonReportFilter: React.FC<SalonReportFilterProps> = ({ onFilter }) => {
   const [isShowDateRangePicker, setIsShowDateRangePicker] = useState(false);
   const [isShowSelectStaffModal, setIsShowSelectStaffModal] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<SalonStaffType | null>();
+  const [isShowSummary, setIsShowSummary] = useState<boolean>(false);
 
   const {
     salonStaffs,
@@ -28,22 +31,8 @@ const SalonReportFilter: React.FC<SalonReportFilterProps> = ({ onFilter }) => {
     summary,
   } = useSalonSalaryReportStore((state: SalonSalaryReportState) => state);
 
-
-  const onSelectStaff = (staff: SalonStaffType) => {
-    setSelectedStaff(staff);
-    setIsShowSelectStaffModal(false);
-  }
-
-  const reportStaffs = () => {
-    let allStaff: SalonStaffType = {
-      id: 0,
-      first_name: 'All Staffs',
-      last_name: '',
-      email: '',
-      phone: '',
-    }
-    let staffs = salonStaffs?.at(0) ? [allStaff, ...salonStaffs] : [allStaff];
-    return staffs;
+  const toggleShowSummary = () => {
+    setIsShowSummary(!isShowSummary);
   }
 
   return (
@@ -87,7 +76,7 @@ const SalonReportFilter: React.FC<SalonReportFilterProps> = ({ onFilter }) => {
           staffList={salonStaffs}
           onSelectStaff={(staff) => {
             console.log('selected staff:', staff);
-            
+
             getSalaryReport({
               staff: staff.id,
               created_at_range_after: startDate?.toString(),
@@ -99,10 +88,17 @@ const SalonReportFilter: React.FC<SalonReportFilterProps> = ({ onFilter }) => {
           onItemPress={() => { setIsShowSelectStaffModal(true) }}
           selectedStaff={selectedStaff}
         />
-
+        <ButtonIcon
+          title={selectedStaff?.first_name || ''}
+          onPress={toggleShowSummary}
+          iconName='pie-chart'
+          containerStyle={{ marginLeft: ms(4) }}
+          color={isShowSummary ? 'green' : 'black'}
+        />
       </View>
 
       {
+        isShowSummary &&
         <SummaryCard
           totalAmount={summary?.total_service_amount || 0}
           totalTip={summary?.total_tip_amount || 0}

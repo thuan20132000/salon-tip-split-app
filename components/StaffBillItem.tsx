@@ -83,26 +83,21 @@ const StaffBillItem: React.FC<StaffBillProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.staffName}>{staffName}</Text>
-        {/* <StatusBadge status={'PAID'} /> */}
-        <ButtonIcon
-          iconName='trash'
-          color="red"
-          size={24}
-          onPress={onDeletePress as any}
-          containerStyle={{ padding: 0, backgroundColor: 'transparent' }}
-        />
-      </View>
-      <View style={styles.header}>
         <Badge
           text={staffBill?.staff?.first_name?.toString()}
           textStyle={{ fontSize: 16, fontWeight: 'bold' }}
+        />
+        <ButtonIcon
+          iconName='trash'
+          color="red"
+          onPress={onDeletePress as any}
+          containerStyle={{ padding: 0, backgroundColor: 'transparent' }}
         />
       </View>
       <View style={styles.content}>
         <View style={styles.row}>
           <BillRow
-            label="Service Price: "
+            label="Sale: "
             value={formatCurrency(Number(staffBill?.service_amount))}
           />
           <BillRow
@@ -169,7 +164,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
   },
   staffName: {
     fontSize: 20,

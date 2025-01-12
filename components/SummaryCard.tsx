@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { ms } from 'react-native-size-matters';
 
 interface SummaryCardProps {
   totalAmount: number;
@@ -20,58 +21,46 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   const grandTotal = totalAmount + totalTip;
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      {/* <View style={styles.header}>
-        <Text style={styles.title}>Summary</Text>
-        {period && (
-          <TouchableOpacity
-            style={styles.periodButton}
-            onPress={onPeriodChange}
-          >
-            <Text style={styles.periodText}>{period}</Text>
-            <Ionicons name="calendar-outline" size={20} color="#007AFF" />
-          </TouchableOpacity>
-        )}
-      </View> */}
-
-      {/* Amount Cards */}
-      <View style={styles.cardsContainer}>
-        {/* Service Amount Card */}
-        <View style={[styles.card, styles.serviceCard]}>
-          <View style={styles.cardHeader}>
-            <Ionicons name="cash-outline" size={24} color="#4CAF50" />
-            <Text style={styles.cardLabel}>Service Sale</Text>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+      <View style={styles.container}>
+        {/* Amount Cards */}
+        <View style={styles.cardsContainer}>
+          {/* Service Amount Card */}
+          <View style={[styles.card, styles.serviceCard]}>
+            <View style={styles.cardHeader}>
+              <Ionicons name="cash-outline" size={24} color="#4CAF50" />
+              <Text style={styles.cardLabel}>Sale</Text>
+            </View>
+            <Text style={[styles.amount, styles.serviceAmount]}>
+              ${totalAmount.toFixed(2)}
+            </Text>
           </View>
-          <Text style={[styles.amount, styles.serviceAmount]}>
-            ${totalAmount.toFixed(2)}
-          </Text>
+
+          {/* Tips Card */}
+          <View style={[styles.card, styles.tipsCard]}>
+            <View style={styles.cardHeader}>
+              <Ionicons name="gift-outline" size={24} color="#FF9800" />
+              <Text style={styles.cardLabel}>Tips</Text>
+            </View>
+            <Text style={[styles.amount, styles.tipsAmount]}>
+              ${totalTip.toFixed(2)}
+            </Text>
+          </View>
+
+          {/* Turn Card */}
+          <View style={[styles.card, styles.tipsCard]}>
+            <View style={styles.cardHeader}>
+              <Ionicons name="notifications" size={24} color="#FF9800" />
+              <Text style={styles.cardLabel}>Turns</Text>
+            </View>
+            <Text style={[styles.amount, styles.tipsAmount]}>
+              {totalTurn}
+            </Text>
+          </View>
         </View>
 
-        {/* Tips Card */}
-        <View style={[styles.card, styles.tipsCard]}>
-          <View style={styles.cardHeader}>
-            <Ionicons name="gift-outline" size={24} color="#FF9800" />
-            <Text style={styles.cardLabel}>Tips</Text>
-          </View>
-          <Text style={[styles.amount, styles.tipsAmount]}>
-            ${totalTip.toFixed(2)}
-          </Text>
-        </View>
-
-        {/* Turn Card */}
-        <View style={[styles.card, styles.tipsCard]}>
-          <View style={styles.cardHeader}>
-            <Ionicons name="gift-outline" size={24} color="#FF9800" />
-            <Text style={styles.cardLabel}>Turns</Text>
-          </View>
-          <Text style={[styles.amount, styles.tipsAmount]}>
-            {totalTurn}
-          </Text>
-        </View>
       </View>
-
-    </View>
+    </ScrollView>
   );
 };
 
@@ -79,8 +68,8 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     borderRadius: 16,
-    padding: 16,
-    margin: 16,
+    padding: ms(8),
+    margin: ms(8),
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -112,12 +101,15 @@ const styles = StyleSheet.create({
   },
   cardsContainer: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 4,
+    gap: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    // marginBottom: 4,
   },
   card: {
     flex: 1,
-    padding: 16,
+    padding: ms(12),
     borderRadius: 12,
     backgroundColor: '#f8f9fa',
   },
@@ -139,7 +131,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   amount: {
-    fontSize: 24,
+    fontSize: ms(16),
     fontWeight: '700',
   },
   serviceAmount: {

@@ -9,6 +9,8 @@ import {
 import { AntDesign } from '@expo/vector-icons';
 import { SalonSalaryReportType } from '@/types/report.types';
 import { formatCurrency, formatDate, formatDateTime } from '@/utils/receiptUtils';
+import { ms } from 'react-native-size-matters';
+import Badge from './commons/Badge';
 
 interface SalaryReportItemProps {
   item: SalonSalaryReportType;
@@ -21,40 +23,45 @@ const SalaryReportItem: React.FC<SalaryReportItemProps> = ({
 }) => {
 
   return (
-    <TouchableOpacity
-      style={styles.container}
-      onPress={onPress}
-      disabled={!onPress}
-    >
-      <View style={styles.dateContainer}>
-        <Text style={styles.date}>{formatDate(item.date)}</Text>
-      </View>
-
-      <View style={styles.amountsContainer}>
-        <View style={styles.row}>
-          <Text style={styles.label}>Total Sale:</Text>
-          <Text style={styles.amount}>{formatCurrency(item.total_service_amount)}</Text>
+    <View>
+      <TouchableOpacity
+        style={[styles.container]}
+        onPress={onPress}
+        disabled={!onPress}
+      >
+        <View style={styles.dateContainer}>
+          <Text style={styles.date}>{formatDate(item.date)}</Text>
         </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Total Turns:</Text>
-          <Text style={styles.amount}>{item.total_turn}</Text>
+        <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+          <View style={styles.amountsContainer}>
+            <View style={styles.row}>
+              <Text style={styles.label}>Sale:</Text>
+              <Badge
+                color="#4CAF50"
+                text={formatCurrency(item.total_service_amount)}
+                textStyle={{ color: 'white', padding: 2, fontSize: ms(10) }}
+              />
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Tips:</Text>
+              <Badge
+                backgroundColor="#FF9800"
+                text={formatCurrency(item.total_tip_amount)}
+                textStyle={{ color: 'white', padding: 2, fontSize: ms(10) }}
+              />
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Turns:</Text>
+              <Badge
+                backgroundColor="#FF9800"
+                text={String(item.total_turn)}
+                textStyle={{ color: 'white', padding: 2, fontSize: ms(10) }}
+              />
+            </View>
+          </View>
         </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Total Tips:</Text>
-          <Text style={styles.amount}>{item.total_tip_amount}</Text>
-        </View>
-        {/* <View style={[styles.row, styles.totalRow]}>
-          <Text style={styles.totalLabel}>Total:</Text>
-          <Text style={styles.totalAmount}>{item.total_turn}</Text>
-        </View> */}
-      </View>
-
-      {onPress && (
-        <View style={styles.iconContainer}>
-          <AntDesign name="right" size={16} color="#666" />
-        </View>
-      )}
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </View>
   );
 };
 
@@ -62,10 +69,8 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
     borderRadius: 12,
-    padding: 16,
+    padding: ms(8),
     marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -79,7 +84,10 @@ const styles = StyleSheet.create({
     }),
   },
   dateContainer: {
-    flex: 1.2,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   date: {
     fontSize: 14,
@@ -88,7 +96,7 @@ const styles = StyleSheet.create({
   },
   amountsContainer: {
     flex: 2,
-    gap: 4,
+    gap: 2,
     flexDirection: 'row',
     justifyContent: 'space-around'
   },
@@ -100,7 +108,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     color: '#666',
-    paddingHorizontal: 8,
   },
   amount: {
     fontSize: 14,

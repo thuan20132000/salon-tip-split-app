@@ -31,18 +31,18 @@ const SelectSalonStaffModal: React.FC<SelectSalonStaffModalProps> = ({ isVisible
   }
 
   const getButtonTitle = () => {
-    return selectedStaff?.first_name || 'Select Staff';
+    return selectedStaff?.first_name || '';
   }
 
   const [isShowStaffModal, setShowStaffPicker] = useState(false);
 
 
   return (
-    <View>
+    <View >
       <ButtonIcon
         title={getButtonTitle()}
         onPress={onItemPress}
-        iconName='person'
+        iconName='people'
       />
 
       <Modal isVisible={isVisible} onBackdropPress={onClose}>

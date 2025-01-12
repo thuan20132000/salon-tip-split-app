@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
 import DateRangePickerModal from './DateRangePickerModal';
 import SelectSalonStaffModal from './SelectSalonStaffModal';
 import SummaryCard from './SummaryCard';
@@ -8,6 +8,8 @@ import dayjs from 'dayjs';
 import { SalonStaffType } from '@/types/staff.types';
 import { SalonReceiptFilterInput } from '@/types/receipt.type';
 import useSalonSalaryReportStore, { SalonSalaryReportState } from '@/store/useSalonSalaryReportStore';
+import ButtonIcon from './commons/ButtonIcon';
+import { ms } from 'react-native-size-matters';
 
 interface TicketReportFilterProps {
   onFilter?: (startDate: string, endDate: string) => void;
@@ -26,6 +28,7 @@ const TicketReportFilter: React.FC<TicketReportFilterProps> = ({ onFilter,
   const [isShowDateRangePicker, setIsShowDateRangePicker] = useState(false);
   const [isShowSelectStaffModal, setIsShowSelectStaffModal] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<SalonStaffType | null>(defaultStaff || null);
+  const [isShowSummary, setIsShowSummary] = useState<boolean>(false);
 
   const {
     salonStaffs,
@@ -33,12 +36,17 @@ const TicketReportFilter: React.FC<TicketReportFilterProps> = ({ onFilter,
     staffBillsSummary
   } = useSalonStore((state: SalonState) => state);
 
+  const toggleShowSummary = () => {
+    setIsShowSummary(!isShowSummary);
+  }
+
   return (
     <View style={styles.container}>
-      <View
+      <ScrollView
         style={{
           flexDirection: 'row',
         }}
+        horizontal
       >
         <DateRangePickerModal
           isVisible={isShowDateRangePicker}
@@ -68,13 +76,12 @@ const TicketReportFilter: React.FC<TicketReportFilterProps> = ({ onFilter,
           onItemPress={() => { setIsShowDateRangePicker(true) }}
           defaultDate={new Date()}
         />
+
         <SelectSalonStaffModal
           isVisible={isShowSelectStaffModal}
           onClose={() => { setIsShowSelectStaffModal(false) }}
           staffList={salonStaffs}
           onSelectStaff={(staff) => {
-            console.log('selected staff:', staff);
-
             getSalonStaffBills({
               staff: staff.id,
               created_at_range_after: startDate?.toString(),
@@ -86,10 +93,17 @@ const TicketReportFilter: React.FC<TicketReportFilterProps> = ({ onFilter,
           onItemPress={() => { setIsShowSelectStaffModal(true) }}
           selectedStaff={selectedStaff}
         />
-
-      </View>
+        <ButtonIcon
+          title={selectedStaff?.first_name || ''}
+          onPress={toggleShowSummary}
+          iconName='pie-chart'
+          containerStyle={{ marginLeft: ms(4) }}
+          color={isShowSummary ? 'green' : 'black'}
+        />
+      </ScrollView>
 
       {
+        isShowSummary &&
         <SummaryCard
           totalAmount={staffBillsSummary?.total_amount || 0}
           totalTip={staffBillsSummary?.total_tip || 0}
@@ -97,7 +111,6 @@ const TicketReportFilter: React.FC<TicketReportFilterProps> = ({ onFilter,
           period="Today"
           onPeriodChange={() => { }}
         />
-
       }
     </View>
   );
