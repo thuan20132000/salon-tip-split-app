@@ -77,5 +77,11 @@
     <string>Automatic</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>remote-notification</string>
+    </array>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Your location is required for push notifications</string>
   </dict>
 </plist>

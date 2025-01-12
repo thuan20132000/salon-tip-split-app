@@ -1,3 +1,4 @@
+import { intializeOneSignal } from "@/services/onesignal.service";
 import { AuthState, useAuthStore } from "@/store/authStore";
 import { Redirect, Slot, Stack } from "expo-router";
 import { useEffect } from "react";
@@ -9,6 +10,7 @@ export default function Root() {
   } = useAuthStore((state: AuthState) => state)
 
   useEffect(() => {
+    intializeOneSignal()
     initialize()
   }, [])
 

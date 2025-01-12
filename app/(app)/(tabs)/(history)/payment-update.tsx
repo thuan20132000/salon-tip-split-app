@@ -153,11 +153,6 @@ export default function StaffPaymentScreen() {
         }),
       }
 
-      console.log('====================================');
-      console.log('Update Receipt:', receiptUpdate);
-      console.log('====================================');
-
-
       let res = await receiptAPIs.updateSalonReceipt(Number(selectedSalonReceipt?.id), receiptUpdate);
 
       Alert.alert('Update Payment Success', 'Update Payment has been successfully processed');
