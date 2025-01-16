@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
 import { useSalonStore } from './useSalonStore';
+import { intializeOneSignal, registerUserDeviceSubscription, unRegisterUserDeviceSubscription } from '@/services/onesignal.service';
 
 
 
@@ -29,6 +30,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const tokens = await SecureStore.getItemAsync('tokens');
       const user = await SecureStore.getItemAsync('user');
+      const userDevice =  intializeOneSignal();
       useSalonStore.getState().initSelectedSalon();
       if (tokens && user) {
         set({
@@ -47,17 +49,18 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: async (username: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
+      
       const res = await authAPI.login(username, password);
-      console.log('====================================');
-      console.log('login res: ', res.data);
-      console.log('====================================');
+      const staffSalon = res.data.user?.staff_detail?.salon
+
       // Store tokens and user data securely
       await SecureStore.setItemAsync('tokens', JSON.stringify({
         access: res.data.access,
         refresh: res.data.refresh,
       }));
       await SecureStore.setItemAsync('user', JSON.stringify(res.data.user));
-
+      await useSalonStore.getState().onSelectedSalon(staffSalon)
+      registerUserDeviceSubscription()
       set({
         user: res.data.user,
         tokens: {
@@ -69,16 +72,23 @@ export const useAuthStore = create<AuthState>((set) => ({
       });
 
     } catch (error) {
+      console.log('====================================');
+      console.log('error: ',error);
+      console.log('====================================');
       set({ error: '', isLoading: false });
     }
   },
 
   logout: async () => {
     try {
+      console.log('====================================');
+      console.log('logout process');
+      console.log('====================================');
       // Clear secure storage
+      await unRegisterUserDeviceSubscription()
       await SecureStore.deleteItemAsync('tokens');
       await SecureStore.deleteItemAsync('user');
-
+      await SecureStore.deleteItemAsync('selectedSalon');
       set({
         user: null,
         tokens: null,

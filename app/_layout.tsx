@@ -5,12 +5,10 @@ import { useEffect } from "react";
 
 export default function Root() {
   const {
-    isAuthenticated,
     initialize
   } = useAuthStore((state: AuthState) => state)
 
   useEffect(() => {
-    intializeOneSignal()
     initialize()
   }, [])
 

@@ -63,6 +63,7 @@ export const useSalonStaffStore = create<SalonStaffState>((set, get) => ({
 
     } catch (error) {
       console.error(error);
+      set({ salonStaffs: [] });
       return [];
     }
   },

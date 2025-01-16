@@ -24,12 +24,12 @@ interface FormData {
 
 export const LoginScreen: React.FC = () => {
   const [secureTextEntry, setSecureTextEntry] = useState(true);
-  const { login, isLoading, error ,logout} = useAuthStore();
-  
+  const { login, isLoading, error, logout } = useAuthStore();
+
   const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
     defaultValues: {
-      username: 'thuantruong',
-      password: 'Thuan123',
+      username: '000111222',
+      password: '123456',
     },
   });
 
@@ -37,110 +37,110 @@ export const LoginScreen: React.FC = () => {
     try {
       await login(data.username, data.password);
       router.replace('/(app)/(tabs)/(staff)');
-        } catch (error) {
+    } catch (error) {
       Alert.alert('Error');
     }
   };
 
   return (
-      
-      <View style={styles.formContainer}>
-        <Text style={styles.title}>Login</Text>
-        
-        {error && (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{error}</Text>
+
+    <View style={styles.formContainer}>
+      <Text style={styles.title}>Login</Text>
+
+      {error && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
+
+      <Controller
+        control={control}
+        rules={{
+          required: 'Username is required',
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <View style={styles.inputContainer}>
+            <AntDesign name="user" size={20} color="#666" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Username"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              autoCapitalize="none"
+            />
           </View>
         )}
+        name="username"
+      />
+      {errors.username && (
+        <Text style={styles.validationError}>{errors.username.message}</Text>
+      )}
 
-        <Controller
-          control={control}
-          rules={{
-            required: 'Username is required',
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <View style={styles.inputContainer}>
-              <AntDesign name="user" size={20} color="#666" style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Username"
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                autoCapitalize="none"
+      <Controller
+        control={control}
+        rules={{
+          required: 'Password is required',
+          minLength: {
+            value: 6,
+            message: 'Password must be at least 6 characters',
+          },
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <View style={styles.inputContainer}>
+            <AntDesign name="lock" size={20} color="#666" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              secureTextEntry={secureTextEntry}
+            />
+            <TouchableOpacity
+              style={styles.eyeIcon}
+              onPress={() => setSecureTextEntry(!secureTextEntry)}
+            >
+              <AntDesign
+                name={secureTextEntry ? "eyeo" : "eye"}
+                size={20}
+                color="#666"
               />
-            </View>
-          )}
-          name="username"
-        />
-        {errors.username && (
-          <Text style={styles.validationError}>{errors.username.message}</Text>
+            </TouchableOpacity>
+          </View>
         )}
+        name="password"
+      />
+      {errors.password && (
+        <Text style={styles.validationError}>{errors.password.message}</Text>
+      )}
 
-        <Controller
-          control={control}
-          rules={{
-            required: 'Password is required',
-            minLength: {
-              value: 6,
-              message: 'Password must be at least 6 characters',
-            },
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <View style={styles.inputContainer}>
-              <AntDesign name="lock" size={20} color="#666" style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                secureTextEntry={secureTextEntry}
-              />
-              <TouchableOpacity
-                style={styles.eyeIcon}
-                onPress={() => setSecureTextEntry(!secureTextEntry)}
-              >
-                <AntDesign 
-                  name={secureTextEntry ? "eyeo" : "eye"} 
-                  size={20} 
-                  color="#666" 
-                />
-              </TouchableOpacity>
-            </View>
-          )}
-          name="password"
-        />
-        {errors.password && (
-          <Text style={styles.validationError}>{errors.password.message}</Text>
+      <TouchableOpacity
+        style={styles.forgotPassword}
+        onPress={() => {/* Handle forgot password */ }}
+      >
+        <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+        onPress={handleSubmit(onSubmit)}
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.loginButtonText}>Login</Text>
         )}
-
-        <TouchableOpacity
-          style={styles.forgotPassword}
-          onPress={() => {/* Handle forgot password */}}
-        >
-          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
-          onPress={handleSubmit(onSubmit)}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.loginButtonText}>Login</Text>
-          )}
-        </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     // flex: 1,
-    
+
   },
   formContainer: {
     flex: 1,

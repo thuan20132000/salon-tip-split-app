@@ -1,3 +1,5 @@
+import { Salon } from "./salon.types";
+
 export type Gender = 'M' | 'F' | 'O';
 
 export interface GenderOption {
@@ -24,7 +26,8 @@ export interface SalonStaffType {
   is_active?: boolean;
   created_at?: string; // ISO datetime string
   updated_at?: string; // ISO datetime string
-  salon?: string | number; // Salon ID or name
+  salon?: Salon; // Salon ID or name
+  role?: string;
 }
 
 // For creating new staff member (partial type without auto-generated fields)

@@ -19,7 +19,7 @@ export interface SalonState {
   staffBillsSummary?: StaffReceiptSummary;
   getSalonStaffBills: (filter_input: SalonReceiptFilterInput) => Promise<StaffBillType[]>;
   getMySalons: () => Promise<void>;
-  onSelectedSalon: (salon: Salon) => Promise<void>;
+  onSelectedSalon: (salon?: Salon) => Promise<void>;
   salonStaffs: SalonStaffType[] | null;
   getSalonStaffs: () => Promise<SalonStaffType[]>;
   initSelectedSalon: () => Promise<void>;
@@ -37,14 +37,12 @@ export const useSalonStore = create<SalonState>((set) => ({
   getMySalons: async () => {
     try {
       const res = await salonAPI.getMySalons();
-      const selectedSalon = await SecureStore.getItemAsync('selectedSalon');
-
       set({ salons: res.data.data });
     } catch (error) {
       console.error('get my-salons error:', error);
     }
   },
-  onSelectedSalon: async (salon: Salon) => {
+  onSelectedSalon: async (salon?: Salon) => {
     set({ selectedSalon: salon });
 
     await SecureStore.setItemAsync('selectedSalon', JSON.stringify(salon));
@@ -61,12 +59,14 @@ export const useSalonStore = create<SalonState>((set) => ({
   getSalonStaffs: async () => {
     try {
       const { selectedSalon } = get();
+      
       const res = await salonAPI.getSalonStaffs(Number(selectedSalon?.id));
       set({ salonStaffs: res.data.data });
       return res.data.data;
 
     } catch (error) {
       console.error(error);
+      set({ salonStaffs: [] });
       return [];
     }
   },

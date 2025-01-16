@@ -1,3 +1,5 @@
+import { SalonStaffType } from "./staff.types";
+
 interface User {
   id: number;
   password: string;
@@ -12,6 +14,7 @@ interface User {
   date_joined: string;
   groups: any[];
   user_permissions: any[];
+  staff_detail?: SalonStaffType
 }
 
 interface Salon {
@@ -71,6 +74,21 @@ interface RefreshTokenRequest {
 }
 
 
+interface UserDeviceType {
+  id?: number;
+  device_id: string;
+  device_type?: string;
+  user?: number;
+  active?: boolean;
+  last_used?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface UserDeviceRegisterRequest {
+  device_id: string;
+}
+
 export type {
   User,
   Salon,
@@ -78,6 +96,8 @@ export type {
   LoginResponse,
   LoginCredentials,
   RegisterCredentials,
-  RefreshTokenRequest
+  RefreshTokenRequest,
+  UserDeviceType,
+  UserDeviceRegisterRequest
 };
 export { isSalon };
