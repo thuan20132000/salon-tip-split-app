@@ -28,6 +28,7 @@ export interface SalonStaffType {
   updated_at?: string; // ISO datetime string
   salon?: Salon; // Salon ID or name
   role?: string;
+  commission_rate?: string;
 }
 
 // For creating new staff member (partial type without auto-generated fields)

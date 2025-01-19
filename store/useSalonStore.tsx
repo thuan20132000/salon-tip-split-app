@@ -80,12 +80,8 @@ export const useSalonStore = create<SalonState>((set) => ({
 
       const res = await salonAPI.getSalonReceipts(Number(selectedSalon?.id), filterInput);
 
-      console.log('====================================');
-      console.log('salon receipts: ', res.data);
-      console.log('====================================');
       set({
         salonReceipts: res.data.data,
-
       });
     } catch (error) {
       console.error(error);

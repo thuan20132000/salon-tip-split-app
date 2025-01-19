@@ -13,6 +13,8 @@ export default function StaffLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="salon-staff" />
         <Stack.Screen name="salon" />
+        <Stack.Screen name="salon-report" />
+        <Stack.Screen name="salon-salary-report" />
 
       </Stack>
     </KeyboardProvider>

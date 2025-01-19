@@ -55,9 +55,6 @@ const UserScreen: React.FC<UserScreenProps> = () => {
     return (first)?.toUpperCase() || user?.username.charAt(0).toUpperCase();
   };
 
-  console.log('====================================');
-  console.log('user: ', user);
-  console.log('====================================');
 
   const showStaffManagement = () => {
     router.push('/(app)/(tabs)/(user)/salon-staff');
@@ -73,6 +70,10 @@ const UserScreen: React.FC<UserScreenProps> = () => {
 
   const showSalonReport = () => {
     router.push('/(app)/(tabs)/(user)/salon-report');
+  }
+
+  const showSalaryReport = () => {
+    router.push('/(app)/(tabs)/(user)/salon-salary-report');
   }
 
   useEffect(() => {
@@ -135,6 +136,11 @@ const UserScreen: React.FC<UserScreenProps> = () => {
           <ButtonText
             title="Salon Reports"
             onPress={showSalonReport}
+            style={styles.managementItem}
+          />
+          <ButtonText
+            title="Salon Salary Reports"
+            onPress={showSalaryReport}
             style={styles.managementItem}
           />
         </View>

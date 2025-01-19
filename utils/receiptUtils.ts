@@ -18,8 +18,8 @@ export const formatDate = (timestamp?: string): string => {
   if (!timestamp) {
     return '';
   }
-  const dt = dayjs(timestamp).format('MMM DD, YYYY');
-  return dt;
+  const date = dayjs(timestamp).format('MMM DD, YYYY');
+  return date;
 };
 
 export const formatDateTime = (timestamp?: string): string => {

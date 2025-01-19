@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import DateRangePickerModal from './DateRangePickerModal';
 import SelectSalonStaffModal from './SelectSalonStaffModal';
 import SummaryCard from './SummaryCard';
@@ -11,30 +11,24 @@ import useSalonSalaryReportStore, { SalonSalaryReportState } from '@/store/useSa
 import ButtonIcon from './commons/ButtonIcon';
 import { ms } from 'react-native-size-matters';
 
-interface TicketReportFilterProps {
+interface StaffReportFilterProps {
   onFilter?: (startDate: string, endDate: string) => void;
-  defaultStartDate?: string;
-  defaultEndDate?: string;
-  defaultStaff?: SalonStaffType | null;
 }
 
-const TicketReportFilter: React.FC<TicketReportFilterProps> = ({ onFilter,
-  defaultStartDate,
-  defaultEndDate,
-  defaultStaff
-}) => {
-  const [startDate, setStartDate] = useState(defaultStartDate || dayjs(new Date()).format('YYYY-MM-DD'));
-  const [endDate, setEndDate] = useState(defaultEndDate || dayjs(new Date()).format('YYYY-MM-DD'));
+const StaffReportFilter: React.FC<StaffReportFilterProps> = ({ onFilter }) => {
+  const [startDate, setStartDate] = useState(dayjs(new Date()).format('YYYY-MM-DD'));
+  const [endDate, setEndDate] = useState(dayjs(new Date()).format('YYYY-MM-DD'));
   const [isShowDateRangePicker, setIsShowDateRangePicker] = useState(false);
   const [isShowSelectStaffModal, setIsShowSelectStaffModal] = useState(false);
-  const [selectedStaff, setSelectedStaff] = useState<SalonStaffType | null>(defaultStaff || null);
+  const [selectedStaff, setSelectedStaff] = useState<SalonStaffType | null>();
   const [isShowSummary, setIsShowSummary] = useState<boolean>(false);
 
   const {
     salonStaffs,
-    getSalonStaffBills,
-    staffBillsSummary
   } = useSalonStore((state: SalonState) => state);
+  const {
+    getStaffSalaryReport,
+  } = useSalonSalaryReportStore((state: SalonSalaryReportState) => state);
 
   const toggleShowSummary = () => {
     setIsShowSummary(!isShowSummary);
@@ -42,11 +36,10 @@ const TicketReportFilter: React.FC<TicketReportFilterProps> = ({ onFilter,
 
   return (
     <View style={styles.container}>
-      <ScrollView
+      <View
         style={{
           flexDirection: 'row',
         }}
-        horizontal
       >
         <DateRangePickerModal
           isVisible={isShowDateRangePicker}
@@ -58,12 +51,12 @@ const TicketReportFilter: React.FC<TicketReportFilterProps> = ({ onFilter,
             setStartDate(stDate);
             setEndDate(edDate);
             if (stDate === edDate) {
-              getSalonStaffBills({
+              getStaffSalaryReport({
                 staff: selectedStaff?.id,
                 created_at: dayjs(startDate).format('YYYY-MM-DD')
               })
             } else {
-              getSalonStaffBills({
+              getStaffSalaryReport({
                 staff: selectedStaff?.id,
                 created_at_range_after: stDate,
                 created_at_range_before: edDate
@@ -74,15 +67,15 @@ const TicketReportFilter: React.FC<TicketReportFilterProps> = ({ onFilter,
 
           }}
           onItemPress={() => { setIsShowDateRangePicker(true) }}
-          defaultDate={new Date()}
+          defaultDate={dayjs(new Date()).format('YYYY-MM-DD')}
         />
-
         <SelectSalonStaffModal
           isVisible={isShowSelectStaffModal}
           onClose={() => { setIsShowSelectStaffModal(false) }}
           staffList={salonStaffs}
           onSelectStaff={(staff) => {
-            getSalonStaffBills({
+
+            getStaffSalaryReport({
               staff: staff.id,
               created_at_range_after: startDate?.toString(),
               created_at_range_before: endDate?.toString()
@@ -99,17 +92,18 @@ const TicketReportFilter: React.FC<TicketReportFilterProps> = ({ onFilter,
           containerStyle={{ marginLeft: ms(4) }}
           color={isShowSummary ? 'green' : 'black'}
         />
-      </ScrollView>
+      </View>
 
       {
-        isShowSummary &&
-        <SummaryCard
-          totalAmount={staffBillsSummary?.total_amount || 0}
-          totalTip={staffBillsSummary?.total_tip || 0}
-          totalTurn={staffBillsSummary?.total_turn || 0}
-          period="Today"
-          onPeriodChange={() => { }}
-        />
+        // isShowSummary &&
+        // <SummaryCard
+        //   totalAmount={summary?.total_service_amount || 0}
+        //   totalTip={summary?.total_tip_amount || 0}
+        //   totalTurn={summary?.total_turn || 0}
+        //   period="Today"
+        //   onPeriodChange={() => { }}
+        // />
+
       }
     </View>
   );
@@ -133,4 +127,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TicketReportFilter;
+export default StaffReportFilter;

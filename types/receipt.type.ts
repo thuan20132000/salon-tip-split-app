@@ -44,6 +44,10 @@ export interface SalonReceipt {
   payment_status?: 'PAID' | 'PENDING' | 'CANCELLED';
   created_at?: string | null;
   updated_at?: string | null;
+  custom_discount?: number | null;
+  bonus_amount?: number | null;
+  total_amount?: number | null;
+
 }
 
 export interface SalonReceiptUpdateType {
@@ -59,6 +63,9 @@ export interface SalonReceiptUpdateType {
   created_at?: string | null;
   updated_at?: string | null;
   salon?: number;
+  custom_discount?: number | null;
+  bonus_amount?: number | null;
+  total_amount?: string | null;
 }
 
 export interface StaffBillType {
@@ -91,11 +98,11 @@ export interface StaffBillUpdateType {
 
 export interface CreateStaffBillInputType {
   staff: number;
-  service_amount: number;
-  tip_amount: number;
+  service_amount?: number | null;
+  tip_amount?: number | null;
   service_name?: string;
-  discount_price?: number;
-  discount_percent?: number;
+  discount_price?: string | number;
+  discount_percent?: string | number;
   status?: boolean;
   created_at?: string | null;
   updated_at?: string | null;
@@ -127,16 +134,19 @@ export interface UpdateSalonReceiptInputType {
 }
 
 export interface CreateSalonReceiptType {
-  sub_total_amount?: number | null;
-  return_amount?: number | null;
-  tip_total_amount?: number | null;
+  sub_total_amount?: string | null;
+  return_amount?: string | null;
+  tip_total_amount?: string | null;
   payment_method?: string | null;
-  payment_method_price?: number;
+  payment_method_price?: number | string;
   staff_receipts?: CreateStaffBillInputType[];
   payment_status?: PaymentReceiptStatusEnums;
   salon?: number;
   created_at?: string | Date | null;
   updated_at?: string | Date | null;
+  custom_discount?: number | null;
+  bonus_amount?: number | string | null;
+  total_amount?: number | string | null;
 }
 
 // Type for creating a new receipt (partial type without auto-generated fields)

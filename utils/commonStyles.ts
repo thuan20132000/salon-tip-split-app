@@ -18,5 +18,20 @@ export const commonStyles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     marginVertical: 4
+  },
+  iosShadow: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 10.49,
+    backgroundColor: '#ffffff',
+    marginVertical: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    borderRadius: 12
+
   }
 });

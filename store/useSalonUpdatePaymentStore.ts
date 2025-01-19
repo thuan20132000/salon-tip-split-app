@@ -84,7 +84,8 @@ export interface SalonPaymentUpdateState {
   salonReceipts: SalonReceipt[];
   selectedPaymentStaffs: SalonStaffType[];
   selectedSalonReceipt?: SalonReceipt;
-
+  customDiscountPercent?: number;
+  giftAmount?: number;
 
 
   // Actions
@@ -111,10 +112,12 @@ export interface SalonPaymentUpdateState {
   addSelectedSalonReceiptStaff: (staff: StaffBillType) => void;
   removeSelectedSalonReceiptStaff: (staff: StaffBillType) => void;
   deleteStaffReceipt: (staffReceipt: StaffBillType) => void;
+  updateCustomDiscountPercent: (percent: number) => void;
+  updateGiftAmount: (amount: number) => void;
 
 }
 
-interface SalonPaymentCalculations {
+export interface SalonPaymentCalculations {
   subtotal: number;
   debitPayment: number;
   cashPayment: number;
@@ -129,6 +132,7 @@ interface SalonPaymentCalculations {
   giftcardPaymentWithDebit: number;
   isGiftcardPayment: boolean;
   paymentInvoice: PaymentInvoiceDetailUpdateType;
+  total: number;
 }
 
 
@@ -143,6 +147,11 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
   isLoading: false,
   salonReceipts: [],
   selectedPaymentStaffs: [],
+  customDiscountPercent: 0,
+  giftAmount: 0,
+  updateGiftAmount: (amount) => {
+    set({ giftAmount: amount });
+  },
   getSalonPaymentReceipts: async () => {
     try {
       const res = await receiptAPIs.getSalonReceipts();
@@ -155,6 +164,9 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
     }
   },
 
+  updateCustomDiscountPercent: (percent: number) => {
+    set({ customDiscountPercent: percent });
+  },
   getSalonPaymentReceipt: async (id) => {
     try {
       const res = await receiptAPIs.getSalonReceipt(id);
@@ -249,16 +261,16 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
           }
 
           let discountPrice = handleDiscountPrice(Number(s.service_amount), discount);
-          return { 
-              ...s, 
-              discount_price: discountPrice, 
-              discount_percent: discount,
-            };
+          return {
+            ...s,
+            discount_price: discountPrice,
+            discount_percent: discount,
+          };
         }
         return s;
       });
       return {
-        selectedSalonReceipt:{
+        selectedSalonReceipt: {
           ...state.selectedSalonReceipt,
           staff_receipts: newStaffs,
 
@@ -292,47 +304,118 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
   },
   calculatePayments: () => {
     const state = get();
-    // const subtotal = state.paymentReceipt?.staffs?.reduce((sum, staff) => sum + staff.price, 0) || 0;
-    // const tax = subtotal * PaymentRatesEnums.TAX_RATE;
-    let subtotal = getSubtotalWithoutDiscountPrice(state.selectedSalonReceipt?.staff_receipts);
-    let total_service_price = getTotalServicePrice(state.selectedSalonReceipt?.staff_receipts);
-    let total_tip_amount = state.selectedSalonReceipt?.staff_receipts?.reduce((sum, staff) => sum + Number(staff.tip_amount), 0) || 0;
+    const selectedPaymentMethod = state.selectedSalonReceipt?.payment_method;
+    const staffReceipts = state.selectedSalonReceipt?.staff_receipts || [];
+    let subtotal = getSubtotalWithoutDiscountPrice(staffReceipts);
+    let total = 0;
+
+
+    let total_service_price = getTotalServicePrice(staffReceipts);
+    let total_tip_amount = staffReceipts?.reduce((sum, staff) => sum + Number(staff.tip_amount), 0) || 0;
     // Calculate by payment method
-    const debitPayment = getDebitPayment(subtotal) + getSubtotalDiscountPrice(state.selectedSalonReceipt?.staff_receipts);
-   
-    const cashPayment = getCashPayment(subtotal) + getSubtotalDiscountPrice(state.selectedSalonReceipt?.staff_receipts);
+    const debitPayment = getDebitPayment(subtotal) + getSubtotalDiscountPrice(staffReceipts);
+
+    const cashPayment = getCashPayment(subtotal) + getSubtotalDiscountPrice(staffReceipts);
 
     // Calculate discounts
     const loyaltyDiscount = debitPayment - (debitPayment * PaymentRatesEnums.LOYALTY);
+    const loyaltyDiscountAmount = debitPayment * PaymentRatesEnums.LOYALTY;
     const happyHourDiscount = debitPayment - (debitPayment * PaymentRatesEnums.HAPPY_HOUR);
+    const happyHourDiscountAmount = debitPayment * PaymentRatesEnums.HAPPY_HOUR;
     const cashGeneralDiscount = cashPayment - (cashPayment * PaymentRatesEnums.DISCOUNT);
     const debitGeneralDiscount = debitPayment - (debitPayment * PaymentRatesEnums.DISCOUNT);
 
     // Calculate combination payment
-    const debitPaymentPrice = state.selectedSalonReceipt?.payment_method === PaymentMethodsEnums.COMBINATION_CASH_DEBIT
+    let debitPaymentPrice = selectedPaymentMethod === PaymentMethodsEnums.COMBINATION_CASH_DEBIT
       ? cashPayment - state.cashPaymentPrice + ((cashPayment - state.cashPaymentPrice) * PaymentRatesEnums.CASH_OFF)
       : 0;
 
-    const returnAmount = (Number(state.receive) - Number(state.selectedSalonReceipt?.payment_method_price));
-    const isPayable = !!state.selectedSalonReceipt?.payment_method;
+
+    const isPayable = !!selectedPaymentMethod;
 
     // Calculate giftcard payment
     let gift_value = state.selectedSalonReceipt?.gift_value || 0;
+    gift_value = state.giftAmount || 0;
     const giftcardPaymentWithCash = ((subtotal + (subtotal * PaymentRatesEnums.TAX_RATE)) - gift_value) - ((subtotal + (subtotal * PaymentRatesEnums.TAX_RATE) - gift_value) * PaymentRatesEnums.CASH_OFF)
 
 
     const giftcardPaymentWithDebit = debitPayment - gift_value
 
 
-    const isGiftcardPayment = state.selectedSalonReceipt?.payment_method === PaymentMethodsEnums.GIFT_CARD_CASH || state.selectedSalonReceipt?.payment_method === PaymentMethodsEnums.GIFT_CARD_DEBIT || state.selectedSalonReceipt?.payment_method === PaymentMethodsEnums.GIFT_CARD;
+    const isGiftcardPayment = selectedPaymentMethod === PaymentMethodsEnums.GIFT_CARD_CASH || selectedPaymentMethod === PaymentMethodsEnums.GIFT_CARD_DEBIT || selectedPaymentMethod === PaymentMethodsEnums.GIFT_CARD;
 
 
     const paymentInvoice: PaymentInvoiceDetailUpdateType = {
-      payment_method: state.selectedSalonReceipt?.payment_method,
+      payment_method: selectedPaymentMethod,
       staff_services: state.selectedSalonReceipt?.staff_receipts,
       total_service_amount: total_service_price,
       total_tip_amount: total_tip_amount,
     }
+
+
+
+    const getTotalBySelectedPaymentMethod = () => {
+      let gift = state.giftAmount || 0;
+     
+      switch (selectedPaymentMethod) {
+        case PaymentMethodsEnums.DEBIT:
+          if (gift > 0) {
+            total = giftcardPaymentWithDebit;
+          } else {
+            total = debitPayment;
+          }
+          break;
+        case PaymentMethodsEnums.CASH:
+          if (gift > 0) {
+            total = giftcardPaymentWithCash;
+          } else {
+            total = cashPayment;
+          }
+          break;
+        case PaymentMethodsEnums.LOYALTY:
+          if (gift > 0) {
+            total = giftcardPaymentWithDebit - loyaltyDiscountAmount;
+          } else {
+            total = debitPayment - loyaltyDiscountAmount;
+          }
+          break;
+        case PaymentMethodsEnums.HAPPY_HOUR:
+          if (gift > 0) {
+            total = giftcardPaymentWithDebit - happyHourDiscountAmount;
+          } else {
+            total = debitPayment - happyHourDiscountAmount;
+          }
+          break;
+        default:
+          break;
+      }
+
+      if (state.customDiscountPercent) {
+        const discountAmount = (total * state.customDiscountPercent / 100);
+        total -= discountAmount;
+      }
+
+
+
+      if(state.cashPaymentPrice > 0) {
+        debitPaymentPrice = cashPayment - state.cashPaymentPrice + ((cashPayment - state.cashPaymentPrice) * PaymentRatesEnums.CASH_OFF);
+
+        total = debitPaymentPrice + state.cashPaymentPrice;
+      }
+      
+
+
+
+      return total;
+
+    }
+
+
+
+    total = getTotalBySelectedPaymentMethod()
+
+
+    const returnAmount = (Number(state.receive) - Number(total)).toFixed(2) || '0';
 
     return {
       subtotal,
@@ -348,7 +431,8 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
       giftcardPaymentWithCash,
       giftcardPaymentWithDebit,
       isGiftcardPayment,
-      paymentInvoice
+      paymentInvoice,
+      total
 
     };
   },
@@ -377,9 +461,12 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
       receive: 0,
       tipPrice: 0,
       cashPaymentPrice: 0,
-      selectedPayment: undefined
+      selectedPayment: undefined,
+      customDiscountPercent: 0,
+      paymentReceipt: undefined,
+      selectedPaymentStaffs: [],
+      giftAmount: 0
     });
-    set({ paymentReceipt: undefined });
   },
 
   resetSelectedPaymentStaffs: () => {
@@ -424,14 +511,13 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
       };
     });
   },
-  
+
   deleteStaffReceipt: async (staffReceipt) => {
     try {
       await receiptAPIs.deleteStaffReceipt(Number(staffReceipt.id));
     } catch (error) {
       console.error(error);
     }
-  }
-
+  },
 
 }));

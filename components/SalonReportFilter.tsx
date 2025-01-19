@@ -68,7 +68,7 @@ const SalonReportFilter: React.FC<SalonReportFilterProps> = ({ onFilter }) => {
 
           }}
           onItemPress={() => { setIsShowDateRangePicker(true) }}
-          defaultDate={new Date()}
+          defaultDate={dayjs(new Date()).format('YYYY-MM-DD')}
         />
         <SelectSalonStaffModal
           isVisible={isShowSelectStaffModal}
@@ -89,7 +89,6 @@ const SalonReportFilter: React.FC<SalonReportFilterProps> = ({ onFilter }) => {
           selectedStaff={selectedStaff}
         />
         <ButtonIcon
-          title={selectedStaff?.first_name || ''}
           onPress={toggleShowSummary}
           iconName='pie-chart'
           containerStyle={{ marginLeft: ms(4) }}

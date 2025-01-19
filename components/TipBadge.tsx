@@ -1,14 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ViewStyle } from 'react-native';
 import { ms, scale } from 'react-native-size-matters';
 
 interface TipBadgeProps {
   amount: number;
+  containerStyle?: ViewStyle
 }
 
-const TipBadge: React.FC<TipBadgeProps> = ({ amount }) => {
+const TipBadge: React.FC<TipBadgeProps> = ({ amount,containerStyle }) => {
   return (
-    <View style={styles.badge}>
+    <View style={[styles.badge, containerStyle]}>
       <Text style={styles.text}>Tip: ${amount.toFixed(2)}</Text>
     </View>
   );

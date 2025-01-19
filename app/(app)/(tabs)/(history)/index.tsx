@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import { formatCurrency, formatDate, formatDateTime, formatTime, groupReceiptsByDate, handleNumberToPercent } from '../../../../utils/receiptUtils';
 import { router, useFocusEffect } from 'expo-router';
-import { SalonPaymentState, useSalonPaymentStore } from '@/store/useSalonPaymentStore';
 import { SalonReceipt, SalonReceiptFilterInput, StaffBillType } from '@/types/receipt.type';
 import { PaymentDiscountRateEnums } from '@/enums/PaymentEnums';
 import Badge from '@/components/commons/Badge';

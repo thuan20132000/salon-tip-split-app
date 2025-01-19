@@ -37,14 +37,24 @@ import TipBadge from '@/components/TipBadge';
 import AddDiscountModal from '@/components/AddDiscountModal';
 import { ms } from 'react-native-size-matters';
 import { helper } from '@/utils/helper';
+import AddGiftModal from '@/components/AddGiftCardModal';
+import PaymentMixModal from '@/components/PaymentMixModal';
+import { commonStyles } from '@/utils/commonStyles';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import dayjs from 'dayjs';
 
 
 export default function StaffPaymentScreen() {
-  const { payment_receipt } = useLocalSearchParams();
+  const { staff_ids } = useLocalSearchParams();
   const [isShowConfirmModal, setIsShowConfirmModal] = useState<boolean>(false);
   const [isShowSelectStaffModal, setIsShowSelectStaffModal] = useState<boolean>(false);
   const [isShowAddStaffTipModal, setIsShowAddStaffTipModal] = useState<boolean>(false);
-  const [isShowTotalDiscountModal, setIsShowTotalDiscountModal] = useState<boolean>(false)
+  const [isShowTotalDiscountModal, setIsShowTotalDiscountModal] = useState<boolean>(false);
+  const [isShowGiftModal, setIsShowGiftModal] = useState<boolean>(false);
+  const [isShowPaymentMixModal, setIsShowPaymentMixModal] = useState<boolean>(false);
+  const [isShowDatetimePicker, setIsShowDateTimePicker] = useState<boolean>(false);
+  const [selectedPaymentDate, setSelectedPaymentDate] = useState<Date | null>(new Date());
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const {
     receive,
@@ -55,7 +65,6 @@ export default function StaffPaymentScreen() {
     setCashPaymentPrice,
     calculatePayments,
     resetPayment,
-    isLoading,
     addStaffBillDiscount,
     selectedSalonReceipt,
     setSelectedSalonReceipt,
@@ -65,20 +74,48 @@ export default function StaffPaymentScreen() {
     deleteStaffReceipt,
     customDiscountPercent,
     updateCustomDiscountPercent,
+    giftAmount,
+    updateGiftAmount
   } = useSalonPaymentUpdateStore((state: SalonPaymentUpdateState) => state);
 
   const {
-    selectedSalon
+    selectedSalon,
+    salonStaffs
   } = useSalonStore((state: SalonState) => state);
 
 
   const handleInitialStaffPrice = () => {
-    const selectedSalonReceipt: SalonReceipt = JSON.parse(String(payment_receipt));
+    try {
 
-    setSelectedSalonReceipt(selectedSalonReceipt);
-    if (selectedSalonReceipt.tip_total_amount) {
-      updateCustomDiscountPercent(Number(selectedSalonReceipt.custom_discount) * 100);
+      let staff_ids_list = JSON.parse(String(staff_ids));
+      let selectedStaffList = salonStaffs?.filter((staff) => {
+        return staff_ids_list.includes(Number(staff.id));
+      });
+
+      if (!selectedStaffList) {
+        selectedStaffList = [];
+      }
+
+      let selectedStaffPriceList: StaffBillType[] = selectedStaffList.map((staff) => {
+        return {
+          staff: staff,
+          service_amount: 0,
+          tip_amount: 0,
+          discount_percent: 0,
+          discount_price: 0,
+          service_name: 'Service Name',
+        }
+      });
+
+
+      setSelectedSalonReceipt({
+        staff_receipts: selectedStaffPriceList,
+      });
+    } catch (error) {
+      console.log('Error:', error);
+
     }
+
   }
 
 
@@ -125,39 +162,42 @@ export default function StaffPaymentScreen() {
   const onCompletePaymentPress = async (paymentStatus?: PaymentReceiptStatusEnums) => {
     try {
 
-
-      let receiptUpdate: SalonReceiptUpdateType = {
-        ...selectedSalonReceipt,
-        tip_total_amount: tipPrice?.toFixed(2),
-        payment_status: paymentStatus || PaymentReceiptStatusEnums.PAID,
+      setIsLoading(true);
+      let newReceipt: CreateSalonReceiptType = {
+        payment_method: selectedSalonReceipt?.payment_method || PaymentMethodsEnums.CASH,
         payment_method_price: Number(selectedSalonReceipt?.payment_method_price).toFixed(2),
-        salon: Number(selectedSalon?.id),
-        bonus_amount: 0,
-        custom_discount: helper.handlePercentToDecimal(customDiscountPercent),
-        total_amount: calculatePayments().total.toFixed(2),
-        sub_total_amount: calculatePayments().subtotal.toFixed(2),
+        return_amount: Number(returnAmount).toFixed(2),
+        tip_total_amount: Number(tipPrice).toFixed(2),
+        sub_total_amount: Number(calculatePayments().subtotal).toFixed(2),
+        total_amount: Number(calculatePayments().total).toFixed(2),
+        payment_status: paymentStatus || PaymentReceiptStatusEnums.PAID,
+        salon: selectedSalon?.id,
         staff_receipts: calculatePayments().paymentInvoice?.staff_services?.map((staff) => {
           return {
             service_amount: staff.service_amount,
             tip_amount: staff.tip_amount,
             staff: Number(staff.staff?.id),
             service_name: 'Service Name',
-            discount_percent: staff.discount_percent,
-            discount_price: staff.discount_price,
-            id: Number(staff.id),
+            discount_percent: (Number(staff.discount_percent)),
+            discount_price: (Number(staff.discount_price)),
+            created_at: dayjs(selectedPaymentDate).format(),
+            updated_at: dayjs(selectedPaymentDate).format(),
           }
         }),
+        created_at: dayjs(selectedPaymentDate).format(),
+        updated_at: dayjs(selectedPaymentDate).format(),
       }
 
-      await receiptAPIs.updateSalonReceipt(Number(selectedSalonReceipt?.id), receiptUpdate);
+      await receiptAPIs.createSalonReceipt(newReceipt);
 
-      Alert.alert('Update Payment Success', 'Update Payment has been successfully processed');
+      Alert.alert('Create Payment Success', 'Create Payment has been successfully processed');
 
     } catch (err) {
       console.error('Error save payment:', err);
     } finally {
       resetPayment();
       router.back();
+      setIsLoading(false);
     }
   }
 
@@ -272,6 +312,16 @@ export default function StaffPaymentScreen() {
     setSelectedSalonReceipt(newPaymentReceipt);
   }
 
+  const hideDatePicker = () => {
+    setIsShowDateTimePicker(false);
+  };
+
+  const handleConfirm = (date: Date) => {
+    console.warn("A date has been picked: ", date);
+    setSelectedPaymentDate(date);
+    hideDatePicker();
+  };
+
 
 
 
@@ -282,14 +332,6 @@ export default function StaffPaymentScreen() {
       resetPayment();
     }
   }, [])
-
-  if (isLoading) {
-    return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
 
   return (
 
@@ -393,22 +435,42 @@ export default function StaffPaymentScreen() {
             setCashPaymentPrice={setCashPaymentPrice}
             setSelectedSalonReceipt={setSelectedSalonReceipt}
           />
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
+
+          <View style={[{ flexDirection: 'row', gap: 8, marginVertical: 2, flexWrap: 'wrap' }]}>
+            <ButtonIcon
+              title={`Gift ${helper.formatCurrency(Number(giftAmount))}`}
+              iconName='gift-outline'
+              containerStyle={{
+                backgroundColor: giftAmount ? '#ffd33d' : '#d3d3d3',
+              }}
+              onPress={() => setIsShowGiftModal(true)}
+            />
             <ButtonIcon
               title={`Custom Discount ${(Number(customDiscountPercent))}%`}
               iconName='gift-outline'
               containerStyle={{
-                backgroundColor: '#ffd33d',
+                backgroundColor: customDiscountPercent ? '#ffd33d' : '#d3d3d3',
               }}
               onPress={() => setIsShowTotalDiscountModal(true)}
             />
-            <View >
-              <Text style={styles.finalTotalText}>Total: {formatCurrency(calculatePayments().total)}</Text>
-            </View>
+            <ButtonIcon
+              title={`Paid Cash & Mix`}
+              iconName='cash-outline'
+              containerStyle={{
+                backgroundColor: cashPaymentPrice > 0 ? '#ffd33d' : '#d3d3d3',
+              }}
+              onPress={() => setIsShowPaymentMixModal(true)}
+            />
+          </View>
+
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingVertical: 8,
+            marginVertical: 8,
+          }}>
+            <Text style={styles.finalTotalText}>Total: {formatCurrency(calculatePayments().total)}</Text>
           </View>
 
           {/* Receive Input & Return View */}
@@ -499,7 +561,7 @@ export default function StaffPaymentScreen() {
           {/* Payment Method */}
           <View style={styles.paymentSection}>
             <ButtonText
-              title="Update Payment"
+              title="Create Payment"
               onPress={() => onCompletePaymentPress(PaymentReceiptStatusEnums.PAID)}
               style={[
                 styles.paymentButton,
@@ -511,21 +573,44 @@ export default function StaffPaymentScreen() {
                 fontSize: 22,
                 fontWeight: 'bold'
               }}
-              disabled={isPayable ? false : true}
+              disabled={isPayable || isLoading ? false : true}
+              isLoading={isLoading}
 
             />
           </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View>
+              <ButtonIcon
+                title={selectedPaymentDate ? selectedPaymentDate.toDateString() : 'Select Payment Date'}
+                iconName="calendar"
+                onPress={() => setIsShowDateTimePicker(true)}
+                containerStyle={{
+                  // flex: 1,
+                  backgroundColor: '#f8f9fa',
+                  alignSelf: 'flex-start',
+                  marginBottom: 16,
+                }}
+              />
+              <DateTimePickerModal
+                isVisible={isShowDatetimePicker}
+                mode="datetime"
+                onConfirm={handleConfirm}
+                onCancel={hideDatePicker}
+                display='inline'
 
-          <ButtonIcon
-            title="Save"
-            iconName="save"
-            onPress={() => onCompletePaymentPress(PaymentReceiptStatusEnums.PENDING)}
-            containerStyle={{
-              // flex: 1,
-              backgroundColor: '#f8f9fa',
-              alignSelf: 'flex-start',
-            }}
-          />
+              />
+            </View>
+            <ButtonIcon
+              title="Save"
+              iconName="save"
+              onPress={() => onCompletePaymentPress(PaymentReceiptStatusEnums.PENDING)}
+              containerStyle={{
+                // flex: 1,
+                backgroundColor: '#f8f9fa',
+                alignSelf: 'flex-start',
+              }}
+            />
+          </View>
 
         </View>
         <SelectDiscountModal
@@ -554,6 +639,24 @@ export default function StaffPaymentScreen() {
           onClose={() => { setIsShowTotalDiscountModal(false) }}
           discountPercent={customDiscountPercent}
           updateDiscountPercent={updateCustomDiscountPercent}
+        />
+        <AddGiftModal
+          visible={isShowGiftModal}
+          onClose={() => { setIsShowGiftModal(false) }}
+          giftAmount={giftAmount}
+          updateGiftAmount={updateGiftAmount}
+        />
+        <PaymentMixModal
+          visible={isShowPaymentMixModal}
+          cashPaymentAmount={cashPaymentPrice}
+          debitPaymentAmount={debitPaymentPrice}
+          onClose={() => { setIsShowPaymentMixModal(false) }}
+          setCashPaymentAmount={setCashPaymentPrice}
+          onConfirm={() => { setIsShowPaymentMixModal(false) }}
+          onCancel={() => {
+            setCashPaymentPrice(0)
+            setIsShowPaymentMixModal(false)
+          }}
         />
       </KeyboardAwareScrollView>
     </>
@@ -674,6 +777,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     borderTopWidth: 1,
     borderTopColor: '#ddd',
+    backgroundColor: 'white'
   },
   finalTotalText: {
     fontSize: ms(16),

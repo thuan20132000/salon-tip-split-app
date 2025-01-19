@@ -36,6 +36,7 @@ import dayjs from 'dayjs';
 import { ms, mvs, scale } from 'react-native-size-matters';
 import TipBadge from '@/components/TipBadge';
 import AddStaffTipModal from '@/components/AddStaffTipModal';
+import AddDiscountModal from '@/components/AddDiscountModal';
 
 
 export default function StaffPaymentScreen() {
@@ -44,6 +45,7 @@ export default function StaffPaymentScreen() {
   const [isShowDatetimePicker, setIsShowDateTimePicker] = useState<boolean>(false);
   const [selectedPaymentDate, setSelectedPaymentDate] = useState<Date | null>(new Date());
   const [isShowAddStaffTipModal, setIsShowAddStaffTipModal] = useState<boolean>(false);
+  const [isShowTotalDiscountModal, setIsShowTotalDiscountModal] = useState<boolean>(false)
 
   const {
     salonStaffs,
@@ -174,9 +176,9 @@ export default function StaffPaymentScreen() {
       let salonReceipt: CreateSalonReceiptType = {
         payment_method: paymentReceipt?.selectedPayment?.method || '',
         payment_method_price: Number(paymentReceipt?.selectedPayment?.price?.toFixed(2)) || 0,
-        return_amount: Number(calculatePayments().returnAmount),
-        tip_total_amount: tipPrice,
-        sub_total_amount: calculatePayments().paymentInvoice.total_service_amount,
+        return_amount: Number(calculatePayments().returnAmount).toFixed(2),
+        tip_total_amount: tipPrice.toFixed(2),
+        sub_total_amount: calculatePayments().paymentInvoice.total_service_amount.toFixed(2),
         payment_status: paymentStatus || PaymentReceiptStatusEnums.PENDING,
         salon: selectedSalon?.id,
         staff_receipts: calculatePayments().paymentInvoice.staff_services?.map((staff) => {
@@ -196,9 +198,6 @@ export default function StaffPaymentScreen() {
         created_at: dayjs(selectedPaymentDate).format(),
         updated_at: dayjs(selectedPaymentDate).format(),
       }
-
-      console.log('Salon Receipt:', salonReceipt);
-
 
       await receiptAPIs.createSalonReceipt(salonReceipt);
 
@@ -349,23 +348,6 @@ export default function StaffPaymentScreen() {
                     )
                   }
                 </View>
-                {/* <View style={{flex: 1}}>
-                  <CurrencyInput
-                    value={staff.tip}
-                    onChangeValue={(value) => updateReceiptStaffTip(index, value)}
-                    prefix="$ "
-                    delimiter="."
-                    separator="."
-                    precision={2}
-                    minValue={0}
-                    showPositiveSign={false}
-                    onChangeText={(formattedValue) => {
-                      console.log(formattedValue); // R$ +2.310,46
-                    }}
-                    style={styles.priceInput}
-                  />
-
-                </View> */}
               </View>
 
             </ScrollView>
@@ -576,7 +558,17 @@ export default function StaffPaymentScreen() {
             />
 
           }
-
+          <View>
+            <ButtonIcon
+              title='Add discount'
+              iconName='gift-outline'
+              containerStyle={{
+                width:200,
+                backgroundColor:'coral'
+              }}
+              onPress={() => setIsShowTotalDiscountModal(true)}
+            />
+          </View>
           {/* Receive Input & Return View */}
           <View style={styles.totalRow}>
             <View>
@@ -733,6 +725,10 @@ export default function StaffPaymentScreen() {
           onClose={() => { setIsShowAddStaffTipModal(false) }}
           paymentReceipts={paymentReceipt}
           updateReceiptStaffTip={updateReceiptStaffTip}
+        />
+        <AddDiscountModal
+          visible={isShowTotalDiscountModal}
+          onClose={() => { setIsShowTotalDiscountModal(false) }}
         />
       </KeyboardAwareScrollView>
     </>

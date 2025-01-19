@@ -20,6 +20,32 @@ export interface SalonSalaryReportFilterType {
   salon?: number;
 }
 
+export type StaffSalaryReportType = {
+  date: string;
+  total_service_amount: number;
+  total_tip_amount: number;
+  total_turn?: number;
+  staff_id?: string;
+  staff__first_name?: string;
+  staff__commission_rate?: string;
+  service_revenue?: string;
+};
+
+export type StaffSalaryReportResponseType = {
+  data: StaffSalaryReportType[];
+  status: number;
+  message: string;
+  summary: SalonReportSummaryType;
+};
+
+export interface StaffSalaryReportFilterType {
+  created_at_range_after?: Date | string;
+  created_at_range_before?: Date | string;
+  created_at?: Date | string;
+  staff?: number;
+  salon?: number;
+}
+
 export type SalonReportSummaryType = {
   total_service_amount: number;
   total_tip_amount: number;

@@ -1,38 +1,45 @@
 import { SalonPaymentReceiptType } from '@/store/useSalonUpdatePaymentStore';
-import { PaymentInvoiceDetailType, SalonReceipt } from '@/types/receipt.type';
-import React from 'react';
+import { PaymentInvoiceDetailType } from '@/types/receipt.type';
+import React, { useState } from 'react';
 import {
-  Modal,
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Modal,
 } from 'react-native';
 import CurrencyInput from 'react-native-currency-input';
-import { ms } from 'react-native-size-matters';
+import { ms, s } from 'react-native-size-matters';
 import ButtonText from './commons/ButtonText';
+import Badge from './commons/Badge';
+import ButtonIcon from './commons/ButtonIcon';
 
-interface AddStaffTipModalProps {
+interface AddGiftModalProps {
   visible: boolean;
   onClose: () => void;
-  receiptData?: PaymentInvoiceDetailType;
-  paymentReceipts?: SalonReceipt;
-  updateReceiptStaffTip: (index: number, value: number | null) => void;
+  giftAmount?: number;
+  updateGiftAmount?: (value: number) => void;
 }
 
-const formatCurrency = (amount: number): string => {
-  return `$${amount.toFixed(2)}`;
-};
 
-const AddStaffTipModal: React.FC<AddStaffTipModalProps> = ({
+const DISCOUNT_PERCENTAGES = [5, 10, 15, 20, 25, 30];
+
+const AddGiftModal: React.FC<AddGiftModalProps> = ({
   visible,
   onClose,
-  receiptData,
-  paymentReceipts,
-  updateReceiptStaffTip
+  giftAmount,
+  updateGiftAmount,
 }) => {
 
+  const [amount, setAmount] = useState(giftAmount || 0);
+
+  const onConfirm = () => {
+    if (updateGiftAmount) {
+      updateGiftAmount(amount);
+      onClose();
+    }
+  }
 
   return (
     <Modal
@@ -40,50 +47,48 @@ const AddStaffTipModal: React.FC<AddStaffTipModalProps> = ({
       animationType="fade"
       transparent
       onRequestClose={onClose}
+
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Text style={styles.title}>Add Tip</Text>
-
-          <ScrollView
-          >
-            {paymentReceipts?.staff_receipts?.map((staff, index) => (
-              <View style={styles.staffRow} key={index}>
-
-                <Text style={styles.staffName}>{staff.staff?.first_name}</Text>
-
-                <View style={{ flex: 1 }}>
-                  <CurrencyInput
-                    value={staff.tip_amount}
-                    onChangeValue={(value) => updateReceiptStaffTip(index, value)}
-                    prefix="$ "
-                    delimiter="."
-                    separator="."
-                    precision={2}
-                    minValue={0}
-                    showPositiveSign={false}
-                    onChangeText={(formattedValue) => {
-                      console.log(formattedValue); // R$ +2.310,46
-                    }}
-                    style={styles.priceInput}
-                  />
-
-                </View>
-              </View>
-
-            ))}
-          </ScrollView>
+            <ButtonIcon
+              iconName='close'
+              containerStyle={{
+                width: 50,
+                height: 50,
+                position: 'absolute',
+                right: 8,
+                top: 8
+              }}
+              onPress={onClose}
+            />
+          <View>
+            <Text style={styles.title}>Gift Card</Text>
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Gift Card Amount ($)</Text>
+            <CurrencyInput
+              style={styles.input}
+              value={amount}
+              onChangeValue={(value) => setAmount(Number(value))}
+              prefix="$"
+              keyboardType="decimal-pad"
+              placeholder="Enter gift card amount"
+            />
+          </View>
 
           <ButtonText
-            title="Close"
-            onPress={onClose}
+            title="Confirm"
+            onPress={onConfirm}
             textStyle={styles.closeButtonText}
+            containerStyle={{
+              marginVertical: 8
+            }}
           />
-
 
         </View>
       </View>
-    </Modal>
+    </Modal >
   );
 };
 
@@ -118,6 +123,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     color: '#666',
+    marginBottom: 8,
   },
   value: {
     fontSize: 16,
@@ -166,11 +172,20 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontWeight: 'bold',
   },
-
+  inputContainer: {
+    marginBottom: 16,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 4,
+    padding: 12,
+    fontSize: 16,
+  },
 
 });
 
-export default AddStaffTipModal;
+export default AddGiftModal;
 
 // Usage Example:
 /*

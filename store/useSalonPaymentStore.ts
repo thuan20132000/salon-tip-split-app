@@ -47,7 +47,7 @@ export interface SalonPaymentState {
   isLoading: boolean;
   salonReceipts: SalonReceipt[];
   selectedPaymentStaffs: SalonStaffType[];
-
+  customDiscountPercent: number;
 
 
   // Actions
@@ -102,6 +102,7 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
   isLoading: false,
   salonReceipts: [],
   selectedPaymentStaffs: [],
+  customDiscountPercent: 0,
   getSalonPaymentReceipts: async (filter) => {
     try {
 
@@ -318,9 +319,6 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
         selectedStaffs.push(staff);
       }
 
-      console.log('====================================');
-      console.log('selecedStaffs:: ', selectedStaffs);
-      console.log('====================================');
       return { selectedPaymentStaffs: selectedStaffs };
     });
   },
@@ -348,9 +346,6 @@ export const useSalonPaymentStore = create<SalonPaymentState>((set, get) => ({
   createSalonReceipt: async (receipt) => {
     try {
       const res = await receiptAPIs.createSalonReceipt(receipt);
-      console.log('====================================');
-      console.log('Create Salon Receipt: ', res.data);
-      console.log('====================================');
       return res.data;
     } catch (error) {
       console.error(error);

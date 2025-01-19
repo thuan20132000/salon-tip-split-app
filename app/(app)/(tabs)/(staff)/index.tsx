@@ -2,6 +2,7 @@ import StaffPaymentItem from '@/components/StaffPaymentItem';
 import { SalonPaymentState, useSalonPaymentStore } from '@/store/useSalonPaymentStore';
 import { SalonStaffState, useSalonStaffStore } from '@/store/useSalonStaffStore';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
+import { SalonPaymentUpdateState, useSalonPaymentUpdateStore } from '@/store/useSalonUpdatePaymentStore';
 import { StaffState, StaffType, useStaffStore } from '@/store/useStaffStore';
 import { SalonStaffType } from '@/types/staff.types';
 import { useRouter } from 'expo-router';
@@ -27,7 +28,7 @@ const StaffScreen = () => {
   const {
     selectPaymentStaff,
     selectedPaymentStaffs
-  } = useSalonPaymentStore((state: SalonPaymentState) => state);
+  } = useSalonPaymentUpdateStore((state: SalonPaymentUpdateState) => state);
 
 
 
@@ -35,12 +36,8 @@ const StaffScreen = () => {
   const onPaymentPress = () => {
     let staffIds = selectedPaymentStaffs.map((staff) => staff.id);
 
-    console.log('====================================');
-    console.log('staffIds: ', staffIds);
-    console.log('====================================');
-
     router.push({
-      pathname: '/payment',
+      pathname: '/payment-update',
       params: {
         staff_ids: JSON.stringify(staffIds),
       },
