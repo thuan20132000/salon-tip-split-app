@@ -3,9 +3,9 @@ import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import { AuthResponse, APIError } from '../types/api.types';
 import * as SecureStore from 'expo-secure-store';
 
-// const API_URL = "http://192.168.2.226:8000/api/";
+const API_URL = "http://127.0.0.1:8000/api/";
 // const API_URL = "https://salon-tipsplit-dev.thuandev.site/api/";
-const API_URL = "https://salon-tipsplit-dev-v2.thuandev.site/api/";
+// const API_URL = "https://salon-tipsplit-dev-v2.thuandev.site/api/";
 
 class APIClient {
   private static instance: APIClient;
@@ -86,7 +86,7 @@ class APIClient {
         // }
 
         console.log('====================================');
-        console.log('Error:', error);
+        console.log('ErrorAxios:', error);
         console.log('====================================');
         return Promise.reject(this.handleError(error));
       }
@@ -94,9 +94,6 @@ class APIClient {
   }
 
   private handleError(error: AxiosError): APIError {
-    console.log('====================================');
-    console.log('Error:', error.response);
-    console.log('====================================');
     const errorData = error.response?.data as { message?: string; code?: string } || {};
     return {
       message: errorData.message || 'An unexpected error occurred',

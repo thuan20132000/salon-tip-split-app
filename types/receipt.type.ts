@@ -70,7 +70,7 @@ export interface SalonReceiptUpdateType {
 
 export interface StaffBillType {
   id?: number;
-  staff?: SalonStaffType;
+  staff?: SalonStaffType | null;
   service_amount: number | null;
   service_name: string | null;
   receipt?: any;

@@ -114,7 +114,8 @@ export interface SalonPaymentUpdateState {
   deleteStaffReceipt: (staffReceipt: StaffBillType) => void;
   updateCustomDiscountPercent: (percent: number) => void;
   updateGiftAmount: (amount: number) => void;
-
+  updateStaffReceiptPrice: (staffReceipt: StaffBillType, price: number) => void;
+  addNewSalonPaymentReceiptStaff: (staff: SalonStaffType) => void
 }
 
 export interface SalonPaymentCalculations {
@@ -306,16 +307,15 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
     const state = get();
     const selectedPaymentMethod = state.selectedSalonReceipt?.payment_method;
     const staffReceipts = state.selectedSalonReceipt?.staff_receipts || [];
-    let subtotal = getSubtotalWithoutDiscountPrice(staffReceipts);
+    let subtotalWithoutDiscount = getSubtotalWithoutDiscountPrice(staffReceipts);
     let total = 0;
-
-
+    let subtotal = getSubtotalDiscountPrice(staffReceipts) + getSubtotalWithoutDiscountPrice(staffReceipts)
     let total_service_price = getTotalServicePrice(staffReceipts);
     let total_tip_amount = staffReceipts?.reduce((sum, staff) => sum + Number(staff.tip_amount), 0) || 0;
     // Calculate by payment method
-    const debitPayment = getDebitPayment(subtotal) + getSubtotalDiscountPrice(staffReceipts);
+    const debitPayment = getDebitPayment(subtotalWithoutDiscount) + getSubtotalDiscountPrice(staffReceipts);
 
-    const cashPayment = getCashPayment(subtotal) + getSubtotalDiscountPrice(staffReceipts);
+    const cashPayment = getCashPayment(subtotalWithoutDiscount) + getSubtotalDiscountPrice(staffReceipts);
 
     // Calculate discounts
     const loyaltyDiscount = debitPayment - (debitPayment * PaymentRatesEnums.LOYALTY);
@@ -336,7 +336,7 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
     // Calculate giftcard payment
     let gift_value = state.selectedSalonReceipt?.gift_value || 0;
     gift_value = state.giftAmount || 0;
-    const giftcardPaymentWithCash = ((subtotal + (subtotal * PaymentRatesEnums.TAX_RATE)) - gift_value) - ((subtotal + (subtotal * PaymentRatesEnums.TAX_RATE) - gift_value) * PaymentRatesEnums.CASH_OFF)
+    const giftcardPaymentWithCash = ((subtotalWithoutDiscount + (subtotalWithoutDiscount * PaymentRatesEnums.TAX_RATE)) - gift_value) - ((subtotalWithoutDiscount + (subtotalWithoutDiscount * PaymentRatesEnums.TAX_RATE) - gift_value) * PaymentRatesEnums.CASH_OFF)
 
 
     const giftcardPaymentWithDebit = debitPayment - gift_value
@@ -356,7 +356,7 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
 
     const getTotalBySelectedPaymentMethod = () => {
       let gift = state.giftAmount || 0;
-     
+
       switch (selectedPaymentMethod) {
         case PaymentMethodsEnums.DEBIT:
           if (gift > 0) {
@@ -397,12 +397,12 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
 
 
 
-      if(state.cashPaymentPrice > 0) {
+      if (state.cashPaymentPrice > 0) {
         debitPaymentPrice = cashPayment - state.cashPaymentPrice + ((cashPayment - state.cashPaymentPrice) * PaymentRatesEnums.CASH_OFF);
 
         total = debitPaymentPrice + state.cashPaymentPrice;
       }
-      
+
 
 
 
@@ -487,26 +487,85 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
     set({ selectedSalonReceipt: receipt });
   },
 
-  addSelectedSalonReceiptStaff: (staff) => {
+  addSelectedSalonReceiptStaff: (staffReceipt) => {
     set((state) => {
+      let newStaffReceipt: StaffBillType = {
+        staff: staffReceipt.staff,
+        service_amount: 0,
+        tip_amount: 0,
+        discount_percent: 0,
+        discount_price: 0,
+        service_name: 'Service Name',
+        id: new Date().getTime()
+      }
+
       const staffs = state.selectedSalonReceipt?.staff_receipts || [];
       return {
         selectedSalonReceipt: {
           ...state.selectedSalonReceipt,
-          staff_receipts: [...staffs, staff]
+          staff_receipts: [...staffs, newStaffReceipt]
         }
       };
     });
   },
 
-  removeSelectedSalonReceiptStaff: (staff) => {
+  addNewSalonPaymentReceiptStaff: (staff) => {
     set((state) => {
+
+      let newStaffReceipt: StaffBillType = {
+        staff: staff,
+        service_amount: 0,
+        tip_amount: 0,
+        discount_percent: 0,
+        discount_price: 0,
+        service_name: 'Service Name',
+        id: new Date().getTime()
+      }
+
       const staffs = state.selectedSalonReceipt?.staff_receipts || [];
-      const filtered_staffs = staffs.filter(s => s.id != staff.id);
+      return {
+        selectedSalonReceipt: {
+          ...state.selectedSalonReceipt,
+          staff_receipts: [...staffs, newStaffReceipt]
+        }
+      };
+    });
+  },
+
+  removeSelectedSalonReceiptStaff: (staffReceipt) => {
+    set((state) => {
+      const staffsReceipts = state.selectedSalonReceipt?.staff_receipts || [];
+      const filtered_staffs = staffsReceipts.filter((sb) => sb?.id != staffReceipt.id);
+
+      console.log('staffReceipt remove:: ', JSON.stringify(staffReceipt, null, 4));
+      console.log('staffsBill :: ', JSON.stringify(staffsReceipts, null, 4));
+      console.log('filtred Bills:: ', JSON.stringify(filtered_staffs, null, 4));
+
+
       return {
         selectedSalonReceipt: {
           ...state.selectedSalonReceipt,
           staff_receipts: filtered_staffs
+        }
+      };
+    });
+  },
+
+  updateStaffReceiptPrice: async (staffReceipt, price) => {
+    set((state) => {
+      const staffReceipts = state.selectedSalonReceipt?.staff_receipts || [];
+
+      const newStaffReceipts = staffReceipts.map((st) => {
+        if (st.id === staffReceipt.id) {
+          st.service_amount = price;
+        }
+        return st
+      })
+
+      return {
+        selectedSalonReceipt: {
+          ...state.selectedSalonReceipt,
+          staff_receipts: newStaffReceipts
         }
       };
     });

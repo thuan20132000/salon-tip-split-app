@@ -1,4 +1,6 @@
+import { APIErrorType } from "@/types/api.types";
 import dayjs from "dayjs";
+import { Alert } from "react-native";
 
 const handlePercentToDecimal = (percent?: number): number => {
   if(!percent) {
@@ -23,8 +25,13 @@ const formatDays = (timestamp?: string): string => {
   return dt;
 }
 
+const showAlertErrorMessage = (message:APIErrorType ) => {
+  Alert.alert('Error', message.message);
+}
+
 export const helper = {
   handlePercentToDecimal,
   formatCurrency,
-  formatDays
+  formatDays,
+  showAlertErrorMessage
 }

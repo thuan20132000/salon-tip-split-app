@@ -12,10 +12,10 @@ export default function StaffLayout() {
         {/* Add your screens here */}
         <Stack.Screen name="index" />
         <Stack.Screen 
-          name="payment-update" 
+          name="payment-create" 
           options={{
             headerShown: true,
-            title: 'Update Payment',
+            title: 'Create Payment',
           }}
         />
       </Stack>

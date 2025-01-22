@@ -37,7 +37,7 @@ const StaffScreen = () => {
     let staffIds = selectedPaymentStaffs.map((staff) => staff.id);
 
     router.push({
-      pathname: '/payment-update',
+      pathname: '/payment-create',
       params: {
         staff_ids: JSON.stringify(staffIds),
       },

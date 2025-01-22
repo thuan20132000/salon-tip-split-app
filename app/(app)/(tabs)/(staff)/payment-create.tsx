@@ -35,7 +35,7 @@ import PaymentMethods from '@/components/PaymentMethods';
 import AddStaffTipModal from '@/components/AddStaffTipModal';
 import TipBadge from '@/components/TipBadge';
 import AddDiscountModal from '@/components/AddDiscountModal';
-import { ms } from 'react-native-size-matters';
+import { ms, s } from 'react-native-size-matters';
 import { helper } from '@/utils/helper';
 import AddGiftModal from '@/components/AddGiftCardModal';
 import PaymentMixModal from '@/components/PaymentMixModal';
@@ -75,7 +75,9 @@ export default function StaffPaymentScreen() {
     customDiscountPercent,
     updateCustomDiscountPercent,
     giftAmount,
-    updateGiftAmount
+    updateGiftAmount,
+    updateStaffReceiptPrice,
+    addNewSalonPaymentReceiptStaff
   } = useSalonPaymentUpdateStore((state: SalonPaymentUpdateState) => state);
 
   const {
@@ -96,7 +98,7 @@ export default function StaffPaymentScreen() {
         selectedStaffList = [];
       }
 
-      let selectedStaffPriceList: StaffBillType[] = selectedStaffList.map((staff) => {
+      let selectedStaffPriceList: StaffBillType[] = selectedStaffList.map((staff, index) => {
         return {
           staff: staff,
           service_amount: 0,
@@ -104,6 +106,7 @@ export default function StaffPaymentScreen() {
           discount_percent: 0,
           discount_price: 0,
           service_name: 'Service Name',
+          id: new Date().getTime() + index
         }
       });
 
@@ -139,23 +142,10 @@ export default function StaffPaymentScreen() {
     setReceive(Number(receiveFormatted));
   }
 
-  const updateReceiptStaffPrice = (staff: StaffBillType, price: number | null) => {
+  const updateReceiptStaffPrice = (staffReceipt: StaffBillType, price: number | null) => {
     // let newStaffPrices = [...paymentReceipt?.staffs || []];
-
-    const newSelectedStaffs = selectedSalonReceipt?.staff_receipts?.map((staffItem) => {
-      if (staffItem.staff?.id == staff.staff?.id) {
-        return {
-          ...staffItem,
-          service_amount: price
-        }
-      }
-      return staffItem;
-    })
-
-    setSelectedSalonReceipt({
-      ...selectedSalonReceipt,
-      staff_receipts: newSelectedStaffs,
-    })
+    console.log('staff receipt:', staffReceipt);
+    updateStaffReceiptPrice(staffReceipt, Number(price))
 
   }
 
@@ -172,14 +162,14 @@ export default function StaffPaymentScreen() {
         total_amount: Number(calculatePayments().total).toFixed(2),
         payment_status: paymentStatus || PaymentReceiptStatusEnums.PAID,
         salon: selectedSalon?.id,
-        staff_receipts: calculatePayments().paymentInvoice?.staff_services?.map((staff) => {
+        staff_receipts: calculatePayments().paymentInvoice?.staff_services?.map((staffReceipt) => {
           return {
-            service_amount: staff.service_amount,
-            tip_amount: staff.tip_amount,
-            staff: Number(staff.staff?.id),
+            service_amount: staffReceipt.service_amount,
+            tip_amount: staffReceipt.tip_amount,
+            staff: Number(staffReceipt.staff?.id),
             service_name: 'Service Name',
-            discount_percent: (Number(staff.discount_percent)),
-            discount_price: (Number(staff.discount_price)),
+            discount_percent: (Number(staffReceipt.discount_percent)),
+            discount_price: (Number(staffReceipt.discount_price)),
             created_at: dayjs(selectedPaymentDate).format(),
             updated_at: dayjs(selectedPaymentDate).format(),
           }
@@ -194,6 +184,7 @@ export default function StaffPaymentScreen() {
 
     } catch (err) {
       console.error('Error save payment:', err);
+      
     } finally {
       resetPayment();
       router.back();
@@ -235,18 +226,9 @@ export default function StaffPaymentScreen() {
   }
 
   const handleAddPaymentStaff = (staff: SalonStaffType) => {
-
-    let newStaff: StaffBillType = {
-      staff: staff,
-      service_amount: 0,
-      tip_amount: 0,
-      discount_percent: 0,
-      discount_price: 0,
-      service_name: 'Service Name',
-    }
-    addSelectedSalonReceiptStaff(newStaff);
+    
+    addNewSalonPaymentReceiptStaff(staff);
     setIsShowSelectStaffModal(false);
-
   }
 
   const showSelectStaffModal = () => {
@@ -294,9 +276,6 @@ export default function StaffPaymentScreen() {
   }
 
   const handleRemoveStaffBill = (staffBill: StaffBillType) => {
-    if (staffBill.id) {
-      deleteStaffReceipt(staffBill);
-    }
     removeSelectedSalonReceiptStaff(staffBill);
 
   }
@@ -343,10 +322,6 @@ export default function StaffPaymentScreen() {
 
         {/* Staff Price Inputs */}
         <View style={styles.section}>
-          <View style={styles.staffRow}>
-            <Text style={{}}>Name</Text>
-            <Text style={{}}>Tip</Text>
-          </View>
           {/* Staff  Price Input */}
           {selectedSalonReceipt?.staff_receipts?.map((staff, index) => (
             <View key={index} style={styles.staffRow}>
@@ -399,7 +374,6 @@ export default function StaffPaymentScreen() {
             </View>
           ))}
           <ButtonIcon
-            title="Add Staff"
             iconName="add"
             onPress={showSelectStaffModal}
             containerStyle={{
@@ -467,10 +441,17 @@ export default function StaffPaymentScreen() {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            paddingVertical: 8,
             marginVertical: 8,
+            backgroundColor: '#ffd33d',
+            paddingHorizontal:6,
+            paddingVertical: ms(10),
+            borderRadius: 6
           }}>
             <Text style={styles.finalTotalText}>Total: {formatCurrency(calculatePayments().total)}</Text>
+            <ButtonIcon
+              iconName='print-sharp'
+              onPress={()=>{}}
+            />
           </View>
 
           {/* Receive Input & Return View */}
@@ -691,8 +672,7 @@ const styles = StyleSheet.create({
   },
   priceInput: {
     // flex: 1,
-    minWidth: 200,
-    fontSize: 22,
+    fontSize: ms(16),
     height: 48,
     borderWidth: 1,
     borderRadius: 8,
@@ -702,11 +682,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginBottom: 8,
     fontWeight: 'bold',
+    width: ms(120),
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap',
     marginBottom: 16,
     paddingVertical: 8,
     borderBottomWidth: 1,
@@ -798,7 +780,7 @@ const styles = StyleSheet.create({
     // color: '#007AFF'
   },
   returnPrice: {
-    fontSize: 22,
+    fontSize: ms(16),
     fontWeight: 'bold',
   },
   currencyInput: {
@@ -807,8 +789,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderRadius: 8,
     height: 45,
-    width: 180,
-    fontSize: 16,
+    minWidth: ms(90),
+    fontSize: s(16),
     fontWeight: 'bold',
   },
   isPaymentActive: {

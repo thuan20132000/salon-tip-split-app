@@ -46,3 +46,9 @@ export interface StaffReceiptApiResponseType<T> {
   total_tip: number;
   total_turn: number;
 }
+
+export interface APIErrorType {
+  message: string;
+  code: string;
+  status: number;
+}
