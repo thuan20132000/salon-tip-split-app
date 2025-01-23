@@ -20,23 +20,18 @@ interface PaymentMethodsProps {
   cashPaymentPrice: number
   setCashPaymentPrice: (value: number) => void
   debitPaymentPrice: number
-  setSelectedSalonReceipt: (value: SalonReceipt) => void
+  setSelectedSalonReceipt: (value: SalonReceipt) => void,
+  subtotal: number
 }
 
 const PaymentMethods = ({
-  calculatePayments,
-  cashGeneralDiscount,
   cashPayment,
-  debitGeneralDiscount,
   debitPayment,
   happyHourDiscount,
   loyaltyDiscount,
   onSelectPaymentMethod,
   paymentReceipt,
-  cashPaymentPrice,
-  setCashPaymentPrice,
-  debitPaymentPrice,
-  setSelectedSalonReceipt
+  subtotal
 }: PaymentMethodsProps) => {
 
   return (
@@ -47,6 +42,20 @@ const PaymentMethods = ({
         <ScrollView horizontal
           showsHorizontalScrollIndicator={false}
         >
+          <TouchableOpacity
+            style={[
+              styles.selectPaymentButton,
+              paymentReceipt?.payment_method == PaymentMethodsEnums.NO_TAX && styles.selectedPayment,
+            ]}
+            onPress={() =>
+              onSelectPaymentMethod(PaymentMethodsEnums.NO_TAX,subtotal )
+            }
+          >
+            <View style={styles.discountRow}>
+              <Text style={styles.paymentMethodTitle} >No Tax</Text>
+              <Text style={styles.paymentMethodPrice} >${subtotal?.toFixed(2)}</Text>
+            </View>
+          </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.selectPaymentButton,
@@ -177,7 +186,6 @@ const styles = StyleSheet.create({
   discountTitle: {
     fontSize: ms(12),
     fontWeight: '600',
-    marginBottom: 12,
   },
   selectPaymentButton: {
     marginBottom: 8,

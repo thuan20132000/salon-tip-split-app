@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,26 +8,35 @@ import {
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
+import ButtonIcon from './commons/ButtonIcon';
+import { SalonStaffType } from '@/types/staff.types';
+import SelectStaffModal from './SelectStaffModal';
+import { SalonReceiptFilterInput } from '@/types/receipt.type';
+import dayjs from 'dayjs';
+import { useFocusEffect } from 'expo-router';
+import { ms, s } from 'react-native-size-matters';
 
 interface NavigationDateProps {
   initialDate?: Date;
-  onDateChange?: (date: Date) => void;
+  onFilterChange: (filter: SalonReceiptFilterInput) => void;
   dateFormat?: Intl.DateTimeFormatOptions;
   theme?: 'light' | 'dark';
 }
 
 const NavigationDate: React.FC<NavigationDateProps> = ({
   initialDate = new Date(),
-  onDateChange,
+  onFilterChange,
   dateFormat = {
     weekday: 'short',
     year: 'numeric',
     month: 'short',
     day: 'numeric'
   },
-  theme = 'light'
+  theme = 'light',
 }) => {
   const [currentDate, setCurrentDate] = useState<Date>(initialDate);
+  const [selectedStaff, setSelectedStaff] = useState<SalonStaffType>();
+  const [isShowSelectStaffModal, setIsShowSelectStaffModal] = useState(false);
 
   const handlePrevious = () => {
     const newDate = new Date(currentDate);
@@ -48,7 +57,7 @@ const NavigationDate: React.FC<NavigationDateProps> = ({
 
   const updateDate = (newDate: Date) => {
     setCurrentDate(newDate);
-    onDateChange?.(newDate);
+    // onFilterChange?.(newDate);
   };
 
   const formatDate = (date: Date): string => {
@@ -66,6 +75,36 @@ const NavigationDate: React.FC<NavigationDateProps> = ({
   const buttonColor = isDark ? '#333333' : '#F5F5F5';
   const accentColor = '#007AFF';
 
+  // useEffect(() => {
+  //   let filter: SalonReceiptFilterInput = {
+  //     created_at: dayjs(currentDate).format('YYYY-MM-DD'),
+  //     staff: selectedStaff?.id
+  //   }
+  //   onFilterChange(filter);
+  // }, [selectedStaff, currentDate])
+
+   useFocusEffect(
+      // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
+      useCallback(() => {
+        // Invoked whenever the route is focused.
+        console.log('Hello, Im focused!');
+  
+        
+        let filter: SalonReceiptFilterInput = {
+          created_at: dayjs(currentDate).format('YYYY-MM-DD'),
+          staff: selectedStaff?.id
+        }
+        
+        onFilterChange(filter);
+        // loadReceipts();
+  
+        // Return function is invoked whenever the route gets out of focus.
+        return () => {
+          console.log('This route is now unfocused.');
+        };
+      }, [selectedStaff, currentDate])
+    );
+
   return (
     <View style={[styles.container, { backgroundColor }]}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
@@ -76,19 +115,19 @@ const NavigationDate: React.FC<NavigationDateProps> = ({
         >
           <AntDesign
             name="left"
-            size={20}
+            size={ms(10)}
             color={textColor}
           />
         </TouchableOpacity>
 
-        <View style={styles.dateContainer}>
+        <View style={[styles.dateContainer, { flexDirection: 'row', justifyContent: 'space-around' }]}>
           <TouchableOpacity
-            onPress={handleToday}
             style={[styles.todayButton, { backgroundColor: buttonColor }]}
+            onPress={handleToday}
           >
             <AntDesign
               name="calendar"
-              size={20}
+              size={ms(14)}
               color={isToday(currentDate) ? accentColor : textColor}
             />
             <Text style={[
@@ -99,6 +138,14 @@ const NavigationDate: React.FC<NavigationDateProps> = ({
               {formatDate(currentDate)}
             </Text>
           </TouchableOpacity>
+          <ButtonIcon
+            iconName="people"
+            title={selectedStaff?.first_name || 'Staff'}
+            color={accentColor}
+            size={ms(14)}
+            onPress={() => { setIsShowSelectStaffModal(true) }}
+            containerStyle={{ padding: 0, backgroundColor: 'transparent' }}
+          />
         </View>
 
         <TouchableOpacity
@@ -107,11 +154,22 @@ const NavigationDate: React.FC<NavigationDateProps> = ({
         >
           <AntDesign
             name="right"
-            size={20}
+            size={ms(10)}
             color={textColor}
           />
         </TouchableOpacity>
       </View>
+      <SelectStaffModal
+        visible={isShowSelectStaffModal}
+        onSelect={(staff) => {
+          setSelectedStaff(staff)
+          setIsShowSelectStaffModal(false)
+        }}
+        onCancel={() => {
+          setSelectedStaff(undefined)
+          setIsShowSelectStaffModal(false)
+        }}
+      />
     </View>
   );
 };
@@ -119,26 +177,24 @@ const NavigationDate: React.FC<NavigationDateProps> = ({
 const styles = StyleSheet.create({
   container: {
     padding: 8,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
+    // ...Platform.select({
+    //   ios: {
+    //     shadowColor: '#000',
+    //     shadowOffset: { width: 0, height: 2 },
+    //     shadowOpacity: 0.1,
+    //     shadowRadius: 4,
+    //   },
+    //   android: {
+    //     elevation: 4,
+    //   },
+    // }),
   },
   navigationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 8,
   },
   navigationButton: {
-    padding: 12,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
@@ -148,19 +204,17 @@ const styles = StyleSheet.create({
   dateContainer: {
     flex: 1,
     alignItems: 'center',
-    marginHorizontal: 12,
   },
   todayButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 8,
     borderRadius: 8,
-    minWidth: 180,
+    padding: ms(4),
   },
   dateText: {
-    fontSize: 16,
-    marginLeft: 8,
+    fontSize: ms(10),
+    marginLeft: 4,
     fontWeight: '500',
   },
   currentDateText: {

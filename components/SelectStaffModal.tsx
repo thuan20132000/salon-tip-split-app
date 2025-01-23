@@ -22,6 +22,7 @@ const SelectStaffModal: React.FC<SelectStaffModalProps> = ({ visible, onSelect, 
   } = useSalonStore((state: SalonState) => state);
 
 
+
   return (
     <Modal
       visible={visible}
@@ -41,6 +42,12 @@ const SelectStaffModal: React.FC<SelectStaffModalProps> = ({ visible, onSelect, 
                 <Text style={styles.staffName}>{staff.first_name}</Text>
               </TouchableOpacity>
             ))}
+            <TouchableOpacity
+              style={styles.staffItem}
+              onPress={() => onSelect({ id: undefined, first_name: 'ALL' })}
+            >
+              <Text style={styles.staffName}>ALL</Text>
+            </TouchableOpacity>
           </ScrollView>
           <TouchableOpacity
             style={styles.closeButton}
@@ -105,13 +112,15 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
     backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    borderBottomLeftRadius:20,
+    borderBottomRightRadius:20,
     padding: 16,
     maxHeight: '70%',
   },

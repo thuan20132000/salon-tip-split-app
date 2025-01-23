@@ -5,6 +5,7 @@ import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
 import { useSalonStore } from './useSalonStore';
 import { intializeOneSignal, registerUserDeviceSubscription, unRegisterUserDeviceSubscription } from '@/services/onesignal.service';
+import { StaffRoleEnums } from '@/enums/StaffRoleEnums';
 
 
 
@@ -17,6 +18,7 @@ export interface AuthState {
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   initialize: () => Promise<void>;
+  isSalonOwner: () => boolean;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -30,7 +32,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const tokens = await SecureStore.getItemAsync('tokens');
       const user = await SecureStore.getItemAsync('user');
-      const userDevice =  intializeOneSignal();
+      const userDevice = intializeOneSignal();
       useSalonStore.getState().initSelectedSalon();
       if (tokens && user) {
         set({
@@ -49,7 +51,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: async (username: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
-      
+
       const res = await authAPI.login(username, password);
       const staffSalon = res.data.user?.staff_detail?.salon
 
@@ -73,10 +75,23 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     } catch (error) {
       console.log('====================================');
-      console.log('error: ',error);
+      console.log('error: ', error);
       console.log('====================================');
       set({ error: '', isLoading: false });
     }
+  },
+
+  isSalonOwner: () => {
+    const user = useAuthStore.getState().user;
+    if (!user?.staff_detail?.role) {
+      return false;
+    }
+
+    if (user.staff_detail && Number(user.staff_detail.role) == StaffRoleEnums.OWNER) {
+      return true;
+    }
+
+    return false;
   },
 
   logout: async () => {

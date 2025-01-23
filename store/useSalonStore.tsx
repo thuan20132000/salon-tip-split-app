@@ -8,6 +8,7 @@ import { SalonStaffType } from '@/types/staff.types';
 import { SalonReceipt, SalonReceiptFilterInput, StaffBillType, StaffReceiptFilterInput, StaffReceiptSummary } from '@/types/receipt.type';
 import { SalonReceiptFilterInputType } from './useSalonUpdatePaymentStore';
 import dayjs from 'dayjs';
+import { PaymentReceiptStatusEnums } from '@/enums/PaymentEnums';
 
 
 
@@ -24,6 +25,8 @@ export interface SalonState {
   getSalonStaffs: () => Promise<SalonStaffType[]>;
   initSelectedSalon: () => Promise<void>;
   getSalonReceipts: (filter?: SalonReceiptFilterInput) => Promise<void>;
+  pendingPaymentReceipts: SalonReceipt[] | null;
+  getSalonPendingPaymentReceipts: (filter?: SalonReceiptFilterInput) => Promise<void>;
 }
 
 export const useSalonStore = create<SalonState>((set) => ({
@@ -32,6 +35,7 @@ export const useSalonStore = create<SalonState>((set) => ({
   salonStaffs: [],
   salonReceipts: [],
   salonStaffBills: [],
+  pendingPaymentReceipts: [],
   setSalons: (salons: Salon[]) => set({ salons }),
   selectSalon: (salon: Salon) => set({ selectedSalon: salon }),
   getMySalons: async () => {
@@ -59,7 +63,7 @@ export const useSalonStore = create<SalonState>((set) => ({
   getSalonStaffs: async () => {
     try {
       const { selectedSalon } = get();
-      
+
       const res = await salonAPI.getSalonStaffs(Number(selectedSalon?.id));
       set({ salonStaffs: res.data.data });
       return res.data.data;
@@ -83,6 +87,24 @@ export const useSalonStore = create<SalonState>((set) => ({
       set({
         salonReceipts: res.data.data,
       });
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  getSalonPendingPaymentReceipts: async (filter) => {
+    try {
+      const { selectedSalon } = get();
+      const filterInput: SalonReceiptFilterInput = {
+        ...filter,
+        payment_status: PaymentReceiptStatusEnums.PENDING
+      }
+
+      const res = await salonAPI.getSalonReceipts(Number(selectedSalon?.id), filterInput);
+      set({
+        pendingPaymentReceipts: res.data.data,
+      });
+
     } catch (error) {
       console.error(error);
     }

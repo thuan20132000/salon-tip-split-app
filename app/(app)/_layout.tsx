@@ -17,6 +17,7 @@ export default function AppLayout() {
   return <Stack 
     screenOptions={{
       title: 'Salon',
+      headerShown: false,
     }}
   />
 

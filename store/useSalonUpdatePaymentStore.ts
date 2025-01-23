@@ -387,6 +387,10 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
           }
           break;
         default:
+          total = subtotal;
+          if(gift > 0){
+            total = subtotal - gift;
+          }
           break;
       }
 

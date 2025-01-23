@@ -42,6 +42,7 @@ import PaymentMixModal from '@/components/PaymentMixModal';
 import { commonStyles } from '@/utils/commonStyles';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import dayjs from 'dayjs';
+import ReceiptPrintModal from '@/components/ReceiptPrintModal';
 
 
 export default function StaffPaymentScreen() {
@@ -55,6 +56,7 @@ export default function StaffPaymentScreen() {
   const [isShowDatetimePicker, setIsShowDateTimePicker] = useState<boolean>(false);
   const [selectedPaymentDate, setSelectedPaymentDate] = useState<Date | null>(new Date());
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isShowReceiptPrintModal, setIsShowReceiptPrintModal] = useState<boolean>(false);
 
   const {
     receive,
@@ -167,7 +169,7 @@ export default function StaffPaymentScreen() {
             service_amount: staffReceipt.service_amount,
             tip_amount: staffReceipt.tip_amount,
             staff: Number(staffReceipt.staff?.id),
-            service_name: 'Service Name',
+            service_name: 'Service',
             discount_percent: (Number(staffReceipt.discount_percent)),
             discount_price: (Number(staffReceipt.discount_price)),
             created_at: dayjs(selectedPaymentDate).format(),
@@ -184,7 +186,7 @@ export default function StaffPaymentScreen() {
 
     } catch (err) {
       console.error('Error save payment:', err);
-      
+
     } finally {
       resetPayment();
       router.back();
@@ -226,13 +228,16 @@ export default function StaffPaymentScreen() {
   }
 
   const handleAddPaymentStaff = (staff: SalonStaffType) => {
-    
+
     addNewSalonPaymentReceiptStaff(staff);
     setIsShowSelectStaffModal(false);
   }
 
+  const [receiptData, setReceiptData] = useState<SalonReceipt>();
   const showSelectStaffModal = () => {
     setIsShowSelectStaffModal(true);
+   
+
   }
 
   const renderDiscountButton = (staff: StaffBillType) => {
@@ -301,6 +306,34 @@ export default function StaffPaymentScreen() {
     hideDatePicker();
   };
 
+  const onShowPrintReceipt = () => {
+    setIsShowReceiptPrintModal(true);
+    let newReceipt: SalonReceipt = {
+      payment_method: selectedSalonReceipt?.payment_method || PaymentMethodsEnums.CASH,
+      payment_method_price: Number(selectedSalonReceipt?.payment_method_price).toFixed(2),
+      return_amount: Number(returnAmount).toFixed(2),
+      tip_total_amount: Number(tipPrice).toFixed(2),
+      sub_total_amount: Number(calculatePayments().subtotal).toFixed(2),
+      total_amount: Number(calculatePayments().total.toFixed(2)),
+      // salon: selectedSalon?.id,
+      staff_receipts: calculatePayments().paymentInvoice?.staff_services?.map((staffReceipt) => {
+        return {
+          service_amount: staffReceipt.service_amount,
+          tip_amount: staffReceipt.tip_amount,
+          staff: staffReceipt.staff,
+          service_name: 'Service',
+          discount_percent: (Number(staffReceipt.discount_percent)),
+          discount_price: (Number(staffReceipt.discount_price)),
+          created_at: dayjs(selectedPaymentDate).format(),
+          updated_at: dayjs(selectedPaymentDate).format(),
+        }
+      }),
+      created_at: dayjs(selectedPaymentDate).format(),
+      updated_at: dayjs(selectedPaymentDate).format(),
+    }
+
+    setReceiptData(newReceipt);
+  }
 
 
 
@@ -324,62 +357,65 @@ export default function StaffPaymentScreen() {
         <View style={styles.section}>
           {/* Staff  Price Input */}
           {selectedSalonReceipt?.staff_receipts?.map((staff, index) => (
-            <View key={index} style={styles.staffRow}>
-              <ButtonIcon
-                iconName="remove"
-                onPress={() => handleRemoveStaffBill(staff)}
-                containerStyle={{
-                  // flex: 1,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: 0,
-                  alignContent: 'center',
-                  backgroundColor: '#f8f9fa',
-                  paddingHorizontal: 6,
-                  marginRight: 8,
-
-                }}
-                size={18}
-              />
+            <View key={index} style={[styles.staffReceiptItem]}>
               <Text style={styles.staffName}>{staff.staff?.first_name}</Text>
-
               <View
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
-                  flex: 1,
                 }}
               >
-                <CurrencyInput
-                  value={staff.service_amount}
-                  onChangeValue={(value) => updateReceiptStaffPrice(staff, value)}
-                  prefix="$ "
-                  delimiter="."
-                  separator="."
-                  precision={2}
-                  minValue={0}
-                  showPositiveSign={false}
-                  onChangeText={(formattedValue) => {
-                    console.log(formattedValue); // R$ +2.310,46
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    flex: 1
                   }}
-                  style={styles.priceInput}
-                />
-                {
-                  renderDiscountButton(staff)
-                }
-                {
-                  renderTipBadge(staff)
-                }
+                >
+                  <CurrencyInput
+                    value={staff.service_amount}
+                    onChangeValue={(value) => updateReceiptStaffPrice(staff, value)}
+                    prefix="$ "
+                    delimiter="."
+                    separator="."
+                    precision={2}
+                    minValue={0}
+                    showPositiveSign={false}
+                    onChangeText={(formattedValue) => {
+                      console.log(formattedValue); // R$ +2.310,46
+                    }}
+                    style={styles.priceInput}
+                  />
+                  {
+                    renderDiscountButton(staff)
+                  }
+                  {
+                    renderTipBadge(staff)
+                  }
+                </View>
+                <View>
+                  <ButtonIcon
+                    iconName="trash-outline"
+                    onPress={() => handleRemoveStaffBill(staff)}
+                    containerStyle={{
+                      flex: 1,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 40,
+                    }}
+                    size={14}
+                  />
+                </View>
               </View>
             </View>
           ))}
           <ButtonIcon
+            title="Add Staff"
             iconName="add"
             onPress={showSelectStaffModal}
             containerStyle={{
-              // flex: 1,
               backgroundColor: '#f8f9fa',
-              alignSelf: 'flex-start',
+              justifyContent: 'center'
             }}
           />
 
@@ -387,10 +423,6 @@ export default function StaffPaymentScreen() {
 
         {/* Totals Section */}
         <View style={styles.section}>
-          <View style={styles.totalRow}>
-            <Text>SUB TOTAL ($)</Text>
-            <Text style={styles.totalAmount}>{formatCurrency(subtotal)}</Text>
-          </View>
 
           {/* Payment Methods */}
           <PaymentMethods
@@ -408,6 +440,7 @@ export default function StaffPaymentScreen() {
             debitPaymentPrice={debitPaymentPrice}
             setCashPaymentPrice={setCashPaymentPrice}
             setSelectedSalonReceipt={setSelectedSalonReceipt}
+            subtotal={subtotal}
           />
 
           <View style={[{ flexDirection: 'row', gap: 8, marginVertical: 2, flexWrap: 'wrap' }]}>
@@ -439,18 +472,18 @@ export default function StaffPaymentScreen() {
 
           <View style={{
             flexDirection: 'row',
-            justifyContent: 'space-between',
+            justifyContent: 'flex-end',
             alignItems: 'center',
             marginVertical: 8,
             backgroundColor: '#ffd33d',
-            paddingHorizontal:6,
+            paddingHorizontal: 6,
             paddingVertical: ms(10),
-            borderRadius: 6
+            borderRadius: 12
           }}>
             <Text style={styles.finalTotalText}>Total: {formatCurrency(calculatePayments().total)}</Text>
             <ButtonIcon
               iconName='print-sharp'
-              onPress={()=>{}}
+              onPress={onShowPrintReceipt}
             />
           </View>
 
@@ -639,6 +672,11 @@ export default function StaffPaymentScreen() {
             setIsShowPaymentMixModal(false)
           }}
         />
+        <ReceiptPrintModal
+          visible={isShowReceiptPrintModal}
+          onClose={() => { setIsShowReceiptPrintModal(false) }}
+          receiptData={receiptData}
+        />
       </KeyboardAwareScrollView>
     </>
 
@@ -652,12 +690,11 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: 12,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 16,
   },
   staffRow: {
     flexDirection: 'row',
@@ -666,9 +703,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   staffName: {
-    fontSize: 16,
+    fontSize: s(8),
     fontWeight: '500',
-    width: 100,
+    marginBottom: 2,
   },
   priceInput: {
     // flex: 1,
@@ -764,6 +801,8 @@ const styles = StyleSheet.create({
   finalTotalText: {
     fontSize: ms(16),
     fontWeight: 'bold',
+    marginHorizontal: ms(20),
+    color: '#007AFF',
   },
   finalTotalAmount: {
     fontSize: 20,
@@ -790,7 +829,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     height: 45,
     minWidth: ms(90),
-    fontSize: s(16),
+    fontSize: ms(16),
     fontWeight: 'bold',
   },
   isPaymentActive: {
@@ -800,5 +839,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  staffReceiptItem: {
+    backgroundColor: '#ffffff',
+    borderRadius: 6,
+    marginBottom: 3,
+    paddingHorizontal: ms(8),
+    paddingVertical: ms(4)
   },
 });

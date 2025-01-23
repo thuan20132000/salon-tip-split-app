@@ -3,12 +3,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
+  SectionList,
   StyleSheet,
   TouchableOpacity,
+  ActivityIndicator,
   Alert,
   FlatList,
 } from 'react-native';
-import { formatCurrency, formatDate, formatDateTime, formatTime, groupReceiptsByDate, handleNumberToPercent } from '../../../../utils/receiptUtils';
+import { formatCurrency, formatDate, formatDateTime, formatTime, groupReceiptsByDate, handleNumberToPercent } from './../utils/receiptUtils';
 import { router, useFocusEffect } from 'expo-router';
 import { SalonReceipt, SalonReceiptFilterInput, StaffBillType } from '@/types/receipt.type';
 import { PaymentDiscountRateEnums } from '@/enums/PaymentEnums';
@@ -19,20 +21,27 @@ import NavigationDate from '@/components/NavigationDate';
 import dayjs from 'dayjs';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
 import { SalonStaffType } from '@/types/staff.types';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
 
-export default function ReceiptHistoryScreen() {
+export default function PendingPaymentReceipts() {
+  // const {
+  //   salonReceipts,
+  //   getSalonPaymentReceipts
+  // } = useSalonPaymentStore((state: SalonPaymentState) => state);
+  const [selectedStaff, setSelectedStaff] = useState<SalonStaffType>();
+  const [isShowSelectStaffModal, setIsShowSelectStaffModal] = useState(false);
+
   const {
-    salonReceipts,
-    getSalonReceipts
+    pendingPaymentReceipts,
+    getSalonPendingPaymentReceipts
   } = useSalonStore((state: SalonState) => state);
 
   const onDeleteReceipt = async (receipt: SalonReceipt) => {
     try {
       await receiptAPIs.deleteSalonReceipt(Number(receipt.id));
       Alert.alert('Receipt deleted successfully');
-      getSalonReceipts();
+      getSalonPendingPaymentReceipts({
+        created_at: dayjs(new Date()).format('YYYY-MM-DD'),
+      });
     } catch (err) {
       console.error('Error deleting receipt:', err);
     }
@@ -98,18 +107,12 @@ export default function ReceiptHistoryScreen() {
       >
         <View style={styles.receiptHeader}>
           <Text style={styles.receiptTime}>{formatDateTime(item.created_at?.toString())}</Text>
-          <View>
-
-
-          </View>
-          <Text style={styles.receiptStatus}>{item.payment_status?.toUpperCase()}</Text>
-
-
+          <Badge
+            text={item.payment_status?.toUpperCase()}
+            backgroundColor='#4CAF50'
+          />
         </View>
-        <TouchableOpacity
-        // style={styles.receiptCard}
-        // onPress={() => showReceiptDetail(item)}
-        >
+        <View >
           <View style={styles.receiptDetails}>
             <View style={styles.staffList}>
               {renderStaffBillItem(item.staff_receipts)}
@@ -133,66 +136,70 @@ export default function ReceiptHistoryScreen() {
               </Text>
             </View>
           </View>
-        </TouchableOpacity>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, alignItems: 'center' }}>
-          <View style={{ flexDirection: 'row', alignSelf: 'flex-start' }}>
-            <Text style={styles.paymentMethod}>
-              Updated at {formatDateTime(item.updated_at?.toString())}
-            </Text>
-          </View>
-          <View style={{ flexDirection: 'row', alignSelf: 'flex-end' }}>
-            <ButtonIcon
-              iconName='trash'
-              color="red"
-              size={24}
-              onPress={() => onConfirmDeleteReceipt(item)}
-              containerStyle={{ padding: 0, backgroundColor: 'transparent', }}
-            />
+        </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+          <ButtonIcon
+            iconName='trash'
+            color="red"
+            size={24}
+            onPress={() => onConfirmDeleteReceipt(item)}
+            containerStyle={{ padding: 0, backgroundColor: 'transparent', }}
 
-            <ButtonIcon
-              iconName='create'
-              color="#007AFF"
-              size={24}
-              onPress={() => showPaymentUpdateScreen(item)}
-              containerStyle={{ padding: 0, backgroundColor: 'transparent', }}
-            />
-          </View>
+          />
+
+          <ButtonIcon
+            iconName='create'
+            color="#007AFF"
+            size={24}
+            onPress={() => showPaymentUpdateScreen(item)}
+            containerStyle={{ padding: 0, backgroundColor: 'transparent', }}
+
+          />
         </View>
       </View>
     );
   };
 
-  const insets = useSafeAreaInsets();
+
+  useFocusEffect(
+    // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
+    useCallback(() => {
+      // Invoked whenever the route is focused.
+      let filter: SalonReceiptFilterInput = {
+        created_at: dayjs(new Date()).format('YYYY-MM-DD'),
+      };
+      getSalonPendingPaymentReceipts(filter);
+
+      // Return function is invoked whenever the route gets out of focus.
+      return () => {
+        console.log('This route is now unfocused.');
+      };
+    }, [])
+  );
+
 
   return (
-    <SafeAreaView style={styles.container}>
-      <NavigationDate
-        onFilterChange={(filter)=>{
-          getSalonReceipts(filter);
-        }}
-      />
+    <View style={styles.container}>
       <FlatList
-        data={salonReceipts}
+        data={pendingPaymentReceipts}
         renderItem={renderReceiptItem}
-        keyExtractor={(item,index) => `${item?.id?.toString()}-${index}` || ''}
+        keyExtractor={(item, index) => `${item?.id?.toString()}-${index}` || ''}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.centerContainer}>
-            <Text>No receipts found</Text>
+            <Text>No Pending receipts found</Text>
           </View>
         }
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#f5f5f5',
   },
   centerContainer: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -1,4 +1,7 @@
+import PendingPaymentReceipts from '@/components/PendingPaymentReceipts';
 import StaffPaymentItem from '@/components/StaffPaymentItem';
+import { StaffRoleEnums } from '@/enums/StaffRoleEnums';
+import { AuthState, useAuthStore } from '@/store/authStore';
 import { SalonPaymentState, useSalonPaymentStore } from '@/store/useSalonPaymentStore';
 import { SalonStaffState, useSalonStaffStore } from '@/store/useSalonStaffStore';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
@@ -8,16 +11,14 @@ import { SalonStaffType } from '@/types/staff.types';
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ms } from 'react-native-size-matters';
 
 const StaffScreen = () => {
   const router = useRouter();
-  // const {
-  //   getSalonStaffs,
-  //   salonStaffs,
-  //   // selectPaymentStaff,
-  //   // selectedPaymentStaffs,
-  // } = useSalonStaffStore((state: SalonStaffState) => state);
-
+  const {
+    isSalonOwner
+  } = useAuthStore((state: AuthState) => state);
   const {
     getSalonStaffs,
     salonStaffs,
@@ -29,8 +30,6 @@ const StaffScreen = () => {
     selectPaymentStaff,
     selectedPaymentStaffs
   } = useSalonPaymentUpdateStore((state: SalonPaymentUpdateState) => state);
-
-
 
 
   const onPaymentPress = () => {
@@ -56,43 +55,51 @@ const StaffScreen = () => {
     getSalonStaffs();
 
   }, [selectedSalon])
-
+  
+  const insets = useSafeAreaInsets();
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-    >
-      <View
-        style={{
-          flex: 1,
-          flexWrap: 'wrap',
-          flexDirection: 'row',
-        }}
-      >
-        {salonStaffs?.map((staff) => (
+      <View style={{ flex: 1, flexWrap: 'wrap',paddingTop: insets.top, paddingHorizontal: 16 }}>
+        <View style={{ flex: 1, flexDirection: 'row' }}>
 
-          <StaffPaymentItem
-            key={staff.id}
-            staff={staff}
-            onPress={() => onSelectStaff(staff)}
-            customStyle={{
-              backgroundColor: selectedPaymentStaffs.includes(staff) ? '#ffd33d' : 'white',
-              borderColor: selectedPaymentStaffs.includes(staff) ? 'blue' : 'white',
-            }}
+          <View style={{ flex: 1 }}>
+            <View
+              style={{
+                flexWrap: 'wrap',
+                flexDirection: 'row',
+              }}
+            >
+              {salonStaffs?.map((staff) => (
+                <StaffPaymentItem
+                  key={staff.id}
+                  staff={staff}
+                  onPress={() => onSelectStaff(staff)}
+                  customStyle={{
+                    backgroundColor: selectedPaymentStaffs.includes(staff) ? '#ffd33d' : 'white',
+                    borderColor: selectedPaymentStaffs.includes(staff) ? 'blue' : 'white',
+                  }}
 
-          />
-        ))}
+                />
+              ))}
+            </View>
+            <TouchableOpacity
+              onPress={onPaymentPress}
+              style={styles.startPaymentButton}
+              disabled={selectedPaymentStaffs.length === 0}
+
+            >
+              <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Start Payment</Text>
+            </TouchableOpacity>
+
+          </View>
+          {
+            isSalonOwner() &&
+            <View style={{}}>
+              <PendingPaymentReceipts />
+            </View>
+          }
+        </View>
       </View>
-      <TouchableOpacity
-        onPress={onPaymentPress}
-        style={styles.startPaymentButton}
-        disabled={selectedPaymentStaffs.length === 0}
-
-      >
-        <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Start Payment</Text>
-      </TouchableOpacity>
-    </ScrollView>
-
   );
 };
 
@@ -129,14 +136,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   startPaymentButton: {
-    padding: 16,
+    padding: ms(10),
     backgroundColor: '#03A9F4',
-    borderRadius: 8,
+    borderRadius: 6,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 120,
-    width: '50%',
+    width: ms(200),
     alignSelf: 'center',
+    marginVertical: ms(30),
   },
 });
 

@@ -292,11 +292,8 @@ export default function StaffPaymentScreen() {
         <View style={styles.section}>
           {/* Staff  Price Input */}
           {selectedSalonReceipt?.staff_receipts?.map((staff, index) => (
-            <View key={index} style={[[styles.staffReceiptItem]]}>
-
+            <View key={index} style={[styles.staffReceiptItem]}>
               <Text style={styles.staffName}>{staff.staff?.first_name}</Text>
-
-
               <View
                 style={{
                   flexDirection: 'row',
@@ -385,6 +382,7 @@ export default function StaffPaymentScreen() {
             debitPaymentPrice={debitPaymentPrice}
             setCashPaymentPrice={setCashPaymentPrice}
             setSelectedSalonReceipt={setSelectedSalonReceipt}
+            subtotal={subtotal}
           />
           <View style={[{ flexDirection: 'row', gap: 8, marginVertical: 2, flexWrap: 'wrap' }]}>
             <ButtonIcon
@@ -415,13 +413,13 @@ export default function StaffPaymentScreen() {
 
           <View style={{
             flexDirection: 'row',
-            justifyContent: 'space-between',
+            justifyContent: 'flex-end',
             alignItems: 'center',
             marginVertical: 8,
             backgroundColor: '#ffd33d',
             paddingHorizontal: 6,
             paddingVertical: ms(10),
-            borderRadius: 6
+            borderRadius: 8
           }}>
             <Text style={styles.finalTotalText}>Total: {formatCurrency(calculatePayments().total)}</Text>
             <ButtonIcon
@@ -626,9 +624,9 @@ const styles = StyleSheet.create({
     padding: 6
   },
   staffName: {
-    fontSize: 16,
+    fontSize: s(10),
     fontWeight: '500',
-    width: 100,
+    marginBottom: 2,
   },
   priceInput: {
     // flex: 1,
@@ -723,6 +721,8 @@ const styles = StyleSheet.create({
   finalTotalText: {
     fontSize: ms(16),
     fontWeight: 'bold',
+    marginHorizontal: ms(20),
+    color: '#007AFF',
   },
   finalTotalAmount: {
     fontSize: 20,
@@ -749,7 +749,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     height: 45,
     minWidth: ms(90),
-    fontSize: s(12),
+    fontSize: ms(12),
     fontWeight: 'bold',
   },
   isPaymentActive: {

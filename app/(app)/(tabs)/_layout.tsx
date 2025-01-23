@@ -30,6 +30,7 @@ export default function TabLayout() {
             <Ionicons name="person" color={color} size={24} />
           ),
           title: 'Payment',
+          headerShown: false
         }}
       />
 

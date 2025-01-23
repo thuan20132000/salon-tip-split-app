@@ -33,7 +33,9 @@ export const registerUserDeviceSubscription = () => {
   OneSignal.User.pushSubscription.getIdAsync().then(async (id) => {
     console.log('OneSignal: playerId:', id);
     try {
-
+      if(!id) {
+        return;
+      }
       await authAPI.registerUserDevice({ device_id: String(id) });
     } catch (error) {
       console.log('Error: ', error);

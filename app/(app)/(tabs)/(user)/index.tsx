@@ -16,6 +16,7 @@ import { User } from '@/types/user.type';
 import { AuthState, useAuthStore } from '@/store/authStore';
 import ButtonText from '@/components/commons/ButtonText';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 interface UserScreenProps {
@@ -80,10 +81,12 @@ const UserScreen: React.FC<UserScreenProps> = () => {
     initSelectedSalon()
   }, [])
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" />
+  const insets = useSafeAreaInsets();
 
+
+  return (
+    <SafeAreaView style={[styles.container,{paddingTop: insets.top}]}>
+      <StatusBar style="dark" />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}

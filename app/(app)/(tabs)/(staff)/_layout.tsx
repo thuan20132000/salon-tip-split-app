@@ -10,7 +10,11 @@ export default function StaffLayout() {
         }}
       >
         {/* Add your screens here */}
-        <Stack.Screen name="index" />
+        <Stack.Screen name="index" 
+          options={{
+            headerShown: false,
+          }}
+        />
         <Stack.Screen 
           name="payment-create" 
           options={{

@@ -176,6 +176,7 @@ export interface SalonReceiptFilterInput {
   created_at?: Date | string;
   staff?: number;
   salon?: number;
+  payment_status?: PaymentReceiptStatusEnums;
 }
 
 export interface StaffReceiptSummary {

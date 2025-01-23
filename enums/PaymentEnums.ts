@@ -1,4 +1,5 @@
 export enum PaymentMethodsEnums {
+  NO_TAX = 'no_tax',
   DEBIT = 'debit',
   CASH = 'cash',
   DISC_5_PERCENT_CASH = 'disc_5_percent_cash',
