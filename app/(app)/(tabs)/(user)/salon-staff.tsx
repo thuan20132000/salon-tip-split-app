@@ -43,19 +43,7 @@ export default function SalonStaffScreen() {
     getSalonStaffs();
   }, []);
 
-  const handleAddStaff = async (data: SalonStaffType) => {
 
-  };
-
-  const handleEditStaff = async (data: SalonStaffType) => {
-    if (!selectedStaff) return;
-
-    try {
-
-    } catch (error) {
-      Alert.alert('Error', 'Failed to update staff member');
-    }
-  };
 
   const handleDeleteStaff = async (staffId: number) => {
 
@@ -92,7 +80,7 @@ export default function SalonStaffScreen() {
 
   return (
     <View style={styles.container}>
-      {/* <TouchableOpacity
+      <TouchableOpacity
         style={styles.addButton}
         onPress={() => {
           setSelectedStaff(null);
@@ -101,7 +89,7 @@ export default function SalonStaffScreen() {
       >
         <AntDesign name="plus" size={20} color="white" />
         <Text style={styles.addButtonText}>Add Staff</Text>
-      </TouchableOpacity> */}
+      </TouchableOpacity>
 
       <FlatList
         data={salonStaffs}
@@ -122,8 +110,14 @@ export default function SalonStaffScreen() {
           setModalVisible(false);
           setSelectedStaff(null);
         }}
-        onSubmit={selectedStaff ? handleEditStaff : handleAddStaff}
-        initialData={selectedStaff || undefined}
+        // initialData={{
+        //   first_name: selectedStaff?.first_name || '',
+        //   phonenumber: selectedStaff?.phone || '',
+        //   email: selectedStaff?.email || '',
+        //   password: '',
+        //   password2: '',
+        //   username: selectedStaff?.phone || '',
+        // }}
         title={selectedStaff ? 'Edit Staff' : 'Add Staff'}
       />
     </View>

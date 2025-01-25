@@ -37,6 +37,14 @@ export type CreateStaffInput = Omit<SalonStaffType, 'id' | 'created_at' | 'updat
 // For updating staff member (all fields optional except id)
 export type UpdateStaffInput = Partial<Omit<SalonStaffType, 'id'>> & { id: number };
 
+// For create a staff account
+export type CreateStaffAccountInput = {
+  phone: string;
+  first_name: string;
+  email: string;
+  salon_id: number;
+};
+
 // Example usage:
 const newStaff: CreateStaffInput = {
   first_name: 'John',
@@ -55,3 +63,5 @@ const updateStaff: UpdateStaffInput = {
   first_name: 'Johnny',
   email: 'johnny@example.com'
 };
+
+

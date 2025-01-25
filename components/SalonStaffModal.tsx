@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Modal,
   View,
@@ -8,9 +8,15 @@ import {
   StyleSheet,
   ScrollView,
   Platform,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
-import { SalonStaffType } from '@/types/staff.types';
+import { CreateStaffAccountInput, SalonStaffType } from '@/types/staff.types';
+import { authAPI } from '@/api/authAPI';
+import { salonAPI } from '@/api/salonAPI';
+import { SalonState, useSalonStore } from '@/store/useSalonStore';
+import { APIErrorType } from '@/types/api.types';
 
 
 
@@ -19,27 +25,69 @@ import { SalonStaffType } from '@/types/staff.types';
 interface SalonStaffModalProps {
   visible: boolean;
   onClose: () => void;
-  onSubmit: (data: SalonStaffType) => void;
-  initialData?: SalonStaffType;
+  initialData?: CreateStaffAccountInput;
   title: string;
 }
 
 export const SalonStaffModal: React.FC<SalonStaffModalProps> = ({
   visible,
   onClose,
-  onSubmit,
   initialData,
   title,
 }) => {
-  const { control, handleSubmit, formState: { errors } } = useForm<SalonStaffType>({
+  const [isLoading, setIsLoading] = useState(false);
+
+  const {
+    selectedSalon,
+    getSalonStaffs,
+  } = useSalonStore((state: SalonState) => state);
+
+  const { control, handleSubmit, formState: { errors } ,reset} = useForm<CreateStaffAccountInput>({
     defaultValues: {
       first_name: initialData?.first_name || '',
-      last_name: initialData?.last_name || '',
       email: initialData?.email || '',
       phone: initialData?.phone || '',
-      address: initialData?.address,
+      salon_id: initialData?.salon_id || selectedSalon?.id,
     }
   });
+
+  const handleAddStaff = async (data: CreateStaffAccountInput) => {
+    try {
+      setIsLoading(true);
+      let res = await salonAPI.addSalonStaff(data);
+    
+      Alert.alert('Success', 'Staff added successfully');
+
+      // clear form
+      reset();
+
+      getSalonStaffs();
+      onClose();
+    } catch (error: any) {
+      Alert.alert('Error', error?.message || 'An error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEditStaff = async (data: SalonStaffType) => {
+
+  };
+
+  const onSubmit = (data: CreateStaffAccountInput) => {
+    console.log('data', data);
+
+
+    if (initialData) {
+
+      handleEditStaff(data);
+    } else {
+      console.log('====================================');
+      console.log('add staff');
+      console.log('====================================');
+      handleAddStaff(data);
+    }
+  }
 
   return (
     <Modal
@@ -57,19 +105,63 @@ export const SalonStaffModal: React.FC<SalonStaffModalProps> = ({
               control={control}
               rules={{ required: 'First name is required' }}
               render={({ field: { onChange, value } }) => (
-                <View style={styles.inputContainer}>
-                  <Text style={styles.label}>First Name</Text>
-                  <TextInput
-                    style={styles.input}
-                    onChangeText={onChange}
-                    value={String(value)}
-                  />
-                  {errors.first_name && (
-                    <Text style={styles.errorText}>{errors.first_name.message}</Text>
-                  )}
-                </View>
+                <>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.label}>First Name</Text>
+                    <TextInput
+                      style={styles.input}
+                      onChangeText={onChange}
+                      value={String(value)}
+                    />
+                    {errors.first_name && (
+                      <Text style={styles.errorText}>{errors.first_name.message}</Text>
+                    )}
+                  </View>
+                </>
               )}
               name="first_name"
+            />
+
+            <Controller
+              control={control}
+              rules={{ required: 'Email is required' }}
+              render={({ field: { onChange, value } }) => (
+                <>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Email</Text>
+                    <TextInput
+                      style={styles.input}
+                      onChangeText={onChange}
+                      value={String(value)}
+                    />
+                    {errors.email && (
+                      <Text style={styles.errorText}>{errors.email.message}</Text>
+                    )}
+                  </View>
+                </>
+              )}
+              name="email"
+            />
+
+            <Controller
+              control={control}
+              rules={{ required: 'Phone number is required' }}
+              render={({ field: { onChange, value } }) => (
+                <>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Phone Number</Text>
+                    <TextInput
+                      style={styles.input}
+                      onChangeText={onChange}
+                      value={String(value)}
+                    />
+                    {errors.phone && (
+                      <Text style={styles.errorText}>{errors.phone.message}</Text>
+                    )}
+                  </View>
+                </>
+              )}
+              name="phone"
             />
 
             {/* Add other form fields similarly */}
@@ -84,8 +176,12 @@ export const SalonStaffModal: React.FC<SalonStaffModalProps> = ({
               <TouchableOpacity
                 style={[styles.button, styles.submitButton]}
                 onPress={handleSubmit(onSubmit)}
+                disabled={isLoading}
               >
                 <Text style={styles.buttonText}>Submit</Text>
+                {
+                  isLoading && <ActivityIndicator color="white" style={{ marginLeft: 8 }} />
+                }
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -174,7 +270,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     width: '90%',
-    maxHeight: '80%',
+    height: '90%',
   },
   modalTitle: {
     fontSize: 20,

@@ -1,6 +1,7 @@
 import { ApiResponse } from "@/types/api.types";
 import { api } from "./axios";
 import { LoginResponse, UserDeviceRegisterRequest, UserDeviceType } from "@/types/user.type";
+import { CreateStaffAccountInput } from "@/types/staff.types";
 
 export const authAPI = {
   login: (username: string, password: string) => api.post<LoginResponse>('/login/',

@@ -28,8 +28,8 @@ export const LoginScreen: React.FC = () => {
 
   const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
     defaultValues: {
-      username: '000111222',
-      password: '123456',
+      username: '000123123',
+      password: '000123123',
     },
   });
 

@@ -66,6 +66,9 @@ const UserScreen: React.FC<UserScreenProps> = () => {
 
 
   const showStaffManagement = () => {
+    if (!canAccessManagement()) {
+      return;
+    }
     router.push('/(app)/(tabs)/(user)/salon-staff');
   }
 
@@ -152,22 +155,24 @@ const UserScreen: React.FC<UserScreenProps> = () => {
           <Text style={styles.sectionTitle}>Management</Text>
           {
             isSalonOwner() &&
-            <ButtonText
-              title="Salons"
-              onPress={showSalonManagement}
-              style={styles.managementItem}
-              textStyle={styles.managementItemText}
+            <>
+              <ButtonText
+                title="Salons"
+                onPress={showSalonManagement}
+                style={styles.managementItem}
+                textStyle={styles.managementItemText}
+              />
+              <ButtonText
+                title="Staffs"
+                onPress={showStaffManagement}
+                style={styles.managementItem}
+                textStyle={styles.managementItemText}
 
-            />
+              />
+
+            </>
           }
 
-          <ButtonText
-            title="Staffs"
-            onPress={showStaffManagement}
-            style={styles.managementItem}
-            textStyle={styles.managementItemText}
-
-          />
 
           <ButtonText
             title="Ticket Reports"

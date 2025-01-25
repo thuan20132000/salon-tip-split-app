@@ -1,7 +1,7 @@
 import { api } from "./axios";
 import { Salon } from "@/types/user.type";
 import { ApiResponse, StaffReceiptApiResponseType } from '../types/api.types';
-import { SalonStaffType } from "@/types/staff.types";
+import { CreateStaffAccountInput, SalonStaffType } from "@/types/staff.types";
 import { SalonReceipt, SalonReceiptFilterInput, StaffBillType } from "@/types/receipt.type";
 import { SalonReportApiResponse, SalonSalaryReportFilterType, SalonSalaryReportResponseType, SalonSalaryReportType, StaffSalaryReportFilterType, StaffSalaryReportResponseType } from "@/types/report.types";
 
@@ -21,4 +21,5 @@ export const salonAPI = {
   getStaffSalaryReport: (salon_id: number | string, filter: StaffSalaryReportFilterType) => api.get<StaffSalaryReportResponseType>(`/salons/${salon_id}/staff-service-revenue/`, {
     params: filter
   }),
+  addSalonStaff: (data: Partial<CreateStaffAccountInput>) => api.post<ApiResponse<SalonStaffType>>(`/salons/${data.salon_id}/add-staff/`, data),
 };
