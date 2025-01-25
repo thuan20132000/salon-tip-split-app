@@ -51,17 +51,18 @@ const AddGiftModal: React.FC<AddGiftModalProps> = ({
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-            <ButtonIcon
-              iconName='close'
-              containerStyle={{
-                width: 50,
-                height: 50,
-                position: 'absolute',
-                right: 8,
-                top: 8
-              }}
-              onPress={onClose}
-            />
+          <ButtonIcon
+            iconName='close'
+            containerStyle={{
+              width: 50,
+              height: 50,
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              zIndex: 999
+            }}
+            onPress={onClose}
+          />
           <View>
             <Text style={styles.title}>Gift Card</Text>
           </View>

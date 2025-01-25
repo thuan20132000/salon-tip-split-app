@@ -12,7 +12,7 @@ import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ms } from 'react-native-size-matters';
+import { ms, s } from 'react-native-size-matters';
 
 const StaffScreen = () => {
   const router = useRouter();
@@ -55,18 +55,21 @@ const StaffScreen = () => {
     getSalonStaffs();
 
   }, [selectedSalon])
-  
+
   const insets = useSafeAreaInsets();
 
   return (
-      <View style={{ flex: 1, flexWrap: 'wrap',paddingTop: insets.top, paddingHorizontal: 16 }}>
+    <View style={{ flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom }}>
+      <ScrollView >
         <View style={{ flex: 1, flexDirection: 'row' }}>
-
           <View style={{ flex: 1 }}>
             <View
               style={{
                 flexWrap: 'wrap',
                 flexDirection: 'row',
+                justifyContent:'flex-start',
+                paddingHorizontal: ms(10),
+              
               }}
             >
               {salonStaffs?.map((staff) => (
@@ -77,6 +80,9 @@ const StaffScreen = () => {
                   customStyle={{
                     backgroundColor: selectedPaymentStaffs.includes(staff) ? '#ffd33d' : 'white',
                     borderColor: selectedPaymentStaffs.includes(staff) ? 'blue' : 'white',
+                    width: ms(80),
+                    height: ms(80),
+                    // flex:1
                   }}
 
                 />
@@ -90,16 +96,17 @@ const StaffScreen = () => {
             >
               <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Start Payment</Text>
             </TouchableOpacity>
-
           </View>
-          {
-            isSalonOwner() &&
-            <View style={{}}>
-              <PendingPaymentReceipts />
-            </View>
-          }
         </View>
-      </View>
+        {
+          isSalonOwner() &&
+          <View style={{}}>
+            <Text style={{ textAlign: 'center', fontWeight: 'bold' }}>Pending Payments</Text>
+            <PendingPaymentReceipts />
+          </View>
+        }
+      </ScrollView>
+    </View>
   );
 };
 

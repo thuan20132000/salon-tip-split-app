@@ -19,6 +19,7 @@ export interface AuthState {
   logout: () => Promise<void>;
   initialize: () => Promise<void>;
   isSalonOwner: () => boolean;
+  verifyPassword: (password: string) => boolean;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -114,4 +115,10 @@ export const useAuthStore = create<AuthState>((set) => ({
       console.error('Logout error:', error);
     }
   },
+  verifyPassword: (password: string) => {
+    if (password == '860012') {
+      return true;
+    }
+    return false
+  }
 }));

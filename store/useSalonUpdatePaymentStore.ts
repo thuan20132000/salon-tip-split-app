@@ -388,7 +388,7 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
           break;
         default:
           total = subtotal;
-          if(gift > 0){
+          if (gift > 0) {
             total = subtotal - gift;
           }
           break;
@@ -414,11 +414,7 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
 
     }
 
-
-
     total = getTotalBySelectedPaymentMethod()
-
-
     const returnAmount = (Number(state.receive) - Number(total)).toFixed(2) || '0';
 
     return {

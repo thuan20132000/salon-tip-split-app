@@ -8,6 +8,7 @@ import {
   Image,
   SafeAreaView,
   Platform,
+  Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { AntDesign } from '@expo/vector-icons';
@@ -17,6 +18,8 @@ import { AuthState, useAuthStore } from '@/store/authStore';
 import ButtonText from '@/components/commons/ButtonText';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ms } from 'react-native-size-matters';
+import { SettingState, useSettingsStore } from '@/store/useSettingsStore';
 
 
 interface UserScreenProps {
@@ -34,8 +37,13 @@ const UserInfoRow: React.FC<{ label: string; value: string }> = ({ label, value 
 const UserScreen: React.FC<UserScreenProps> = () => {
   const {
     user,
-    logout
+    logout,
+    isSalonOwner
   } = useAuthStore((state: AuthState) => state)
+
+  const {
+    isAllowAccessManagement
+  } = useSettingsStore((state: SettingState) => state);
 
   const {
     initSelectedSalon
@@ -62,19 +70,43 @@ const UserScreen: React.FC<UserScreenProps> = () => {
   }
 
   const showSalonManagement = () => {
+    if (!canAccessManagement()) {
+      return;
+    }
     router.push('/(app)/(tabs)/(user)/salons');
   }
 
   const showTicketReport = () => {
+    if (!canAccessManagement()) {
+      return;
+    }
     router.push('/(app)/(tabs)/(user)/ticket-report');
   }
 
   const showSalonReport = () => {
+    if (!canAccessManagement()) {
+      return;
+    }
     router.push('/(app)/(tabs)/(user)/salon-report');
   }
 
   const showSalaryReport = () => {
+    if (!canAccessManagement()) {
+      return;
+    }
     router.push('/(app)/(tabs)/(user)/salon-salary-report');
+  }
+
+  const showSettings = () => {
+    router.push('/(app)/(tabs)/(user)/setting');
+  }
+
+  const canAccessManagement = () => {
+    if (!isAllowAccessManagement) {
+      Alert.alert('Access Denied', 'You are not allowed to access this feature.')
+      return false;
+    }
+    return true;
   }
 
   useEffect(() => {
@@ -85,7 +117,7 @@ const UserScreen: React.FC<UserScreenProps> = () => {
 
 
   return (
-    <SafeAreaView style={[styles.container,{paddingTop: insets.top}]}>
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar style="dark" />
       <ScrollView
         style={styles.scrollView}
@@ -118,34 +150,58 @@ const UserScreen: React.FC<UserScreenProps> = () => {
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Management</Text>
-          <ButtonText
-            title="Salons"
-            onPress={showSalonManagement}
-            style={styles.managementItem}
-          />
+          {
+            isSalonOwner() &&
+            <ButtonText
+              title="Salons"
+              onPress={showSalonManagement}
+              style={styles.managementItem}
+              textStyle={styles.managementItemText}
+
+            />
+          }
 
           <ButtonText
             title="Staffs"
             onPress={showStaffManagement}
             style={styles.managementItem}
+            textStyle={styles.managementItemText}
+
           />
 
           <ButtonText
             title="Ticket Reports"
             onPress={showTicketReport}
             style={styles.managementItem}
-          />
+            textStyle={styles.managementItemText}
 
-          <ButtonText
-            title="Salon Reports"
-            onPress={showSalonReport}
-            style={styles.managementItem}
           />
-          <ButtonText
-            title="Salon Salary Reports"
-            onPress={showSalaryReport}
-            style={styles.managementItem}
-          />
+          {
+            isSalonOwner() && (
+              <>
+                <ButtonText
+                  title="Salon Reports"
+                  onPress={showSalonReport}
+                  style={styles.managementItem}
+                  textStyle={styles.managementItemText}
+                />
+                <ButtonText
+                  title="Salon Salary Reports"
+                  onPress={showSalaryReport}
+                  style={styles.managementItem}
+                  textStyle={styles.managementItemText}
+
+                />
+                <ButtonText
+                  title="Settings"
+                  onPress={showSettings}
+                  style={styles.managementItem}
+                  textStyle={styles.managementItemText}
+                />
+
+              </>
+            )
+          }
         </View>
 
         <TouchableOpacity
@@ -263,6 +319,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     backgroundColor: '#007AFF',
     padding: 12,
+    borderRadius: 12,
+  },
+  managementItemText: {
+    color: 'white',
+    fontSize: ms(10),
+    fontWeight: 'bold',
   }
 });
 

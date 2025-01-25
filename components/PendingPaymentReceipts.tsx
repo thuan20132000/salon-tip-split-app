@@ -181,6 +181,7 @@ export default function PendingPaymentReceipts() {
   return (
     <View style={styles.container}>
       <FlatList
+        horizontal
         data={pendingPaymentReceipts}
         renderItem={renderReceiptItem}
         keyExtractor={(item, index) => `${item?.id?.toString()}-${index}` || ''}

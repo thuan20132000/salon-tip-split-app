@@ -36,11 +36,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#007BFF',
     borderRadius: 5,
     alignItems: 'center',
-    flexDirection: 'row',
   },
   text: {
     color: '#FFFFFF',
     fontSize: 16,
+    textAlign:'center'
   },
 });
 

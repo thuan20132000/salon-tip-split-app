@@ -23,7 +23,7 @@ interface AddDiscountModalProps {
 }
 
 
-const DISCOUNT_PERCENTAGES = [5, 10, 15, 20, 25, 30];
+const DISCOUNT_PERCENTAGES = [5, 10, 15, 20, 25];
 
 const AddDiscountModal: React.FC<AddDiscountModalProps> = ({
   visible,
@@ -61,7 +61,8 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({
               height: 50,
               position: 'absolute',
               right: 8,
-              top: 8
+              top: 8,
+              zIndex: 999
             }}
             onPress={onClose}
           />
@@ -69,31 +70,29 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({
             <Text style={styles.title}>Discount(%)</Text>
           </View>
           <View>
-            <ScrollView horizontal>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginBottom: 20 }}>
-                {
-                  DISCOUNT_PERCENTAGES.map((value: number) =>
-                    <ButtonText
-                      key={value}
-                      title={`${value}%`}
-                      style={{
-                        width: ms(60),
-                        height: ms(60),
-                        backgroundColor: value == discount ? '#007BFF' : 'grey',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderRadius: ms(12)
-                      }}
-                      textStyle={{
-                        fontWeight: 'bold',
-                        fontSize: s(12)
-                      }}
-                      onPress={() => onChangeDiscountPercent(value)}
-                    />
-                  )
-                }
-              </View>
-            </ScrollView>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginBottom: 20 }}>
+              {
+                DISCOUNT_PERCENTAGES.map((value: number) =>
+                  <ButtonText
+                    key={value}
+                    title={`${value}%`}
+                    style={{
+                      width: ms(60),
+                      height: ms(60),
+                      backgroundColor: value == discount ? '#007BFF' : 'grey',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: ms(12)
+                    }}
+                    textStyle={{
+                      fontWeight: 'bold',
+                      fontSize: s(12)
+                    }}
+                    onPress={() => onChangeDiscountPercent(value)}
+                  />
+                )
+              }
+            </View>
             <CurrencyInput
               value={discount || 0}
               onChangeValue={(value) => onChangeDiscountPercent(Number(value))}
