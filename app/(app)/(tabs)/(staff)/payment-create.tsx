@@ -39,10 +39,11 @@ import { ms, s } from 'react-native-size-matters';
 import { helper } from '@/utils/helper';
 import AddGiftModal from '@/components/AddGiftCardModal';
 import PaymentMixModal from '@/components/PaymentMixModal';
-import { commonStyles } from '@/utils/commonStyles';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import dayjs from 'dayjs';
 import ReceiptPrintModal from '@/components/ReceiptPrintModal';
+import { RootState, useRootStore } from '@/store/useRootStore';
+import { LoadingIndicatorModal } from '@/components/LoadingIndicatorModal';
 
 
 export default function StaffPaymentScreen() {
@@ -55,8 +56,12 @@ export default function StaffPaymentScreen() {
   const [isShowPaymentMixModal, setIsShowPaymentMixModal] = useState<boolean>(false);
   const [isShowDatetimePicker, setIsShowDateTimePicker] = useState<boolean>(false);
   const [selectedPaymentDate, setSelectedPaymentDate] = useState<Date | null>(new Date());
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  // const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isShowReceiptPrintModal, setIsShowReceiptPrintModal] = useState<boolean>(false);
+  const {
+    isLoading,
+    setIsLoading
+  } = useRootStore((state: RootState) => state);
 
   const {
     receive,
@@ -71,9 +76,7 @@ export default function StaffPaymentScreen() {
     selectedSalonReceipt,
     setSelectedSalonReceipt,
     onUpdateTipRate,
-    addSelectedSalonReceiptStaff,
     removeSelectedSalonReceiptStaff,
-    deleteStaffReceipt,
     customDiscountPercent,
     updateCustomDiscountPercent,
     giftAmount,
@@ -157,7 +160,7 @@ export default function StaffPaymentScreen() {
       setIsLoading(true);
       let newReceipt: CreateSalonReceiptType = {
         payment_method: selectedSalonReceipt?.payment_method || PaymentMethodsEnums.CASH,
-        payment_method_price: Number(selectedSalonReceipt?.payment_method_price).toFixed(2),
+        payment_method_price: Number(selectedSalonReceipt?.payment_method_price || 0).toFixed(2),
         return_amount: Number(returnAmount).toFixed(2),
         tip_total_amount: Number(tipPrice).toFixed(2),
         sub_total_amount: Number(calculatePayments().subtotal).toFixed(2),
@@ -183,14 +186,13 @@ export default function StaffPaymentScreen() {
       await receiptAPIs.createSalonReceipt(newReceipt);
 
       Alert.alert('Create Payment Success', 'Create Payment has been successfully processed');
-
+      resetPayment();
     } catch (err) {
       console.error('Error save payment:', err);
 
     } finally {
-      resetPayment();
-      router.back();
       setIsLoading(false);
+      router.back();
     }
   }
 
@@ -236,7 +238,7 @@ export default function StaffPaymentScreen() {
   const [receiptData, setReceiptData] = useState<SalonReceipt>();
   const showSelectStaffModal = () => {
     setIsShowSelectStaffModal(true);
-   
+
 
   }
 
@@ -348,10 +350,11 @@ export default function StaffPaymentScreen() {
   return (
 
     <>
-      <KeyboardAwareScrollView bottomOffset={62} contentContainerStyle={{
-        gap: 16,
-        padding: 16,
-      }}>
+      <KeyboardAwareScrollView bottomOffset={62}
+        contentContainerStyle={{
+          gap: 16,
+          padding: 16,
+        }}>
 
         {/* Staff Price Inputs */}
         <View style={styles.section}>
@@ -592,28 +595,18 @@ export default function StaffPaymentScreen() {
 
             />
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View>
-              <ButtonIcon
-                title={selectedPaymentDate ? selectedPaymentDate.toDateString() : 'Select Payment Date'}
-                iconName="calendar"
-                onPress={() => setIsShowDateTimePicker(true)}
-                containerStyle={{
-                  // flex: 1,
-                  backgroundColor: '#f8f9fa',
-                  alignSelf: 'flex-start',
-                  marginBottom: 16,
-                }}
-              />
-              <DateTimePickerModal
-                isVisible={isShowDatetimePicker}
-                mode="datetime"
-                onConfirm={handleConfirm}
-                onCancel={hideDatePicker}
-                display='inline'
-
-              />
-            </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <ButtonIcon
+              title={selectedPaymentDate ? selectedPaymentDate.toDateString() : 'Select Payment Date'}
+              iconName="calendar"
+              onPress={() => setIsShowDateTimePicker(true)}
+              containerStyle={{
+                // flex: 1,
+                backgroundColor: '#f8f9fa',
+                alignSelf: 'flex-start',
+                marginBottom: 16,
+              }}
+            />
             <ButtonIcon
               title="Save"
               iconName="save"
@@ -676,6 +669,14 @@ export default function StaffPaymentScreen() {
           visible={isShowReceiptPrintModal}
           onClose={() => { setIsShowReceiptPrintModal(false) }}
           receiptData={receiptData}
+        />
+        <DateTimePickerModal
+          isVisible={isShowDatetimePicker}
+          mode="datetime"
+          onConfirm={handleConfirm}
+          onCancel={hideDatePicker}
+          display='inline'
+
         />
       </KeyboardAwareScrollView>
     </>

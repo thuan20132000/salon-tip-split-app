@@ -87,6 +87,7 @@ class APIClient {
 
         console.log('====================================');
         console.log('ErrorAxios:', error);
+        console.log('ErrorMessage: ', error.message);
         console.log('====================================');
         return Promise.reject(this.handleError(error));
       }

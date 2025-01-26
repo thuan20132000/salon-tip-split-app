@@ -1,7 +1,5 @@
 import { AuthState, useAuthStore } from "@/store/authStore";
 import { Redirect, Stack } from "expo-router";
-import { useEffect } from "react";
-import { KeyboardProvider } from "react-native-keyboard-controller";
 
 export default function AppLayout() {
 
@@ -14,11 +12,13 @@ export default function AppLayout() {
     return <Redirect href={'/sign-in'} />
   }
 
-  return <Stack 
-    screenOptions={{
-      title: 'Salon',
-      headerShown: false,
-    }}
-  />
+  return (
+    <Stack
+      screenOptions={{
+        title: 'Salon',
+        headerShown: false,
+      }}
+    />
 
+  )
 }

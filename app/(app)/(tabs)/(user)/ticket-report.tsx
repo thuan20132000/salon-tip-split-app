@@ -8,22 +8,18 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import StaffBillItem from '@/components/StaffBillItem';
 import { SalonReceipt, SalonReceiptFilterInput, StaffBillType, StaffReceiptFilterInput } from '@/types/receipt.type';
 import dayjs, { Dayjs } from 'dayjs';
 import { receiptAPIs } from '@/api/receiptAPI';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
 import TicketReportFilter from '@/components/TicketReportFilter';
+import { RootState, useRootStore } from '@/store/useRootStore';
 
 
 
 const TicketReportScreen: React.FC = () => {
-
-  // const {
-  //   staffBills,
-  //   getStaffReceipts
-  // } = useStaffReceiptStore((state: StaffReceiptStore) => state);
 
   const {
     salonStaffBills,
@@ -32,16 +28,22 @@ const TicketReportScreen: React.FC = () => {
 
   // State
   // const [receipts, setReceipts] = useState<StaffReceipt[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-
+  // const [loading, setLoading] = useState<boolean>(false);
+  const {
+    isLoading,
+    setIsLoading
+  } = useRootStore((state: RootState) => state);
 
   const onDeleteReceipt = async (receipt: StaffBillType) => {
     try {
+      setIsLoading(true);
       await receiptAPIs.deleteStaffReceipt(Number(receipt.id));
       Alert.alert('Staff Receipt is deleted successfully');
       // getStaffReceipts();
     } catch (err) {
       console.error('Error deleting receipt:', err);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -81,28 +83,24 @@ const TicketReportScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <TicketReportFilter/>
-      {loading ? (
-        <ActivityIndicator size="large" color="#007AFF" style={styles.loader} />
-      ) : (
-        <FlatList
-          data={salonStaffBills}
-          renderItem={({ item }) =>
-            <StaffBillItem
-              staffBill={item}
-              onDeletePress={() => onConfirmDeleteReceipt(item)}
-            />
-          }
-          keyExtractor={(item) => item?.id?.toString() || ''}
-          contentContainerStyle={styles.listContainer}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Ionicons name="document-outline" size={48} color="#999" />
-              <Text style={styles.emptyText}>No receipts found</Text>
-            </View>
-          }
-        />
-      )}
+      <TicketReportFilter />
+      <FlatList
+        data={salonStaffBills}
+        renderItem={({ item }) =>
+          <StaffBillItem
+            staffBill={item}
+            onDeletePress={() => onConfirmDeleteReceipt(item)}
+          />
+        }
+        keyExtractor={(item) => item?.id?.toString() || ''}
+        contentContainerStyle={styles.listContainer}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Ionicons name="document-outline" size={48} color="#999" />
+            <Text style={styles.emptyText}>No receipts found</Text>
+          </View>
+        }
+      />
     </View>
   );
 };

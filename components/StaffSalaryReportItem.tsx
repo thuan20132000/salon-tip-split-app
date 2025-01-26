@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { SalonSalaryReportType, StaffSalaryReportType } from '@/types/report.types';
 import { formatCurrency, formatDate, formatDateTime } from '@/utils/receiptUtils';
 import { ms } from 'react-native-size-matters';
@@ -30,49 +30,42 @@ const StaffSalaryReportItem: React.FC<SalaryReportItemProps> = ({
         onPress={onPress}
         disabled={!onPress}
       >
-        <View style={styles.dateContainer}>
-          <Text style={styles.date}>{helper.formatDays(item.date)}</Text>
-        </View>
-        <View style={styles.amountsContainer}>
-          <Badge
-            color="#4CAF50"
-            text={item?.staff__first_name}
-            textStyle={{ color: 'white', padding: 2, fontSize: ms(10) }}
-          />
-          <View style={styles.row}>
-            <Text style={styles.label}>Sale:</Text>
+        <View style={styles.bodyContainer}>
+
+          <View style={styles.box}>
+            <Text style={styles.label}>Staff</Text>
             <Badge
               color="#4CAF50"
+              text={item?.staff__first_name}
+              textStyle={{ color: 'white', padding: 2, fontSize: ms(10) }}
+            />
+          </View>
+          <View style={styles.box}>
+            <Text style={styles.label}>Sale</Text>
+            <Badge
+              backgroundColor="#FF9800"
               text={formatCurrency(item.total_service_amount)}
               textStyle={{ color: 'white', padding: 2, fontSize: ms(10) }}
             />
           </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Tips:</Text>
+          <View style={styles.box}>
+            <Text style={styles.label}>Tips</Text>
             <Badge
               backgroundColor="#FF9800"
               text={formatCurrency(item.total_tip_amount)}
               textStyle={{ color: 'white', padding: 2, fontSize: ms(10) }}
             />
           </View>
-          {/* <View style={styles.row}>
-              <Text style={styles.label}>Turns:</Text>
-              <Badge
-                backgroundColor="#FF9800"
-                text={String(item.total_turn)}
-                textStyle={{ color: 'white', padding: 2, fontSize: ms(10) }}
-              />
-            </View> */}
-          <View style={styles.row}>
-            <Text style={styles.label}>Rate:</Text>
+          <View style={styles.box}>
+            <Text style={styles.label}>Rate</Text>
             <Badge
               backgroundColor="#FF9800"
               text={String(item.staff__commission_rate)}
               textStyle={{ color: 'white', padding: 2, fontSize: ms(10) }}
             />
           </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Revenue:</Text>
+          <View style={styles.box}>
+            <Text style={styles.label}>Revenue</Text>
             <Badge
               backgroundColor="#FF9800"
               text={formatCurrency(Number(item.service_revenue))}
@@ -89,7 +82,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
     borderRadius: 12,
-    padding: ms(8),
+    padding: ms(4),
     marginBottom: 12,
     ...Platform.select({
       ios: {
@@ -120,10 +113,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around'
   },
-  row: {
+  bodyContainer: {
+    gap: 2,
+    flex: 1,
     flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  box: {
+    // flexDirection: 'row',
     // justifyContent: 'space-between',
     alignItems: 'center',
+    flex: 1,
   },
   label: {
     fontSize: 14,

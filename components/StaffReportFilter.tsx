@@ -28,6 +28,7 @@ const StaffReportFilter: React.FC<StaffReportFilterProps> = ({ onFilter }) => {
   } = useSalonStore((state: SalonState) => state);
   const {
     getStaffSalaryReport,
+    summary
   } = useSalonSalaryReportStore((state: SalonSalaryReportState) => state);
 
   const toggleShowSummary = () => {
@@ -95,14 +96,14 @@ const StaffReportFilter: React.FC<StaffReportFilterProps> = ({ onFilter }) => {
       </View>
 
       {
-        // isShowSummary &&
-        // <SummaryCard
-        //   totalAmount={summary?.total_service_amount || 0}
-        //   totalTip={summary?.total_tip_amount || 0}
-        //   totalTurn={summary?.total_turn || 0}
-        //   period="Today"
-        //   onPeriodChange={() => { }}
-        // />
+        isShowSummary &&
+        <SummaryCard
+          totalAmount={summary?.total_service_amount || 0}
+          totalTip={summary?.total_tip_amount || 0}
+          totalTurn={summary?.total_turn || 0}
+          period="Today"
+          onPeriodChange={() => { }}
+        />
 
       }
     </View>

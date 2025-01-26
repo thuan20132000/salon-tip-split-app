@@ -12,7 +12,6 @@ import { useFocusEffect } from 'expo-router';
 import { SalonReceipt, SalonReceiptFilterInput, StaffBillType, StaffReceiptFilterInput } from '@/types/receipt.type';
 import dayjs, { Dayjs } from 'dayjs';
 import { receiptAPIs } from '@/api/receiptAPI';
-import TicketReportFilter from '@/components/TicketReportFilter';
 import SalaryReportItem from '@/components/SalaryReportItem';
 import useSalonSalaryReportStore, { SalonSalaryReportState } from '@/store/useSalonSalaryReportStore';
 import SalonReportFilter from '@/components/SalonReportFilter';
@@ -43,23 +42,6 @@ const SalonReportScreen: React.FC = () => {
     }
   }
 
-  const onConfirmDeleteReceipt = (receipt: StaffBillType) => {
-    Alert.alert(
-      'Delete Receipt',
-      'Are you sure you want to delete this receipt?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => onDeleteReceipt(receipt),
-        },
-      ],
-    );
-  }
 
   useFocusEffect(
     // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
