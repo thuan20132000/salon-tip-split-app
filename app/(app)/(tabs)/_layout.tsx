@@ -27,7 +27,7 @@ export default function TabLayout() {
         name="(staff)"
         options={{
           tabBarIcon: ({ color }) => (
-            <Ionicons name="person" color={color} size={24} />
+            <Ionicons name="cash" color={color} size={24} />
           ),
           title: 'Payment',
           headerShown: false
