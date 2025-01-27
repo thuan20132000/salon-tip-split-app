@@ -21,7 +21,7 @@ export default function StaffLayout() {
         <Stack.Screen
           name="payment-create"
           options={{
-            headerShown: true,
+            headerShown: false,
             title: 'Create Payment',
           }}
         />

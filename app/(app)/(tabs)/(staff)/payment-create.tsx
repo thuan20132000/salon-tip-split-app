@@ -3,25 +3,26 @@
 import CurrencyInput from 'react-native-currency-input';
 
 // screens/TipSplitScreen.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
   View,
   Text,
-  ScrollView,
-  TextInput,
   StyleSheet,
   TouchableOpacity,
   Alert,
-  ActivityIndicator,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { PaymentDiscountRateEnums, PaymentMethodsEnums, PaymentRatesEnums, PaymentReceiptStatusEnums } from '@/enums/PaymentEnums';
 
 
-import { CreateSalonReceiptType, SalonReceipt, SalonReceiptUpdateType, SalonStaffPriceType, StaffBillType, StaffBillUpdateType, UpdateSalonReceiptInputType } from '@/types/receipt.type';
+import {
+  CreateSalonReceiptType,
+  SalonReceipt,
+  StaffBillType,
+} from '@/types/receipt.type';
 import { receiptAPIs } from '@/api/receiptAPI';
-import { formatCurrency, handleDiscountPrice, handleNumberToPercent } from '@/utils/receiptUtils';
+import { formatCurrency, handleNumberToPercent } from '@/utils/receiptUtils';
 import SelectDiscountModal from '@/components/SelectDiscountModal';
 import ConfirmReceiptModal from '@/components/CofirmReceiptModal';
 import { Ionicons } from '@expo/vector-icons';
@@ -43,7 +44,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import dayjs from 'dayjs';
 import ReceiptPrintModal from '@/components/ReceiptPrintModal';
 import { RootState, useRootStore } from '@/store/useRootStore';
-import { LoadingIndicatorModal } from '@/components/LoadingIndicatorModal';
+import { NavigationBar } from '@/components/NavigationBar';
 
 
 export default function StaffPaymentScreen() {
@@ -56,7 +57,6 @@ export default function StaffPaymentScreen() {
   const [isShowPaymentMixModal, setIsShowPaymentMixModal] = useState<boolean>(false);
   const [isShowDatetimePicker, setIsShowDateTimePicker] = useState<boolean>(false);
   const [selectedPaymentDate, setSelectedPaymentDate] = useState<Date | null>(new Date());
-  // const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isShowReceiptPrintModal, setIsShowReceiptPrintModal] = useState<boolean>(false);
   const {
     isLoading,
@@ -125,10 +125,6 @@ export default function StaffPaymentScreen() {
     }
 
   }
-
-
-
-
 
   const onSelectPaymentMethod = (method: PaymentMethodsEnums, price: number) => {
     let receiveFormatted = price.toString();
@@ -338,7 +334,7 @@ export default function StaffPaymentScreen() {
   }
 
 
-
+  const navigation = useNavigation();
   useEffect(() => {
     handleInitialStaffPrice()
 
@@ -347,9 +343,27 @@ export default function StaffPaymentScreen() {
     }
   }, [])
 
+
   return (
 
     <>
+      <NavigationBar
+        title='Payment'
+      >
+        <ButtonText
+          title="Save"
+          onPress={() => onCompletePaymentPress(PaymentReceiptStatusEnums.PENDING)}
+          textStyle={{color:'#007AFF'}}
+          containerStyle={{
+            // flex: 1,
+            backgroundColor: '#ffffff',
+            alignSelf: 'flex-start',
+            position:'absolute',
+            right: 10,
+            bottom: 0
+          }}
+        />
+      </NavigationBar>
       <KeyboardAwareScrollView bottomOffset={62}
         contentContainerStyle={{
           gap: 16,
@@ -413,7 +427,7 @@ export default function StaffPaymentScreen() {
             </View>
           ))}
           <ButtonIcon
-            title="Add Staff"
+            // title="Add Staff"
             iconName="add"
             onPress={showSelectStaffModal}
             containerStyle={{
@@ -446,48 +460,63 @@ export default function StaffPaymentScreen() {
             subtotal={subtotal}
           />
 
-          <View style={[{ flexDirection: 'row', gap: 8, marginVertical: 2, flexWrap: 'wrap' }]}>
-            <ButtonIcon
-              title={`Gift ${helper.formatCurrency(Number(giftAmount))}`}
-              iconName='gift-outline'
-              containerStyle={{
-                backgroundColor: giftAmount ? '#ffd33d' : '#d3d3d3',
-              }}
-              onPress={() => setIsShowGiftModal(true)}
-            />
-            <ButtonIcon
-              title={`Custom Discount ${(Number(customDiscountPercent))}%`}
-              iconName='gift-outline'
-              containerStyle={{
-                backgroundColor: customDiscountPercent ? '#ffd33d' : '#d3d3d3',
-              }}
-              onPress={() => setIsShowTotalDiscountModal(true)}
-            />
-            <ButtonIcon
-              title={`Paid Cash & Mix`}
-              iconName='cash-outline'
-              containerStyle={{
-                backgroundColor: cashPaymentPrice > 0 ? '#ffd33d' : '#d3d3d3',
-              }}
-              onPress={() => setIsShowPaymentMixModal(true)}
-            />
-          </View>
 
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            marginVertical: 8,
-            backgroundColor: '#ffd33d',
-            paddingHorizontal: 6,
-            paddingVertical: ms(10),
-            borderRadius: 12
-          }}>
-            <Text style={styles.finalTotalText}>Total: {formatCurrency(calculatePayments().total)}</Text>
-            <ButtonIcon
-              iconName='print-sharp'
-              onPress={onShowPrintReceipt}
-            />
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row'
+            }}
+          >
+            <View style={[{
+              flexDirection: 'row',
+              gap: 8,
+              marginVertical: 2,
+              flexWrap: 'wrap',
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'flex-start'
+            }]}>
+              <ButtonIcon
+                title={`Gift ${helper.formatCurrency(Number(giftAmount))}`}
+                iconName='gift-outline'
+                containerStyle={{
+                  backgroundColor: giftAmount ? '#ffd33d' : '#d3d3d3',
+                }}
+                onPress={() => setIsShowGiftModal(true)}
+              />
+              <ButtonIcon
+                title={`Discount ${(Number(customDiscountPercent))}%`}
+                iconName='gift-outline'
+                containerStyle={{
+                  backgroundColor: customDiscountPercent ? '#ffd33d' : '#d3d3d3',
+                }}
+                onPress={() => setIsShowTotalDiscountModal(true)}
+              />
+              <ButtonIcon
+                title={`Cash & Debit`}
+                iconName='cash-outline'
+                containerStyle={{
+                  backgroundColor: cashPaymentPrice > 0 ? '#ffd33d' : '#d3d3d3',
+                }}
+                onPress={() => setIsShowPaymentMixModal(true)}
+              />
+            </View>
+            <View style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              backgroundColor: '#ffd33d',
+              borderRadius: 5,
+              flex: 1,
+              paddingHorizontal: 10,
+              paddingVertical: 10
+            }}>
+              <Text style={styles.finalTotalText}>Total: {formatCurrency(calculatePayments().total)}</Text>
+              <ButtonIcon
+                iconName='print-sharp'
+                onPress={onShowPrintReceipt}
+              />
+            </View>
           </View>
 
           {/* Receive Input & Return View */}
@@ -578,7 +607,7 @@ export default function StaffPaymentScreen() {
           {/* Payment Method */}
           <View style={styles.paymentSection}>
             <ButtonText
-              title="Create Payment"
+              title="Complete Payment"
               onPress={() => onCompletePaymentPress(PaymentReceiptStatusEnums.PAID)}
               style={[
                 styles.paymentButton,
@@ -586,12 +615,11 @@ export default function StaffPaymentScreen() {
                 { flex: 2, }
               ]}
               textStyle={{
-                color: '#333',
-                fontSize: 22,
+                color: isPayable ? '#fff' : '#007AFF',
+                fontSize: s(14),
                 fontWeight: 'bold'
               }}
               disabled={isPayable || isLoading ? false : true}
-              isLoading={isLoading}
 
             />
           </View>
@@ -605,16 +633,6 @@ export default function StaffPaymentScreen() {
                 backgroundColor: '#f8f9fa',
                 alignSelf: 'flex-start',
                 marginBottom: 16,
-              }}
-            />
-            <ButtonIcon
-              title="Save"
-              iconName="save"
-              onPress={() => onCompletePaymentPress(PaymentReceiptStatusEnums.PENDING)}
-              containerStyle={{
-                // flex: 1,
-                backgroundColor: '#f8f9fa',
-                alignSelf: 'flex-start',
               }}
             />
           </View>
@@ -829,7 +847,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderRadius: 8,
     height: 45,
-    minWidth: ms(90),
+    minWidth: ms(140),
     fontSize: ms(16),
     fontWeight: 'bold',
   },

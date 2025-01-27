@@ -40,6 +40,7 @@ import { helper } from '@/utils/helper';
 import AddGiftModal from '@/components/AddGiftCardModal';
 import PaymentMixModal from '@/components/PaymentMixModal';
 import { APIErrorType } from '@/types/api.types';
+import { NavigationBar } from '@/components/NavigationBar';
 
 
 export default function StaffPaymentScreen() {
@@ -283,6 +284,24 @@ export default function StaffPaymentScreen() {
   return (
 
     <>
+      <NavigationBar
+        title='Payment Update'
+      >
+        <ButtonText
+          title="Save"
+          onPress={() => onCompletePaymentPress(PaymentReceiptStatusEnums.PENDING)}
+          textStyle={{ color: '#007AFF' }}
+          containerStyle={{
+            // flex: 1,
+            backgroundColor: '#ffffff',
+            alignSelf: 'flex-start',
+            position: 'absolute',
+            right: 10,
+            bottom: 0,
+            zIndex: 999
+          }}
+        />
+      </NavigationBar>
       <KeyboardAwareScrollView bottomOffset={62} contentContainerStyle={{
         gap: 16,
         padding: 16,
@@ -345,7 +364,6 @@ export default function StaffPaymentScreen() {
             </View>
           ))}
           <ButtonIcon
-            title="Add Staff"
             iconName="add"
             onPress={showSelectStaffModal}
             containerStyle={{
@@ -361,11 +379,6 @@ export default function StaffPaymentScreen() {
 
         {/* Totals Section */}
         <View style={styles.section}>
-          <View style={styles.totalRow}>
-            <Text>SUB TOTAL ($)</Text>
-            <Text style={styles.totalAmount}>{formatCurrency(subtotal)}</Text>
-          </View>
-
           {/* Payment Methods */}
           <PaymentMethods
             calculatePayments={calculatePayments}
@@ -384,49 +397,51 @@ export default function StaffPaymentScreen() {
             setSelectedSalonReceipt={setSelectedSalonReceipt}
             subtotal={subtotal}
           />
-          <View style={[{ flexDirection: 'row', gap: 8, marginVertical: 2, flexWrap: 'wrap' }]}>
-            <ButtonIcon
-              title={`Gift ${helper.formatCurrency(Number(giftAmount))}`}
-              iconName='gift-outline'
-              containerStyle={{
-                backgroundColor: giftAmount ? '#ffd33d' : '#d3d3d3',
-              }}
-              onPress={() => setIsShowGiftModal(true)}
-            />
-            <ButtonIcon
-              title={`Custom Discount ${(Number(customDiscountPercent))}%`}
-              iconName='gift-outline'
-              containerStyle={{
-                backgroundColor: customDiscountPercent ? '#ffd33d' : '#d3d3d3',
-              }}
-              onPress={() => setIsShowTotalDiscountModal(true)}
-            />
-            <ButtonIcon
-              title={`Paid Cash & Mix`}
-              iconName='cash-outline'
-              containerStyle={{
-                backgroundColor: cashPaymentPrice > 0 ? '#ffd33d' : '#d3d3d3',
-              }}
-              onPress={() => setIsShowPaymentMixModal(true)}
-            />
+          <View style={{flexDirection:'row'}}>
+            <View style={[{ flexDirection: 'row', gap: 8, marginVertical: 2, flexWrap: 'wrap',flex:1 }]}>
+              <ButtonIcon
+                title={`Gift ${helper.formatCurrency(Number(giftAmount))}`}
+                iconName='gift-outline'
+                containerStyle={{
+                  backgroundColor: giftAmount ? '#ffd33d' : '#d3d3d3',
+                }}
+                onPress={() => setIsShowGiftModal(true)}
+              />
+              <ButtonIcon
+                title={`Discount ${(Number(customDiscountPercent))}%`}
+                iconName='gift-outline'
+                containerStyle={{
+                  backgroundColor: customDiscountPercent ? '#ffd33d' : '#d3d3d3',
+                }}
+                onPress={() => setIsShowTotalDiscountModal(true)}
+              />
+              <ButtonIcon
+                title={`Cash & Debit`}
+                iconName='cash-outline'
+                containerStyle={{
+                  backgroundColor: cashPaymentPrice > 0 ? '#ffd33d' : '#d3d3d3',
+                }}
+                onPress={() => setIsShowPaymentMixModal(true)}
+              />
+            </View>
+            <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backgroundColor: '#ffd33d',
+                borderRadius: 5,
+                flex: 1,
+                paddingHorizontal: 10,
+                paddingVertical: 10
+            }}>
+              <Text style={styles.finalTotalText}>Total: {formatCurrency(calculatePayments().total)}</Text>
+              <ButtonIcon
+                iconName='print-sharp'
+                onPress={() => { }}
+              />
+            </View>
           </View>
 
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            marginVertical: 8,
-            backgroundColor: '#ffd33d',
-            paddingHorizontal: 6,
-            paddingVertical: ms(10),
-            borderRadius: 8
-          }}>
-            <Text style={styles.finalTotalText}>Total: {formatCurrency(calculatePayments().total)}</Text>
-            <ButtonIcon
-              iconName='print-sharp'
-              onPress={() => { }}
-            />
-          </View>
 
           {/* Receive Input & Return View */}
           <View style={styles.totalRow}>
@@ -516,7 +531,7 @@ export default function StaffPaymentScreen() {
           {/* Payment Method */}
           <View style={styles.paymentSection}>
             <ButtonText
-              title="Update Payment"
+              title="Complete Payment"
               onPress={() => onCompletePaymentPress(PaymentReceiptStatusEnums.PAID)}
               style={[
                 styles.paymentButton,
@@ -533,16 +548,7 @@ export default function StaffPaymentScreen() {
             />
           </View>
 
-          <ButtonIcon
-            title="Save"
-            iconName="save"
-            onPress={() => onCompletePaymentPress(PaymentReceiptStatusEnums.PENDING)}
-            containerStyle={{
-              // flex: 1,
-              backgroundColor: '#f8f9fa',
-              alignSelf: 'flex-start',
-            }}
-          />
+
 
         </View>
         <SelectDiscountModal
@@ -604,7 +610,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: 12,
   },
   sectionTitle: {
     fontSize: 18,
@@ -624,7 +630,7 @@ const styles = StyleSheet.create({
     padding: 6
   },
   staffName: {
-    fontSize: s(10),
+    fontSize: s(8),
     fontWeight: '500',
     marginBottom: 2,
   },
@@ -748,8 +754,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderRadius: 8,
     height: 45,
-    minWidth: ms(90),
-    fontSize: ms(12),
+    minWidth: ms(140),
+    fontSize: ms(16),
     fontWeight: 'bold',
   },
   isPaymentActive: {

@@ -35,86 +35,82 @@ const PaymentMethods = ({
 }: PaymentMethodsProps) => {
 
   return (
-    <View>
-      <Text style={styles.discountTitle}>Payment Methods</Text>
-
-      <View style={styles.discountsContainer}>
-        <ScrollView horizontal
-          showsHorizontalScrollIndicator={false}
+    <View style={styles.discountsContainer}>
+      <ScrollView horizontal
+        showsHorizontalScrollIndicator={false}
+      >
+        <TouchableOpacity
+          style={[
+            styles.selectPaymentButton,
+            paymentReceipt?.payment_method == PaymentMethodsEnums.NO_TAX && styles.selectedPayment,
+          ]}
+          onPress={() =>
+            onSelectPaymentMethod(PaymentMethodsEnums.NO_TAX, subtotal)
+          }
         >
-          <TouchableOpacity
-            style={[
-              styles.selectPaymentButton,
-              paymentReceipt?.payment_method == PaymentMethodsEnums.NO_TAX && styles.selectedPayment,
-            ]}
-            onPress={() =>
-              onSelectPaymentMethod(PaymentMethodsEnums.NO_TAX,subtotal )
-            }
-          >
-            <View style={styles.discountRow}>
-              <Text style={styles.paymentMethodTitle} >No Tax</Text>
-              <Text style={styles.paymentMethodPrice} >${subtotal?.toFixed(2)}</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.selectPaymentButton,
-              paymentReceipt?.payment_method == PaymentMethodsEnums.DEBIT && styles.selectedPayment,
-            ]}
-            onPress={() =>
-              onSelectPaymentMethod(PaymentMethodsEnums.DEBIT, debitPayment)
-            }
-          >
-            <View style={styles.discountRow}>
-              <Text style={styles.paymentMethodTitle} >Debit (13%)</Text>
-              <Text style={styles.paymentMethodPrice} >${debitPayment?.toFixed(2)}</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.selectPaymentButton,
-              paymentReceipt?.payment_method == PaymentMethodsEnums.CASH && styles.selectedPayment,
-            ]}
-            onPress={() =>
-              onSelectPaymentMethod(PaymentMethodsEnums.CASH, cashPayment)
-            }
-          >
-            <View style={styles.discountRow}>
-              <Text style={styles.paymentMethodTitle} >Cash (-10%)</Text>
-              <Text style={styles.paymentMethodPrice} >${cashPayment.toFixed(2)}</Text>
-            </View>
-          </TouchableOpacity>
+          <View style={styles.discountRow}>
+            <Text style={styles.paymentMethodTitle} >No Tax</Text>
+            <Text style={styles.paymentMethodPrice} >${subtotal?.toFixed(2)}</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.selectPaymentButton,
+            paymentReceipt?.payment_method == PaymentMethodsEnums.DEBIT && styles.selectedPayment,
+          ]}
+          onPress={() =>
+            onSelectPaymentMethod(PaymentMethodsEnums.DEBIT, debitPayment)
+          }
+        >
+          <View style={styles.discountRow}>
+            <Text style={styles.paymentMethodTitle} >Debit (13%)</Text>
+            <Text style={styles.paymentMethodPrice} >${debitPayment?.toFixed(2)}</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.selectPaymentButton,
+            paymentReceipt?.payment_method == PaymentMethodsEnums.CASH && styles.selectedPayment,
+          ]}
+          onPress={() =>
+            onSelectPaymentMethod(PaymentMethodsEnums.CASH, cashPayment)
+          }
+        >
+          <View style={styles.discountRow}>
+            <Text style={styles.paymentMethodTitle} >Cash (-10%)</Text>
+            <Text style={styles.paymentMethodPrice} >${cashPayment.toFixed(2)}</Text>
+          </View>
+        </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[
-              styles.selectPaymentButton,
-              paymentReceipt?.payment_method == PaymentMethodsEnums.LOYALTY && styles.selectedPayment,
-            ]}
-            onPress={() =>
-              onSelectPaymentMethod(PaymentMethodsEnums.LOYALTY, loyaltyDiscount)
-            }
-          >
-            <View style={styles.discountRow}>
-              <Text style={styles.paymentMethodTitle} >Loyalty (25%)</Text>
-              <Text style={styles.paymentMethodPrice} >${loyaltyDiscount.toFixed(2)}</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.selectPaymentButton,
-              paymentReceipt?.payment_method == PaymentMethodsEnums.HAPPY_HOUR && styles.selectedPayment,
-            ]}
-            onPress={() =>
-              onSelectPaymentMethod(PaymentMethodsEnums.HAPPY_HOUR, happyHourDiscount)
-            }
-          >
-            <View style={styles.discountRow}>
-              <Text style={styles.paymentMethodTitle} >Happy.H (15%)</Text>
-              <Text style={styles.paymentMethodPrice} >${happyHourDiscount.toFixed(2)}</Text>
-            </View>
-          </TouchableOpacity>
-        </ScrollView>
-      </View>
+        <TouchableOpacity
+          style={[
+            styles.selectPaymentButton,
+            paymentReceipt?.payment_method == PaymentMethodsEnums.LOYALTY && styles.selectedPayment,
+          ]}
+          onPress={() =>
+            onSelectPaymentMethod(PaymentMethodsEnums.LOYALTY, loyaltyDiscount)
+          }
+        >
+          <View style={styles.discountRow}>
+            <Text style={styles.paymentMethodTitle} >Loyalty (25%)</Text>
+            <Text style={styles.paymentMethodPrice} >${loyaltyDiscount.toFixed(2)}</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.selectPaymentButton,
+            paymentReceipt?.payment_method == PaymentMethodsEnums.HAPPY_HOUR && styles.selectedPayment,
+          ]}
+          onPress={() =>
+            onSelectPaymentMethod(PaymentMethodsEnums.HAPPY_HOUR, happyHourDiscount)
+          }
+        >
+          <View style={styles.discountRow}>
+            <Text style={styles.paymentMethodTitle} >Happy.H (15%)</Text>
+            <Text style={styles.paymentMethodPrice} >${happyHourDiscount.toFixed(2)}</Text>
+          </View>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   )
 }
@@ -177,9 +173,7 @@ const styles = StyleSheet.create({
   },
   discountsContainer: {
     backgroundColor: '#f5f5f5',
-    padding: 16,
     borderRadius: 8,
-    marginBottom: 16,
     flexDirection: 'row',
     flexWrap: 'wrap'
   },
