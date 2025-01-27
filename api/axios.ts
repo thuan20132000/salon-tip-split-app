@@ -3,9 +3,14 @@ import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import { AuthResponse, APIError } from '../types/api.types';
 import * as SecureStore from 'expo-secure-store';
 
+// Local
 // const API_URL = "http://192.168.2.226:8000/api/";
-// const API_URL = "https://salon-tipsplit-dev.thuandev.site/api/";
-const API_URL = "https://salon-tipsplit-dev-v2.thuandev.site/api/";
+
+// Development
+const API_URL = "https://salon-tipsplit-dev.thuandev.site/api/";
+
+// Production
+// const API_URL = "https://salon-tipsplit-dev-v2.thuandev.site/api/";
 
 class APIClient {
   private static instance: APIClient;
