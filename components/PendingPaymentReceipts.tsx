@@ -21,6 +21,7 @@ import NavigationDate from '@/components/NavigationDate';
 import dayjs from 'dayjs';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
 import { SalonStaffType } from '@/types/staff.types';
+import { ms } from 'react-native-size-matters';
 
 export default function PendingPaymentReceipts() {
   // const {
@@ -177,20 +178,37 @@ export default function PendingPaymentReceipts() {
     }, [])
   );
 
+  const renderEmptyComponent = () => {
+    if (pendingPaymentReceipts && pendingPaymentReceipts?.length <= 0) {
+      return (
+        <View style={styles.centerContainer}>
+          <Text
+            style={{
+              fontSize: 16,
+              color: '#666',
+              fontWeight: 'bold',
+            }}
+          >
+            No pending payment receipts
+          </Text>
+        </View>
+      );
+
+    }
+  }
+
 
   return (
     <View style={styles.container}>
+      {
+        renderEmptyComponent()
+      }
       <FlatList
         horizontal
         data={pendingPaymentReceipts}
         renderItem={renderReceiptItem}
         keyExtractor={(item, index) => `${item?.id?.toString()}-${index}` || ''}
         contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          <View style={styles.centerContainer}>
-            <Text>No Pending receipts found</Text>
-          </View>
-        }
       />
     </View>
   );
@@ -198,7 +216,11 @@ export default function PendingPaymentReceipts() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
+    padding: ms(10),
+    margin: ms(10),
+    borderRadius: ms(4),
+    minHeight: ms(100),
   },
   centerContainer: {
     justifyContent: 'center',

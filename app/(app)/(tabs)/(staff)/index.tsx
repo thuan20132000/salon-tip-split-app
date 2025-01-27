@@ -67,9 +67,9 @@ const StaffScreen = () => {
               style={{
                 flexWrap: 'wrap',
                 flexDirection: 'row',
-                justifyContent:'flex-start',
                 paddingHorizontal: ms(10),
-              
+                justifyContent: 'center'
+
               }}
             >
               {salonStaffs?.map((staff) => (
@@ -80,7 +80,7 @@ const StaffScreen = () => {
                   customStyle={{
                     backgroundColor: selectedPaymentStaffs.includes(staff) ? '#ffd33d' : 'white',
                     borderColor: selectedPaymentStaffs.includes(staff) ? 'blue' : 'white',
-                    width: ms(80),
+                    minWidth: ms(80),
                     height: ms(80),
                     // flex:1
                   }}
@@ -100,10 +100,7 @@ const StaffScreen = () => {
         </View>
         {
           isSalonOwner() &&
-          <View style={{}}>
-            <Text style={{ textAlign: 'center', fontWeight: 'bold' }}>Pending Payments</Text>
-            <PendingPaymentReceipts />
-          </View>
+          <PendingPaymentReceipts />
         }
       </ScrollView>
     </View>
