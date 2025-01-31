@@ -16,6 +16,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { AntDesign } from '@expo/vector-icons';
 import { useAuthStore } from '@/store/authStore';
 import { router } from 'expo-router';
+import { KeyboardAwareScrollView, KeyboardProvider } from 'react-native-keyboard-controller';
 
 interface FormData {
   username: string;
@@ -28,8 +29,8 @@ export const LoginScreen: React.FC = () => {
 
   const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
     defaultValues: {
-      username: '000123123',
-      password: '000123123',
+      username: '',
+      password: '',
     },
   });
 
@@ -43,97 +44,109 @@ export const LoginScreen: React.FC = () => {
   };
 
   return (
+    <KeyboardProvider>
+      <KeyboardAwareScrollView
+        bottomOffset={62}
+        contentContainerStyle={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          flex: 1,
+          backgroundColor: '#ffffff'
+        }}>
+        <View style={styles.formContainer}>
+          <Text style={styles.title}>Login</Text>
 
-    <View style={styles.formContainer}>
-      <Text style={styles.title}>Login</Text>
+          {error && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          )}
 
-      {error && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
+          <Controller
+            control={control}
+            rules={{
+              required: 'Username is required',
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <View style={styles.inputContainer}>
+                <AntDesign name="user" size={20} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Username"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  autoCapitalize="none"
+                  placeholderTextColor={'#666'}
+                  keyboardType='numeric'
+                  returnKeyType='done'
+                  returnKeyLabel='Done'
+                />
+              </View>
+            )}
+            name="username"
+          />
+          {errors.username && (
+            <Text style={styles.validationError}>{errors.username.message}</Text>
+          )}
+
+          <Controller
+            control={control}
+            rules={{
+              required: 'Password is required',
+              minLength: {
+                value: 6,
+                message: 'Password must be at least 6 characters',
+              },
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <View style={styles.inputContainer}>
+                <AntDesign name="lock" size={20} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Password"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  secureTextEntry={secureTextEntry}
+                  placeholderTextColor={'#666'}
+                  keyboardType='numeric'
+                  returnKeyType='done'
+                  returnKeyLabel='Done'
+                />
+                <TouchableOpacity
+                  style={styles.eyeIcon}
+                  onPress={() => setSecureTextEntry(!secureTextEntry)}
+                >
+                  <AntDesign
+                    name={secureTextEntry ? "eyeo" : "eye"}
+                    size={20}
+                    color="#666"
+                  />
+                </TouchableOpacity>
+              </View>
+            )}
+            name="password"
+          />
+          {errors.password && (
+            <Text style={styles.validationError}>{errors.password.message}</Text>
+          )}
+
+
+          <TouchableOpacity
+            style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+            onPress={handleSubmit(onSubmit)}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.loginButtonText}>Login</Text>
+            )}
+          </TouchableOpacity>
         </View>
-      )}
-
-      <Controller
-        control={control}
-        rules={{
-          required: 'Username is required',
-        }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <View style={styles.inputContainer}>
-            <AntDesign name="user" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Username"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              autoCapitalize="none"
-            />
-          </View>
-        )}
-        name="username"
-      />
-      {errors.username && (
-        <Text style={styles.validationError}>{errors.username.message}</Text>
-      )}
-
-      <Controller
-        control={control}
-        rules={{
-          required: 'Password is required',
-          minLength: {
-            value: 6,
-            message: 'Password must be at least 6 characters',
-          },
-        }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <View style={styles.inputContainer}>
-            <AntDesign name="lock" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              secureTextEntry={secureTextEntry}
-            />
-            <TouchableOpacity
-              style={styles.eyeIcon}
-              onPress={() => setSecureTextEntry(!secureTextEntry)}
-            >
-              <AntDesign
-                name={secureTextEntry ? "eyeo" : "eye"}
-                size={20}
-                color="#666"
-              />
-            </TouchableOpacity>
-          </View>
-        )}
-        name="password"
-      />
-      {errors.password && (
-        <Text style={styles.validationError}>{errors.password.message}</Text>
-      )}
-
-      <TouchableOpacity
-        style={styles.forgotPassword}
-        onPress={() => {/* Handle forgot password */ }}
-      >
-        <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
-        onPress={handleSubmit(onSubmit)}
-        disabled={isLoading}
-      >
-        {isLoading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.loginButtonText}>Login</Text>
-        )}
-      </TouchableOpacity>
-    </View>
+      </KeyboardAwareScrollView>
+    </KeyboardProvider>
   );
 };
 
@@ -143,11 +156,13 @@ const styles = StyleSheet.create({
 
   },
   formContainer: {
-    flex: 1,
-    justifyContent: 'center',
     paddingHorizontal: 20,
-    paddingBottom: 40,
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    width: '100%',
+    alignSelf: 'center',
+    justifyContent: 'center',
+
   },
   title: {
     fontSize: 32,
@@ -171,6 +186,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: '100%',
+
   },
   eyeIcon: {
     padding: 10,

@@ -42,8 +42,12 @@ export type CreateStaffAccountInput = {
   phone: string;
   first_name: string;
   email: string;
-  salon_id: number;
+  salon_id?: number;
+  commission_rate: number;
 };
+
+// For updating a staff account
+export type UpdateSalonStaffInput = Partial<CreateStaffAccountInput> & { id: number };
 
 // Example usage:
 const newStaff: CreateStaffInput = {

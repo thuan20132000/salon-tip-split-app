@@ -1,7 +1,7 @@
 import { api } from "./axios";
 import { Salon } from "@/types/user.type";
 import { ApiResponse, StaffReceiptApiResponseType } from '../types/api.types';
-import { CreateStaffAccountInput, SalonStaffType } from "@/types/staff.types";
+import { CreateStaffAccountInput, SalonStaffType, UpdateSalonStaffInput } from "@/types/staff.types";
 import { SalonReceipt, SalonReceiptFilterInput, StaffBillType } from "@/types/receipt.type";
 import { SalonReportApiResponse, SalonSalaryReportFilterType, SalonSalaryReportResponseType, SalonSalaryReportType, StaffSalaryReportFilterType, StaffSalaryReportResponseType } from "@/types/report.types";
 
@@ -22,4 +22,5 @@ export const salonAPI = {
     params: filter
   }),
   addSalonStaff: (data: Partial<CreateStaffAccountInput>) => api.post<ApiResponse<SalonStaffType>>(`/salons/${data.salon_id}/add-staff/`, data),
+  updateSalonStaff: (data: Partial<UpdateSalonStaffInput>) => api.put<ApiResponse<SalonStaffType>>(`/salons/${data.salon_id}/update-staff/`, data),
 };

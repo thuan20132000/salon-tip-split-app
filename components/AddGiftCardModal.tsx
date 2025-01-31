@@ -12,7 +12,6 @@ import {
 import CurrencyInput from 'react-native-currency-input';
 import { ms, s } from 'react-native-size-matters';
 import ButtonText from './commons/ButtonText';
-import Badge from './commons/Badge';
 import ButtonIcon from './commons/ButtonIcon';
 
 interface AddGiftModalProps {
@@ -59,7 +58,8 @@ const AddGiftModal: React.FC<AddGiftModalProps> = ({
               position: 'absolute',
               right: 8,
               top: 8,
-              zIndex: 999
+              zIndex: 999,
+              justifyContent: 'center',
             }}
             onPress={onClose}
           />

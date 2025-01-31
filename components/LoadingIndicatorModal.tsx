@@ -1,5 +1,6 @@
 import React from 'react';
-import { Modal, ActivityIndicator, View, Text, StyleSheet } from 'react-native';
+import { ActivityIndicator, View, Text, StyleSheet, Modal } from 'react-native';
+
 
 interface LoadingIndicatorModalProps {
   visible: boolean;

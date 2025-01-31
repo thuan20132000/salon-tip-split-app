@@ -141,14 +141,9 @@ const UserScreen: React.FC<UserScreenProps> = () => {
 
 
           <UserInfoRow
-            label="First Name"
+            label="Name"
             value={String(user?.first_name)}
           />
-          <UserInfoRow
-            label="Last Name"
-            value={String(user?.last_name)}
-          />
-
         </View>
 
         <View style={styles.card}>

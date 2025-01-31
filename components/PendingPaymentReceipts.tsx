@@ -17,20 +17,11 @@ import { PaymentDiscountRateEnums } from '@/enums/PaymentEnums';
 import Badge from '@/components/commons/Badge';
 import { receiptAPIs } from '@/api/receiptAPI';
 import ButtonIcon from '@/components/commons/ButtonIcon';
-import NavigationDate from '@/components/NavigationDate';
 import dayjs from 'dayjs';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
-import { SalonStaffType } from '@/types/staff.types';
 import { ms } from 'react-native-size-matters';
 
 export default function PendingPaymentReceipts() {
-  // const {
-  //   salonReceipts,
-  //   getSalonPaymentReceipts
-  // } = useSalonPaymentStore((state: SalonPaymentState) => state);
-  const [selectedStaff, setSelectedStaff] = useState<SalonStaffType>();
-  const [isShowSelectStaffModal, setIsShowSelectStaffModal] = useState(false);
-
   const {
     pendingPaymentReceipts,
     getSalonPendingPaymentReceipts
@@ -68,7 +59,7 @@ export default function PendingPaymentReceipts() {
 
   const showPaymentUpdateScreen = (receipt: SalonReceipt) => {
     router.push({
-      pathname: '/(app)/(tabs)/(history)/payment-update',
+      pathname: '/(app)/payment-update',
       params: {
         payment_receipt: JSON.stringify(receipt),
       },

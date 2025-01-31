@@ -42,12 +42,13 @@ export const SalonStaffModal: React.FC<SalonStaffModalProps> = ({
     getSalonStaffs,
   } = useSalonStore((state: SalonState) => state);
 
-  const { control, handleSubmit, formState: { errors } ,reset} = useForm<CreateStaffAccountInput>({
+  const { control, handleSubmit, formState: { errors }, reset } = useForm<CreateStaffAccountInput>({
     defaultValues: {
       first_name: initialData?.first_name || '',
       email: initialData?.email || '',
       phone: initialData?.phone || '',
       salon_id: initialData?.salon_id || selectedSalon?.id,
+      commission_rate: 0,
     }
   });
 
@@ -55,7 +56,7 @@ export const SalonStaffModal: React.FC<SalonStaffModalProps> = ({
     try {
       setIsLoading(true);
       let res = await salonAPI.addSalonStaff(data);
-    
+
       Alert.alert('Success', 'Staff added successfully');
 
       // clear form
@@ -80,11 +81,8 @@ export const SalonStaffModal: React.FC<SalonStaffModalProps> = ({
 
     if (initialData) {
 
-      handleEditStaff(data);
+      // handleEditStaff(data);
     } else {
-      console.log('====================================');
-      console.log('add staff');
-      console.log('====================================');
       handleAddStaff(data);
     }
   }
@@ -162,6 +160,27 @@ export const SalonStaffModal: React.FC<SalonStaffModalProps> = ({
                 </>
               )}
               name="phone"
+            />
+
+            <Controller
+              control={control}
+              rules={{ required: 'Commission rate is required' }}
+              render={({ field: { onChange, value } }) => (
+                <>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Commission rate</Text>
+                    <TextInput
+                      style={styles.input}
+                      onChangeText={onChange}
+                      value={String(value)}
+                    />
+                    {errors.phone && (
+                      <Text style={styles.errorText}>{errors.commission_rate?.message}</Text>
+                    )}
+                  </View>
+                </>
+              )}
+              name="commission_rate"
             />
 
             {/* Add other form fields similarly */}

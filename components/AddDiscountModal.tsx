@@ -62,7 +62,9 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({
               position: 'absolute',
               right: 8,
               top: 8,
-              zIndex: 999
+              zIndex: 999,
+              justifyContent: 'center',
+
             }}
             onPress={onClose}
           />

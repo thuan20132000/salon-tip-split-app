@@ -2,6 +2,8 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import { AuthResponse, APIError } from '../types/api.types';
 import * as SecureStore from 'expo-secure-store';
+import { router } from 'expo-router';
+import { AuthState, useAuthStore } from '@/store/authStore';
 
 // Local
 // const API_URL = "http://192.168.2.226:8000/api/";
@@ -41,7 +43,7 @@ class APIClient {
       async (config) => {
         const tokens = await SecureStore.getItemAsync('tokens');
         const token = tokens ? JSON.parse(tokens).access : null;
-        
+
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -57,8 +59,17 @@ class APIClient {
       (response: AxiosResponse) => response,
       async (error: AxiosError) => {
         const originalRequest = error.config;
-
         // Handle 401 (Unauthorized) - Token expired
+        if (error.response?.status === 401) {
+          console.log('====================================');
+          console.log('Unauthorized:', error);
+          console.log('====================================');
+          await SecureStore.deleteItemAsync('tokens');
+          await SecureStore.deleteItemAsync('user');
+          useAuthStore.getState().initialize();
+          return Promise.reject(this.handleError(error));
+        }
+
         // if (
         //   error.response?.status === 401 &&
         //   originalRequest &&
@@ -101,6 +112,7 @@ class APIClient {
 
   private handleError(error: AxiosError): APIError {
     const errorData = error.response?.data as { message?: string; code?: string } || {};
+
     return {
       message: errorData.message || 'An unexpected error occurred',
       code: errorData.code || 'UNKNOWN_ERROR',

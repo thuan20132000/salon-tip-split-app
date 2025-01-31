@@ -1,17 +1,23 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextStyle } from 'react-native';
+import { StyleSheet, Text, View, TextStyle, ViewStyle } from 'react-native';
 
 interface BadgeProps {
   text?: string;
   color?: string;
   backgroundColor?: string;
-  textStyle?: TextStyle
+  textStyle?: TextStyle,
+  containerStyle?: ViewStyle
 }
 
-const Badge: React.FC<BadgeProps> = ({ text, color = '#fff', backgroundColor = '#007bff', textStyle }) => {
+const Badge: React.FC<BadgeProps> = ({ text, color = '#fff', backgroundColor = '#007bff', textStyle, containerStyle }) => {
   return (
-    <View style={[styles.badge, { backgroundColor }]}>
-      <Text style={[styles.text, { color }, textStyle]}>{text}</Text>
+    <View style={[styles.badge, { backgroundColor }, containerStyle]}>
+      <Text
+        style={[styles.text, { color }, textStyle]}
+        numberOfLines={1} ellipsizeMode='tail'
+      >
+        {text}
+      </Text>
     </View>
   );
 };

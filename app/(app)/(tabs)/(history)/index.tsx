@@ -58,7 +58,7 @@ export default function ReceiptHistoryScreen() {
 
   const showPaymentUpdateScreen = (receipt: SalonReceipt) => {
     router.push({
-      pathname: '/(app)/(tabs)/(history)/payment-update',
+      pathname: '/(app)/payment-update',
       params: {
         payment_receipt: JSON.stringify(receipt),
       },

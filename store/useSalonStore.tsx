@@ -6,7 +6,6 @@ import { router } from 'expo-router';
 import { salonAPI } from '@/api/salonAPI';
 import { SalonStaffType } from '@/types/staff.types';
 import { SalonReceipt, SalonReceiptFilterInput, StaffBillType, StaffReceiptFilterInput, StaffReceiptSummary } from '@/types/receipt.type';
-import { SalonReceiptFilterInputType } from './useSalonUpdatePaymentStore';
 import dayjs from 'dayjs';
 import { PaymentReceiptStatusEnums } from '@/enums/PaymentEnums';
 
@@ -83,6 +82,8 @@ export const useSalonStore = create<SalonState>((set) => ({
       }
 
       const res = await salonAPI.getSalonReceipts(Number(selectedSalon?.id), filterInput);
+      console.log('res.data.data:', res.data.data);
+      
 
       set({
         salonReceipts: res.data.data,

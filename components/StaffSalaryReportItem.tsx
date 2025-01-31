@@ -9,7 +9,7 @@ import {
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { SalonSalaryReportType, StaffSalaryReportType } from '@/types/report.types';
 import { formatCurrency, formatDate, formatDateTime } from '@/utils/receiptUtils';
-import { ms } from 'react-native-size-matters';
+import { ms, s } from 'react-native-size-matters';
 import Badge from './commons/Badge';
 import { helper } from '@/utils/helper';
 
@@ -30,22 +30,27 @@ const StaffSalaryReportItem: React.FC<SalaryReportItemProps> = ({
         onPress={onPress}
         disabled={!onPress}
       >
+        <View style={[styles.box, { alignItems: 'flex-start' }]}>
+          {/* <Text style={styles.label}>Staff</Text> */}
+          <Badge
+            color="#4CAF50"
+            text={item?.staff__first_name}
+            textStyle={{ color: 'white', padding: 2, fontSize: s(8) }}
+            containerStyle={{
+              borderTopRightRadius:0,
+              borderBottomLeftRadius: 0,
+            }}
+          />
+        </View>
         <View style={styles.bodyContainer}>
 
-          <View style={styles.box}>
-            <Text style={styles.label}>Staff</Text>
-            <Badge
-              color="#4CAF50"
-              text={item?.staff__first_name}
-              textStyle={{ color: 'white', padding: 2, fontSize: ms(10) }}
-            />
-          </View>
+
           <View style={styles.box}>
             <Text style={styles.label}>Sale</Text>
             <Badge
               backgroundColor="#FF9800"
               text={formatCurrency(item.total_service_amount)}
-              textStyle={{ color: 'white', padding: 2, fontSize: ms(10) }}
+              textStyle={{ color: 'white', padding: 2, fontSize: s(8) }}
             />
           </View>
           <View style={styles.box}>
@@ -53,7 +58,7 @@ const StaffSalaryReportItem: React.FC<SalaryReportItemProps> = ({
             <Badge
               backgroundColor="#FF9800"
               text={formatCurrency(item.total_tip_amount)}
-              textStyle={{ color: 'white', padding: 2, fontSize: ms(10) }}
+              textStyle={{ color: 'white', padding: 2, fontSize: ms(8) }}
             />
           </View>
           <View style={styles.box}>
@@ -61,7 +66,7 @@ const StaffSalaryReportItem: React.FC<SalaryReportItemProps> = ({
             <Badge
               backgroundColor="#FF9800"
               text={String(item.staff__commission_rate)}
-              textStyle={{ color: 'white', padding: 2, fontSize: ms(10) }}
+              textStyle={{ color: 'white', padding: 2, fontSize: ms(8) }}
             />
           </View>
           <View style={styles.box}>
@@ -69,7 +74,7 @@ const StaffSalaryReportItem: React.FC<SalaryReportItemProps> = ({
             <Badge
               backgroundColor="#FF9800"
               text={formatCurrency(Number(item.service_revenue))}
-              textStyle={{ color: 'white', padding: 2, fontSize: ms(10) }}
+              textStyle={{ color: 'white', padding: 2, fontSize: ms(8) }}
             />
           </View>
         </View>

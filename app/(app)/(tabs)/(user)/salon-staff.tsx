@@ -16,9 +16,9 @@ import { SalonStaffModal } from '@/components/SalonStaffModal';
 import { SalonStaffState, useSalonStaffStore } from '@/store/useSalonStaffStore';
 import { AuthState, useAuthStore } from '@/store/authStore';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
+import { router } from 'expo-router';
 
 export default function SalonStaffScreen() {
-  const [staff, setStaff] = useState<SalonStaffType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<SalonStaffType | null>(null);
@@ -49,6 +49,15 @@ export default function SalonStaffScreen() {
 
   };
 
+  const showEditStaffScreen = (staff: SalonStaffType) => {
+    router.navigate({
+      pathname: '/(app)/(tabs)/(user)/edit-staff',
+      params: {
+        staff: JSON.stringify(staff),
+      },
+    });
+  }
+
   const renderStaffItem = ({ item }: { item: SalonStaffType }) => (
     <View style={styles.staffCard}>
       <View style={styles.staffInfo}>
@@ -57,24 +66,21 @@ export default function SalonStaffScreen() {
         {item.email && <Text style={styles.staffDetails}>{item.email}</Text>}
       </View>
 
-      {/* <View style={styles.actionButtons}>
+      <View style={styles.actionButtons}>
         <TouchableOpacity
-          onPress={() => {
-            setSelectedStaff(item);
-            setModalVisible(true);
-          }}
+          onPress={()=>showEditStaffScreen(item)}
           style={styles.editButton}
         >
           <AntDesign name="edit" size={20} color="#007AFF" />
         </TouchableOpacity>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() => handleDeleteStaff(Number(item?.id))}
           style={styles.deleteButton}
         >
           <AntDesign name="delete" size={20} color="#FF3B30" />
-        </TouchableOpacity>
-      </View> */}
+        </TouchableOpacity> */}
+      </View>
     </View>
   );
 
@@ -110,14 +116,12 @@ export default function SalonStaffScreen() {
           setModalVisible(false);
           setSelectedStaff(null);
         }}
-        // initialData={{
-        //   first_name: selectedStaff?.first_name || '',
-        //   phonenumber: selectedStaff?.phone || '',
-        //   email: selectedStaff?.email || '',
-        //   password: '',
-        //   password2: '',
-        //   username: selectedStaff?.phone || '',
-        // }}
+        initialData={{
+          first_name: selectedStaff?.first_name || '',
+          phone: selectedStaff?.phone || '',
+          email: selectedStaff?.email || '',
+          commission_rate: Number(selectedStaff?.commission_rate) || 0,
+        }}
         title={selectedStaff ? 'Edit Staff' : 'Add Staff'}
       />
     </View>

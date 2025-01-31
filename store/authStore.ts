@@ -97,9 +97,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: async () => {
     try {
-      console.log('====================================');
-      console.log('logout process');
-      console.log('====================================');
+    
       // Clear secure storage
       await unRegisterUserDeviceSubscription()
       await SecureStore.deleteItemAsync('tokens');

@@ -19,13 +19,13 @@ export default function StaffLayout() {
         <Stack.Screen
           name="salons"
           options={{
-            title: 'Salon Management',
+            title: 'Salon',
           }}
         />
         <Stack.Screen
           name="salon-staff"
           options={{
-            title: 'Staff Management',
+            title: 'Staff',
           }}
         />
         <Stack.Screen
@@ -47,6 +47,12 @@ export default function StaffLayout() {
         <Stack.Screen name="setting"
           options={{
             title: 'Setting',
+          }}
+        />
+        <Stack.Screen
+          name="edit-staff"
+          options={{
+            title: 'Edit Staff',
           }}
         />
       </Stack>
