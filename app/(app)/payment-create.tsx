@@ -150,7 +150,6 @@ export default function StaffPaymentScreen() {
 
   const updateReceiptStaffPrice = (staffReceipt: StaffBillType, price: number | null) => {
     // let newStaffPrices = [...paymentReceipt?.staffs || []];
-    console.log('staff receipt:', staffReceipt);
     updateStaffReceiptPrice(staffReceipt, Number(price))
 
   }
