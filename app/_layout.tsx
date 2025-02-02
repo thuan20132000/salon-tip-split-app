@@ -4,6 +4,7 @@ import { AuthState, useAuthStore } from "@/store/authStore";
 import { RootState, useRootStore } from "@/store/useRootStore";
 import { Redirect, Slot, Stack } from "expo-router";
 import { useEffect } from "react";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Root() {
@@ -20,10 +21,10 @@ export default function Root() {
   }, [])
 
   return (
-    <>
+    <KeyboardProvider>
       <Slot />
       <LoadingIndicatorModal visible={isLoading} />
-    </>
+    </KeyboardProvider>
 
   )
 }

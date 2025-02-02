@@ -2,7 +2,6 @@ import { SalonPaymentReceiptType } from '@/store/useSalonUpdatePaymentStore';
 import { PaymentInvoiceDetailType, SalonReceipt } from '@/types/receipt.type';
 import React from 'react';
 import {
-  Modal,
   View,
   Text,
   TouchableOpacity,
@@ -12,7 +11,7 @@ import {
 import CurrencyInput from 'react-native-currency-input';
 import { ms } from 'react-native-size-matters';
 import ButtonText from './commons/ButtonText';
-
+import Modal from 'react-native-modal'
 interface AddStaffTipModalProps {
   visible: boolean;
   onClose: () => void;
@@ -35,53 +34,53 @@ const AddStaffTipModal: React.FC<AddStaffTipModalProps> = ({
 
 
   return (
+
     <Modal
-      visible={visible}
-      animationType="fade"
-      transparent
-      onRequestClose={onClose}
+      isVisible={visible}
+      avoidKeyboard
+      onSwipeCancel={onClose}
+      onBackdropPress={onClose}
+      animationIn={'fadeIn'}
+      animationOut={'fadeOut'}
+
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <Text style={styles.title}>Add Tip</Text>
+      <View style={styles.modalContent}>
+        <Text style={styles.title}>Add Tip</Text>
 
-          <ScrollView
-          >
-            {paymentReceipts?.staff_receipts?.map((staff, index) => (
-              <View style={styles.staffRow} key={index}>
+        <ScrollView
+        >
+          {paymentReceipts?.staff_receipts?.map((staff, index) => (
+            <View style={styles.staffRow} key={index}>
 
-                <Text style={styles.staffName}>{staff.staff?.first_name}</Text>
+              <Text style={styles.staffName}>{staff.staff?.first_name}</Text>
 
-                <View style={{ flex: 1 }}>
-                  <CurrencyInput
-                    value={staff.tip_amount}
-                    onChangeValue={(value) => updateReceiptStaffTip(index, value)}
-                    prefix="$ "
-                    delimiter="."
-                    separator="."
-                    precision={2}
-                    minValue={0}
-                    showPositiveSign={false}
-                    onChangeText={(formattedValue) => {
-                      console.log(formattedValue); // R$ +2.310,46
-                    }}
-                    style={styles.priceInput}
-                  />
+              <View style={{ flex: 1 }}>
+                <CurrencyInput
+                  value={staff.tip_amount}
+                  onChangeValue={(value) => updateReceiptStaffTip(index, value)}
+                  prefix="$ "
+                  delimiter="."
+                  separator="."
+                  precision={2}
+                  minValue={0}
+                  showPositiveSign={false}
+                  onChangeText={(formattedValue) => {
+                    console.log(formattedValue); // R$ +2.310,46
+                  }}
+                  style={styles.priceInput}
+                />
 
-                </View>
               </View>
+            </View>
 
-            ))}
-          </ScrollView>
+          ))}
+        </ScrollView>
 
-          <ButtonText
-            title="Close"
-            onPress={onClose}
-            textStyle={styles.closeButtonText}
-          />
-
-
-        </View>
+        <ButtonText
+          title="Close"
+          onPress={onClose}
+          textStyle={styles.closeButtonText}
+        />
       </View>
     </Modal>
   );
@@ -98,7 +97,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 16,
     padding: 20,
-    width: '90%',
     maxHeight: '80%',
   },
   title: {

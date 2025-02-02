@@ -33,5 +33,13 @@ export const commonStyles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 12
 
+  },
+  closeButtonView: {
+    width: 50,
+    height: 50,
+    position: 'absolute',
+    right: 8,
+    top: 8,
+    zIndex: 999
   }
 });

@@ -331,7 +331,10 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
       : 0;
 
 
-    const isPayable = !!selectedPaymentMethod;
+    let isPayable = !!selectedPaymentMethod;
+    if(state.cashPaymentPrice > 0) {
+      isPayable = true;
+    }
 
     // Calculate giftcard payment
     let gift_value = state.selectedSalonReceipt?.gift_value || 0;

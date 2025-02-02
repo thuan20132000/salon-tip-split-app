@@ -76,15 +76,8 @@ export const SalonStaffModal: React.FC<SalonStaffModalProps> = ({
   };
 
   const onSubmit = (data: CreateStaffAccountInput) => {
-    console.log('data', data);
+    handleAddStaff(data);
 
-
-    if (initialData) {
-
-      // handleEditStaff(data);
-    } else {
-      handleAddStaff(data);
-    }
   }
 
   return (

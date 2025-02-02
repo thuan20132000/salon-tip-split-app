@@ -597,11 +597,22 @@ export default function StaffPaymentScreen() {
           debitPaymentAmount={debitPaymentPrice}
           onClose={() => { setIsShowPaymentMixModal(false) }}
           setCashPaymentAmount={setCashPaymentPrice}
-          onConfirm={() => { setIsShowPaymentMixModal(false) }}
+          onConfirm={() => {
+            setSelectedSalonReceipt({
+              ...selectedSalonReceipt,
+              payment_method: PaymentMethodsEnums.COMBINATION_CASH_DEBIT,
+              // payment_method_price: calculatePayments().total.toFixed(2),
+            })
+            console.log('====================================');
+            console.log('Payment Mix', calculatePayments().total.toFixed(2));
+            console.log('====================================');
+            setIsShowPaymentMixModal(false)
+           }}
           onCancel={() => {
             setCashPaymentPrice(0)
             setIsShowPaymentMixModal(false)
           }}
+          onUpdateTipAmount={onChangeTotalTip}
         />
 
       </KeyboardAwareScrollView>

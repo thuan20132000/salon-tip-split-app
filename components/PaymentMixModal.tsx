@@ -11,6 +11,8 @@ import CurrencyInput from 'react-native-currency-input';
 import { ms, s } from 'react-native-size-matters';
 import ButtonText from './commons/ButtonText';
 import ButtonIcon from './commons/ButtonIcon';
+import { formatCurrency } from '@/utils/receiptUtils';
+import { commonStyles } from '@/utils/commonStyles';
 
 interface PaymentMixModalProps {
   visible: boolean;
@@ -20,6 +22,7 @@ interface PaymentMixModalProps {
   debitPaymentAmount: number;
   onConfirm: () => void;
   onCancel: () => void;
+  onUpdateTipAmount?: (value: number) => void;
 }
 
 
@@ -30,26 +33,26 @@ const PaymentMixModal: React.FC<PaymentMixModalProps> = ({
   setCashPaymentAmount,
   debitPaymentAmount,
   onConfirm,
-  onCancel
+  onCancel,
+  onUpdateTipAmount
 
 }) => {
 
-  const [amount, setAmount] = useState(cashPaymentAmount || 0);
+  const [debitReceivedAmount, setDebitReceivedAmount] = useState(debitPaymentAmount || 0);
 
   const onConfirmPress = () => {
-    console.log('====================================');
-    console.log('Confirm Pressed');
-    console.log('====================================');
-    onClose()
+    onConfirm()
   }
 
   const onCancelPress = () => {
-    console.log('====================================');
-    console.log('Cancel Pressed');
-    console.log('====================================');
-    if(onCancel){
+    if (onCancel) {
       onCancel()
+      setDebitReceivedAmount(0);
     }
+  }
+
+  const getReturnAmount = () => {
+    return debitReceivedAmount - debitPaymentAmount;
   }
 
   return (
@@ -65,13 +68,7 @@ const PaymentMixModal: React.FC<PaymentMixModalProps> = ({
           <Text style={styles.title}>Pay By Debit + Cash</Text>
           <ButtonIcon
             iconName='close'
-            containerStyle={{
-              width: 50,
-              height: 50,
-              position: 'absolute',
-              right: 8,
-              top: 8
-            }}
+            containerStyle={commonStyles.closeButtonView}
             onPress={onClose}
           />
           <View style={styles.inputContainer}>
@@ -79,9 +76,10 @@ const PaymentMixModal: React.FC<PaymentMixModalProps> = ({
               style={{
                 justifyContent: 'space-between',
                 marginBottom: 16,
+                flexDirection: 'row'
               }}
             >
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
                 <Text style={styles.discountTitle}>Pay Cash: </Text>
                 <CurrencyInput
                   value={cashPaymentAmount}
@@ -101,7 +99,7 @@ const PaymentMixModal: React.FC<PaymentMixModalProps> = ({
 
                 />
               </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
                 <Text style={styles.discountTitle}>Pay Debit: </Text>
                 <CurrencyInput
                   value={debitPaymentAmount}
@@ -115,9 +113,50 @@ const PaymentMixModal: React.FC<PaymentMixModalProps> = ({
                   editable={false}
                 />
               </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 20 }}>
-                <Text style={styles.returnPrice}>Total: </Text>
-                <Text style={styles.returnPrice}>${(cashPaymentAmount + debitPaymentAmount).toFixed(2)}</Text>
+
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={styles.discountTitle}>Debit Receive: </Text>
+                <CurrencyInput
+                  value={debitReceivedAmount}
+                  onChangeValue={(value) => {
+                    setDebitReceivedAmount(value ?? 0);
+                  }}
+                  prefix="$ "
+                  delimiter="."
+                  separator="."
+                  precision={2}
+                  minValue={0}
+                  showPositiveSign={false}
+                  onChangeText={(formattedValue) => {
+                    console.log(formattedValue); // R$ +2.310,46
+                  }}
+                  style={styles.currencyInput}
+
+                />
+              </View>
+            </View>
+            <View>
+              <Text style={styles.discountTitle}>Return</Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+              >
+                <Text style={styles.returnPrice}>{formatCurrency(getReturnAmount())}</Text>
+                <TouchableOpacity
+                  style={{ padding: 8 }}
+                  onPress={() => {
+                    if (onUpdateTipAmount) {
+                      onUpdateTipAmount(getReturnAmount())
+                    }
+                  }}
+                >
+                  <Text style={{ color: '#007AFF', fontSize: 16, fontWeight: 'bold' }}>Add to Tip</Text>
+                </TouchableOpacity>
+
               </View>
             </View>
           </View>
@@ -251,9 +290,10 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     borderRadius: 8,
     height: 45,
-    flex: 1,
     fontSize: ms(14),
     fontWeight: 'bold',
+    width: ms(120),
+
   },
 
 });

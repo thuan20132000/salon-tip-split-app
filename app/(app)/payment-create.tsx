@@ -369,11 +369,13 @@ export default function StaffPaymentScreen() {
           }}
         />
       </NavigationBar>
-      <KeyboardAwareScrollView bottomOffset={62}
+      <KeyboardAwareScrollView
+        bottomOffset={62}
         contentContainerStyle={{
           gap: 16,
           padding: 16,
-        }}>
+        }}
+      >
 
         {/* Staff Price Inputs */}
         <View style={styles.section}>
@@ -700,7 +702,9 @@ export default function StaffPaymentScreen() {
           onCancel={() => {
             setCashPaymentPrice(0)
             setIsShowPaymentMixModal(false)
+            onChangeTotalTip(0)
           }}
+          onUpdateTipAmount={onChangeTotalTip}
         />
         <ReceiptPrintModal
           visible={isShowReceiptPrintModal}
