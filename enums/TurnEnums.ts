@@ -1,0 +1,7 @@
+export enum TurnStatusEnums {
+  IN_SERVICE = 'IN_SERVICE',
+  PAYMENT_PENDING = 'PAYMENT_PENDING',
+  PAID = 'PAID',
+  CHECK_IN = 'CHECK_IN',
+  CHECK_OUT = 'CHECK_OUT',
+}

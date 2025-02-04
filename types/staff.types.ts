@@ -1,4 +1,5 @@
 import { Salon } from "./salon.types";
+import { TurnService } from "./turn.types";
 
 export type Gender = 'M' | 'F' | 'O';
 
@@ -29,6 +30,8 @@ export interface SalonStaffType {
   salon?: Salon; // Salon ID or name
   role?: string;
   commission_rate?: string;
+  avatar?: string;
+  skills?: TurnService[];
 }
 
 // For creating new staff member (partial type without auto-generated fields)

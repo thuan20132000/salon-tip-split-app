@@ -29,9 +29,19 @@ const showAlertErrorMessage = (message:APIErrorType ) => {
   Alert.alert('Error', message.message);
 }
 
+// get 2 first letters from string then capitalize them
+const getInitialsText = (text?: string): string => {
+  if(!text) {
+    return '';
+  }
+  const initials = text.match(/\b\w/g) || [];
+  return ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
+}
+
 export const helper = {
   handlePercentToDecimal,
   formatCurrency,
   formatDays,
-  showAlertErrorMessage
+  showAlertErrorMessage,
+  getInitialsText
 }
