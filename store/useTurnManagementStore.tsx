@@ -54,11 +54,11 @@ const TURN_SERVICES: TurnService[] = [
     id: 10,
     name: 'Bio Gel Full Set',
   }
-  
+
 
 ];
 
-const STAFF_TURNS: StaffTurn[] = [
+const INITIAL_STAFF_TURNS: StaffTurn[] = [
   {
     id: 1,
     staff: {
@@ -99,7 +99,7 @@ const STAFF_TURNS: StaffTurn[] = [
     staff: {
       id: 3,
       first_name: 'LINDA',
-      skills: TURN_SERVICES
+      skills: TURN_SERVICES.slice(0, 3)
     },
     turns: [],
     last_turn: null
@@ -124,66 +124,76 @@ const STAFF_TURNS: StaffTurn[] = [
     turns: [],
     last_turn: null
   },
-  {
-    id: 6,
-    staff: {
-      id: 6,
-      first_name: 'EMMA',
-      skills: TURN_SERVICES
-    },
-    turns: [],
-    last_turn: null
-  },
-  {
-    id: 7,
-    staff: {
-      id: 7,
-      first_name: 'LINA *',
-      skills: TURN_SERVICES
-    },
-    turns: [],
-    last_turn: null
-  },
-  {
-    id: 8,
-    staff: {
-      id: 8,
-      first_name: 'MYNY',
-      skills: TURN_SERVICES
-    },
-    turns: [],
-    last_turn: null
-  },
-  {
-    id: 9,
-    staff: {
-      id: 9,
-      first_name: 'KY',
-      skills: TURN_SERVICES
-    },
-    turns: [],
-    last_turn: null
-  }
+  // {
+  //   id: 6,
+  //   staff: {
+  //     id: 6,
+  //     first_name: 'EMMA',
+  //     skills: TURN_SERVICES
+  //   },
+  //   turns: [],
+  //   last_turn: null
+  // },
+  // {
+  //   id: 7,
+  //   staff: {
+  //     id: 7,
+  //     first_name: 'LINA *',
+  //     skills: TURN_SERVICES
+  //   },
+  //   turns: [],
+  //   last_turn: null
+  // },
+  // {
+  //   id: 8,
+  //   staff: {
+  //     id: 8,
+  //     first_name: 'MYNY',
+  //     skills: TURN_SERVICES
+  //   },
+  //   turns: [],
+  //   last_turn: null
+  // },
+  // {
+  //   id: 9,
+  //   staff: {
+  //     id: 9,
+  //     first_name: 'KY',
+  //     skills: TURN_SERVICES
+  //   },
+  //   turns: [],
+  //   last_turn: null
+  // }
 ]
 
+const getInitialStaffTurns = () => {
+  return INITIAL_STAFF_TURNS.map(staffTurn => ({
+    ...staffTurn,
+    turns: [],
+    last_turn: null,
+    staff: {
+      ...staffTurn.staff,
+    }
+  }));
+};
 
 export interface TurnManagementState {
   staffTurns: StaffTurn[];
-  initialTurnService: TurnService[];
+  salonTurnServices: TurnService[];
   setStaffTurns: (staffTurns: StaffTurn[]) => void;
   addStaffTurn: (staffTurn: StaffTurn, newTurn?: Turn) => void;
   updateStaffTurn: (staffTurns: StaffTurn, updateTurn: Turn) => void;
   removeStaffTurn: (staffTurns: StaffTurn, updateTurn: Turn) => void;
   resetStaffTurns: () => void;
   initStaffTurns: () => void;
-  getSuggestionStaffTurns: () => StaffTurn[];
+  getSuggestionStaffTurns: () => void;
 
 }
 
 
 export const useTurnManagementStore = create<TurnManagementState>((set, get) => ({
   staffTurns: [],
-  initialTurnService: TURN_SERVICES,
+  salonTurnServices: TURN_SERVICES,
   setStaffTurns: (staffTurns) => set({ staffTurns }),
   addStaffTurn: (currentStaffTurn, newTurn) => {
     if (newTurn) {
@@ -210,16 +220,16 @@ export const useTurnManagementStore = create<TurnManagementState>((set, get) => 
     set({ staffTurns: newStaffTurns })
   },
   resetStaffTurns: () => {
-    get().initStaffTurns();
+    // let staffTurns = [...INITIAL_STAFF_TURNS];
+
+
+
+    set({ staffTurns: getInitialStaffTurns() })
   },
   initStaffTurns: () => {
-    set({ staffTurns: STAFF_TURNS })
+    set({ staffTurns: getInitialStaffTurns() })
   },
   getSuggestionStaffTurns: () => {
-    const staffTurns = get().staffTurns;
-    console.log('suggestion turns::', JSON.stringify(staffTurns, null, 4));
-
-    return staffTurns.filter((st) => st.turns.length === 0);
   }
 
 

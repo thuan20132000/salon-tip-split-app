@@ -19,6 +19,7 @@ import { commonStyles } from '@/utils/commonStyles';
 import { TurnStatusEnums } from '@/enums/TurnEnums';
 import TurnStatusList from './TurnStatusList';
 import dayjs from 'dayjs';
+import { Colors } from '@/constants/Colors';
 
 
 interface UpdateStaffTurnModalProps {
@@ -36,7 +37,7 @@ const UpdateStaffTurnModal: React.FC<UpdateStaffTurnModalProps> = ({
 }) => {
   const {
     updateStaffTurn,
-    initialTurnService,
+    salonTurnServices,
     removeStaffTurn
   } = useTurnManagementStore((state: TurnManagementState) => state);
 
@@ -49,7 +50,6 @@ const UpdateStaffTurnModal: React.FC<UpdateStaffTurnModalProps> = ({
       ...updateTurn,
       services: selectedService,
       status: selectedStatus,
-      created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
       updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
     }
     updateStaffTurn(staffTurn, updatedTurn);
@@ -106,21 +106,26 @@ const UpdateStaffTurnModal: React.FC<UpdateStaffTurnModalProps> = ({
           color='blue'
           containerStyle={commonStyles.closeButtonView}
         />
-        <Text style={styles.title}>Update Staff Turn</Text>
+        <Text style={styles.title}>Update Turn for {staffTurn.staff?.first_name}</Text>
         <View>
           <Text>Services</Text>
           <ScrollView horizontal style={styles.scrollContent}>
             {
-              initialTurnService.map((service, index) => (
+              salonTurnServices.map((service, index) => (
                 <TouchableOpacity
-                  key={index.toString()}
-                  style={[
-                    styles.serviceBox,
-                    selectedService.find(selected => selected.id === service.id) ? { backgroundColor: '#007AFF' } : {},
-                  ]}
                   onPress={() => onSelectTurnService(service)}
+                  key={index.toString()}
                 >
-                  <Text style={styles.label}>{service.name}</Text>
+                  <View
+                    style={[styles.serviceBox, {
+                      backgroundColor:
+                        selectedService.includes(service) ? Colors.primary.lightYellow : Colors.primary.lightGray
+                    }]}
+                  >
+                    <Text style={styles.label}
+                      numberOfLines={1}
+                    >{service.name}</Text>
+                  </View>
                 </TouchableOpacity>
               ))
             }
@@ -132,6 +137,11 @@ const UpdateStaffTurnModal: React.FC<UpdateStaffTurnModalProps> = ({
             onSelectTurnStatusPress={(status) => setSelectedStatus(status)}
             selectedTurnStatus={selectedStatus}
           />
+        </View>
+        {/* show created_at and updated_at */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+          <Text>Created at: {dayjs(updateTurn.created_at).format('DD/MM/YYYY HH:mm')}</Text>
+          <Text>Updated at: {dayjs(updateTurn.updated_at).format('DD/MM/YYYY HH:mm')}</Text>
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
           <ButtonText
@@ -206,11 +216,12 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 8,
     alignItems: 'center',
-    width: ms(40),
+    minWidth: ms(40),
     height: ms(40),
     backgroundColor: '#ffd33d',
     justifyContent: 'center',
     marginRight: 10,
+    paddingHorizontal: ms(4),
   },
 
 

@@ -31,7 +31,7 @@ const index = (props: Props) => {
         <View style={{ flex: 1 }}>
           <ScrollView contentContainerStyle={{ paddingBottom: ms(80) }}>
             {
-              staffTurns.map((staffTurn, index) => (
+              staffTurns?.map((staffTurn, index) => (
                 <StaffTurnRow
                   staffTurn={staffTurn}
                 />

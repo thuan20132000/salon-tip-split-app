@@ -33,15 +33,12 @@ const StaffTurnRow = ({
       </View>
       <View style={[styles.staffTurnsContainer]}>
         <ScrollView horizontal
-          style={{
-            paddingRight:s(50)
-          }}
           contentContainerStyle={{
             paddingRight:s(30)
           }}
         >
           {
-            staffTurn.turns.map((turn, index) => (
+            staffTurn?.turns?.map((turn, index) => (
               <StaffTurnBoxItem
                 key={index.toString()}
                 turn={turn}

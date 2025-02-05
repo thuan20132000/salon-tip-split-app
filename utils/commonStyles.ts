@@ -1,4 +1,6 @@
+import { Colors } from "@/constants/Colors";
 import { StyleSheet } from "react-native";
+import { s } from "react-native-size-matters";
 
 
 export const commonStyles = StyleSheet.create({
@@ -41,5 +43,39 @@ export const commonStyles = StyleSheet.create({
     right: 8,
     top: 8,
     zIndex: 999
+  },
+  textH1: {
+    fontSize: s(14),
+    fontWeight: 'bold',
+    color: Colors.primary.dark
+  },
+  textH2: {
+    fontSize: s(12),
+    fontWeight: 'bold',
+    color: Colors.primary.dark
+  },
+  textH3: {
+    fontSize: s(10),
+    fontWeight: 'bold',
+    color: Colors.primary.dark
+  },
+  textH4: {
+    fontSize: s(8),
+    fontWeight: 'bold',
+    color: Colors.primary.dark
+  },
+  textH5: {
+    fontSize: s(6),
+    fontWeight: 'bold',
+    color: Colors.primary.dark
+  },
+  textH6: {
+    fontSize: s(4),
+    fontWeight: 'bold',
+    color: Colors.primary.dark
+  },
+  textParagraph: {
+    fontSize: s(6),
+    color: Colors.primary.dark
   }
 });

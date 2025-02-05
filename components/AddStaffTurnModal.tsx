@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -15,27 +15,45 @@ import dayjs from 'dayjs';
 import { TurnStatusEnums } from '@/enums/TurnEnums';
 import ButtonIcon from './commons/ButtonIcon';
 import { commonStyles } from '@/utils/commonStyles';
+import { Colors } from '@/constants/Colors';
 interface AddStaffTurnModalProps {
   visible: boolean;
   onClose: () => void;
   staffTurn: StaffTurn;
+  initialTurnServices?: TurnService[];
 }
 
 
 const AddStaffTurnModal: React.FC<AddStaffTurnModalProps> = ({
   visible,
   onClose,
-  staffTurn
+  staffTurn,
+  initialTurnServices
 }) => {
 
 
   const {
     addStaffTurn,
-    initialTurnService
+    salonTurnServices
   } = useTurnManagementStore((state: TurnManagementState) => state)
 
+  console.log('initialTurnServices::', JSON.stringify(initialTurnServices, null, 4));
+
   const [turn, setTurn] = useState<Turn>();
-  const [selectedTurnServices, setSelectedTurnServices] = useState<TurnService[]>([]);
+  const [selectedTurnServices, setSelectedTurnServices] = useState<TurnService[]>(initialTurnServices || []);
+
+  useEffect(() => {
+    if (initialTurnServices) {
+      setSelectedTurnServices(initialTurnServices);
+      setTurn({
+        id: new Date().getTime(),
+        services: initialTurnServices || [],
+        created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        status: TurnStatusEnums.IN_SERVICE,
+      });
+    }
+  }, [initialTurnServices])
 
   const clearTurn = () => {
     setTurn(undefined);
@@ -60,7 +78,7 @@ const AddStaffTurnModal: React.FC<AddStaffTurnModalProps> = ({
     }
 
     setSelectedTurnServices(turnServices);
-   
+
     setTurn({
       id: new Date().getTime(),
       services: turnServices,
@@ -71,7 +89,7 @@ const AddStaffTurnModal: React.FC<AddStaffTurnModalProps> = ({
 
   }
 
-  
+
 
   return (
     <Modal
@@ -88,18 +106,48 @@ const AddStaffTurnModal: React.FC<AddStaffTurnModalProps> = ({
           onPress={onClose}
           containerStyle={commonStyles.closeButtonView}
         />
-        <Text style={styles.title}>Add Staff Turn</Text>
+        <Text style={styles.title}>Add Turn for {staffTurn?.staff?.first_name}</Text>
+        <View>
+          <View>
+            <Text style={commonStyles.textH5}>Services</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+              {
+                selectedTurnServices.map((s) => (
+                  <View style={[styles.selectedServiceBadge]}>
+                    <Text style={[commonStyles.textParagraph, {
+                      fontWeight: '500',
+                      color: Colors.primary.dark
+                    }]}>{s.name} </Text>
+                    <Text style={[commonStyles.textParagraph, {
+                      fontWeight: '500',
+                      color: Colors.primary.dark
+                    }]}>{s.price}</Text>
+                  </View>
+                ))
+              }
+            </View>
+          </View>
+          <View>
+            <Text style={commonStyles.textH5}>Total</Text>
+            <Text style={commonStyles.textParagraph}>{selectedTurnServices.reduce((acc, s) => acc + (s.price || 0), 0)}</Text>
+          </View>
+        </View>
         <ScrollView horizontal style={styles.scrollContent}>
           {
-            initialTurnService.map((service,index) => (
+            salonTurnServices.map((service, index) => (
               <TouchableOpacity
                 onPress={() => onSelectTurnService(service)}
                 key={index.toString()}
               >
-                <View style={[styles.serviceBox,{
-                  backgroundColor: selectedTurnServices.includes(service) ? '#007AFF' : '#ffd33d'
-                }]} >
-                  <Text style={styles.label}>{service.name}</Text>
+                <View
+                  style={[styles.serviceBox, {
+                    backgroundColor:
+                      selectedTurnServices.includes(service) ? Colors.primary.lightYellow : Colors.primary.lightGray
+                  }]}
+                >
+                  <Text style={styles.label}
+                    numberOfLines={1}
+                  >{service.name}</Text>
                 </View>
               </TouchableOpacity>
             ))
@@ -166,12 +214,23 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 8,
     alignItems: 'center',
-    width: ms(40),
-    height: ms(40),
+    minWidth: ms(42),
+    height: ms(42),
     backgroundColor: '#ffd33d',
     justifyContent: 'center',
     marginRight: 10,
+    paddingHorizontal: 10,
   },
+  selectedServiceBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 2,
+    borderRadius: 5,
+    padding: 6,
+    marginRight: ms(2),
+    backgroundColor: Colors.primary.lightGreen,
+
+  }
 
 
 });

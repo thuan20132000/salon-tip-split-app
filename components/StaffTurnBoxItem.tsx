@@ -38,7 +38,12 @@ const StaffTurnBoxItem = ({
   const getTurnServiceShortname = () => {
     let shortname = ''
 
-    if (turn?.services.length <= 0) {
+
+    if (!turn?.services) {
+      return shortname
+    }
+
+    if (turn?.services?.length <= 0) {
       return shortname
     }
 
@@ -48,7 +53,7 @@ const StaffTurnBoxItem = ({
     }
 
     turn?.services?.map((service, index) => {
-      if (index < turn?.services.length - 1) {
+      if (index < (turn?.services?.length || 0) - 1) {
         shortname += helper.getInitialsText(service.name) + ', '
       } else {
         shortname += helper.getInitialsText(service.name)
@@ -115,10 +120,11 @@ export default StaffTurnBoxItem
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    padding: ms(4),
     backgroundColor: 'white',
     width: ms(45),
     height: ms(45),
     borderRadius: ms(6),
+    marginRight: ms(2),
   },
 })

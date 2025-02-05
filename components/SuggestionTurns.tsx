@@ -1,24 +1,28 @@
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { TurnManagementState, useTurnManagementStore } from '@/store/useTurnManagementStore'
-import { TurnService } from '@/types/turn.types'
+import { StaffTurn, TurnService } from '@/types/turn.types'
 import { TurnStatusEnums } from '@/enums/TurnEnums'
 import dayjs from 'dayjs'
+import AddStaffTurnModal from './AddStaffTurnModal'
+import { Colors } from '@/constants/Colors'
+import { commonStyles } from '@/utils/commonStyles'
 type Props = {}
 
 const SuggestionTurns = (props: Props) => {
 
   const {
     staffTurns,
-    getSuggestionStaffTurns,
-    initialTurnService
+    salonTurnServices
   } = useTurnManagementStore((state: TurnManagementState) => state)
 
   const [selectedTurnServices, setSelectedTurnServices] = useState<TurnService[]>([]);
+  const [isShowAddStaffTurnModal, setIsShowAddStaffTurnModal] = useState(false);
+  const [staffTurn, setStaffTurn] = useState<StaffTurn>();
 
-  useEffect(() => {
-    getSuggestionStaffTurns()
-  }, [staffTurns])
+  // useEffect(() => {
+  //   getSuggestionStaffTurns()
+  // }, [staffTurns])
 
   const onSelectTurnServicePress = (turnService: TurnService) => {
     if (selectedTurnServices.includes(turnService)) {
@@ -44,7 +48,7 @@ const SuggestionTurns = (props: Props) => {
 
     // sort staffAvailable by last_turn updated_at
     staffAvailable.sort((a, b) => {
-      if(a.last_turn == null) {
+      if (a.last_turn == null) {
         a.last_turn = {
           created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
           updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
@@ -52,7 +56,7 @@ const SuggestionTurns = (props: Props) => {
           services: []
         }
       }
-      if(b.last_turn == null) {
+      if (b.last_turn == null) {
         b.last_turn = {
           created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
           updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
@@ -68,24 +72,40 @@ const SuggestionTurns = (props: Props) => {
     })
 
     // if a has no last_turn, then sort by staffTurn id
-    
+
 
 
     // const staffAvailableWithTurns = staffAvailable.map((staffTurn) => {
     return staffAvailable
   }
 
+  const onSelectStaffTurnPress = (staffTurn: StaffTurn) => {
+    console.log(staffTurn)
+    setStaffTurn(staffTurn)
+    setIsShowAddStaffTurnModal(true)
+  }
+
+  const hideAddStaffTurnModal = () => {
+    setIsShowAddStaffTurnModal(false)
+    setSelectedTurnServices([])
+  }
 
   return (
     <View style={[styles.container]}>
       <ScrollView>
         <View>
-          <Text>Staff Priority</Text>
+          <Text style={commonStyles.textH5}>Priority Level</Text>
           {
             getStaffAvailable().map((staffTurn, index) => (
-              <View style={[styles.staffItem]}>
-                <Text key={index.toString()}>{staffTurn.staff?.first_name}</Text>
-              </View>
+              <TouchableOpacity
+                style={[styles.staffItem]}
+                key={index.toString()}
+                onPress={() => onSelectStaffTurnPress(staffTurn)}
+              >
+                <Text
+                  style={[styles.staffItemText]}
+                >{staffTurn.staff?.first_name}</Text>
+              </TouchableOpacity>
             ))
           }
         </View>
@@ -97,7 +117,7 @@ const SuggestionTurns = (props: Props) => {
             justifyContent: 'space-around'
           }}>
             {
-              initialTurnService.map((service, index) => (
+              salonTurnServices.map((service, index) => (
                 <TouchableOpacity
                   style={[styles.serviceItem, selectedTurnServices.includes(service) ? { backgroundColor: 'lightgreen' } : {}]}
                   onPress={() => onSelectTurnServicePress(service)}
@@ -110,6 +130,12 @@ const SuggestionTurns = (props: Props) => {
 
         </View>
       </ScrollView>
+      <AddStaffTurnModal
+        visible={isShowAddStaffTurnModal}
+        onClose={hideAddStaffTurnModal}
+        staffTurn={staffTurn as StaffTurn}
+        initialTurnServices={selectedTurnServices}
+      />
     </View>
   )
 }
@@ -118,18 +144,23 @@ export default SuggestionTurns
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: 'white',
+    // flex: 1,
+    backgroundColor: Colors.primary.white,
     padding: 10,
-    width: 200
+    width: 200,
+    height: '100%'
   },
   staffItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: 'coral',
-    padding: 2,
+    backgroundColor: '#48d1cc',
+    padding: 6,
     marginVertical: 2,
     borderRadius: 5
+  },
+  staffItemText: {
+    fontSize: 16,
+    fontWeight: 'bold'
   },
   serviceItem: {
     flexDirection: 'row',
