@@ -27,6 +27,19 @@ interface UpdateSalonDto {
   email?: string;
 }
 
+type SalonServiceType = {
+  id: number;
+  name: string;
+  price: number;
+  duration?: number;
+  category?: string;
+  description?: string;
+  is_active?: boolean;
+  online_booking?: boolean;
+  checking_in?: boolean;
+  salon_id?: number;
+}
+
 // Type guard
 function isSalon(obj: any): obj is Salon {
   return (
@@ -43,7 +56,8 @@ function isSalon(obj: any): obj is Salon {
 export type {
   Salon,
   CreateSalonDto,
-  UpdateSalonDto
+  UpdateSalonDto,
+  SalonServiceType
 };
 
 export {

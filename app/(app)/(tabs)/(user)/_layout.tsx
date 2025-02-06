@@ -55,6 +55,12 @@ export default function StaffLayout() {
             title: 'Edit Staff',
           }}
         />
+         <Stack.Screen
+          name="salon-service"
+          options={{
+            title: 'Salon Service',
+          }}
+        />
       </Stack>
     </KeyboardProvider>
   );

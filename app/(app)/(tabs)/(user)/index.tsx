@@ -104,6 +104,10 @@ const UserScreen: React.FC<UserScreenProps> = () => {
     router.push('/(app)/(tabs)/(user)/setting');
   }
 
+  const showSalonService = () => {
+    router.push('/(app)/(tabs)/(user)/salon-services');
+  }
+
   const canAccessManagement = () => {
     if (!isAllowAccessManagement) {
       Alert.alert('Access Denied', 'You are not allowed to access this feature.')
@@ -188,6 +192,13 @@ const UserScreen: React.FC<UserScreenProps> = () => {
                 <ButtonText
                   title="Salon Salary Reports"
                   onPress={showSalaryReport}
+                  style={styles.managementItem}
+                  textStyle={styles.managementItemText}
+
+                />
+                <ButtonText
+                  title="Salon Services"
+                  onPress={showSalonService}
                   style={styles.managementItem}
                   textStyle={styles.managementItemText}
 
