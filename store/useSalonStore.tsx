@@ -8,6 +8,7 @@ import { SalonStaffType } from '@/types/staff.types';
 import { SalonReceipt, SalonReceiptFilterInput, StaffBillType, StaffReceiptFilterInput, StaffReceiptSummary } from '@/types/receipt.type';
 import dayjs from 'dayjs';
 import { PaymentReceiptStatusEnums } from '@/enums/PaymentEnums';
+import { SalonServiceType } from '@/types/salon.types';
 
 
 
@@ -35,6 +36,7 @@ export const useSalonStore = create<SalonState>((set) => ({
   salonReceipts: [],
   salonStaffBills: [],
   pendingPaymentReceipts: [],
+  salonServices: [],
   setSalons: (salons: Salon[]) => set({ salons }),
   selectSalon: (salon: Salon) => set({ selectedSalon: salon }),
   getMySalons: async () => {

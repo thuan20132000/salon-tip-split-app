@@ -30,8 +30,8 @@ interface UpdateSalonDto {
 type SalonServiceType = {
   id: number;
   name: string;
-  price: number;
-  duration?: number;
+  price: string;
+  duration?: string;
   category?: string;
   description?: string;
   is_active?: boolean;

@@ -1,7 +1,12 @@
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, TextInput } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-
+import AddSalonServicesModal from '@/components/AddSalonServicesModal';
+import useSalonServicesStore from '@/store/useSalonServicesStore';
+import ButtonText from '@/components/commons/ButtonText';
+import UpdateSalonServiceModal from '@/components/UpdateSalonServiceModal';
+import { SalonServiceType } from '@/types/salon.types';
+import SalonServiceItem from '@/components/SalonServiceItem';
 interface TurnService {
   id: number;
   name: string;
@@ -14,99 +19,39 @@ interface ServiceFormData {
 }
 
 export default function SalonServicesScreen() {
+  const { salonServices, getSalonServices } = useSalonServicesStore();
   const [services, setServices] = useState<TurnService[]>([]);
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<ServiceFormData>({
-    defaultValues: {
-      name: '',
-      price: '',
-    }
-  });
+  const [showAddServiceModal, setShowAddServiceModal] = useState(false);
+  const [showUpdateServiceModal, setShowUpdateServiceModal] = useState(false);
+  const [selectedService, setSelectedService] = useState<SalonServiceType | null>(null);
 
-  const onSubmit = (data: ServiceFormData) => {
-    try {
-      const newId = Math.max(...services.map(s => s.id)) + 1;
-      setServices([...services, {
-        id: newId,
-        name: data.name,
-        price: data.price ? parseFloat(data.price) : undefined,
-      }]);
 
-      reset(); // Reset form
-      Alert.alert('Success', 'Service added successfully');
-    } catch (error) {
-      Alert.alert('Error', 'Failed to add service');
-    }
-  };
+  const onShowAddServiceModal = () => {
+    setShowAddServiceModal(true);
+  }
+
+  const onShowUpdateServiceModal = (service: SalonServiceType) => {
+    setSelectedService(service);
+    setShowUpdateServiceModal(true);
+  }
+
+  useEffect(() => {
+    getSalonServices();
+  }, []);
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.serviceList}>
-        {services.map((service) => (
-          <View key={service.id} style={styles.serviceItem}>
-            <Text style={styles.serviceName}>{service.name}</Text>
-            <Text style={styles.servicePrice}>
-              {service.price ? `$${service.price.toFixed(2)}` : 'Price varies'}
-            </Text>
-          </View>
+        {salonServices.map((service) => (
+          <SalonServiceItem key={service.id} service={service} />
         ))}
       </ScrollView>
-
-      <View style={styles.addServiceForm}>
-        <Text style={styles.formTitle}>Add New Service</Text>
-
-        <Controller
-          control={control}
-          rules={{
-            required: 'Service name is required'
-          }}
-          render={({ field: { onChange, value } }) => (
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={[styles.input, errors.name && styles.inputError]}
-                placeholder="Service Name"
-                onChangeText={onChange}
-                value={value}
-              />
-              {errors.name && (
-                <Text style={styles.errorText}>{errors.name.message}</Text>
-              )}
-            </View>
-          )}
-          name="name"
-        />
-
-        <Controller
-          control={control}
-          rules={{
-            pattern: {
-              value: /^\d*\.?\d*$/,
-              message: 'Please enter a valid price'
-            }
-          }}
-          render={({ field: { onChange, value } }) => (
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={[styles.input, errors.price && styles.inputError]}
-                placeholder="Price (optional)"
-                keyboardType="decimal-pad"
-                onChangeText={onChange}
-                value={value}
-              />
-              {errors.price && (
-                <Text style={styles.errorText}>{errors.price.message}</Text>
-              )}
-            </View>
-          )}
-          name="price"
-        />
-
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={handleSubmit(onSubmit)}
-        >
-          <Text style={styles.buttonText}>Add Service</Text>
-        </TouchableOpacity>
-      </View>
+      <ButtonText title="Add Service" onPress={onShowAddServiceModal} />
+      <AddSalonServicesModal
+        visible={showAddServiceModal}
+        onClose={() => setShowAddServiceModal(false)}
+        categories={[]}
+      />
     </View>
   );
 }
