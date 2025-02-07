@@ -39,6 +39,32 @@ type SalonServiceType = {
   checking_in?: boolean;
   salon_id?: number;
 }
+type StaffServiceType = {
+  id: number;
+  skill: SalonServiceType;
+  staff: number;
+  custom_price?: number;
+  custom_duration?: number;
+  custom_description?: string;
+  is_active?: boolean;
+  updated_at?: string;
+  created_at?: string;
+}
+
+type UpdateStaffServiceType = {
+  id?: number;
+  staff_id?: number;
+  skill_id?: number;
+  is_active?: boolean;
+  custom_price?: number;
+  custom_duration?: number;
+  custom_description?: string;
+}
+
+type StaffServiceFilterType = {
+  staff_id?: number;
+  salon_id?: number;
+}
 
 // Type guard
 function isSalon(obj: any): obj is Salon {
@@ -57,7 +83,10 @@ export type {
   Salon,
   CreateSalonDto,
   UpdateSalonDto,
-  SalonServiceType
+  SalonServiceType,
+  StaffServiceType,
+  StaffServiceFilterType,
+  UpdateStaffServiceType
 };
 
 export {

@@ -56,9 +56,15 @@ export default function StaffLayout() {
           }}
         />
          <Stack.Screen
-          name="salon-service"
+          name="salon-services"
           options={{
             title: 'Salon Service',
+          }}
+        />
+        <Stack.Screen
+          name="staff-services"
+          options={{
+            title: 'Staff Service',
           }}
         />
       </Stack>

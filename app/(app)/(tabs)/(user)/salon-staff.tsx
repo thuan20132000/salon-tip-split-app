@@ -17,6 +17,8 @@ import { SalonStaffState, useSalonStaffStore } from '@/store/useSalonStaffStore'
 import { AuthState, useAuthStore } from '@/store/authStore';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
 import { router } from 'expo-router';
+import ButtonIcon from '@/components/commons/ButtonIcon';
+import ButtonText from '@/components/commons/ButtonText';
 
 export default function SalonStaffScreen() {
   const [isLoading, setIsLoading] = useState(false);
@@ -58,6 +60,15 @@ export default function SalonStaffScreen() {
     });
   }
 
+  const showStaffServicesScreen = (staff: SalonStaffType) => {
+    router.navigate({
+      pathname: '/(app)/(tabs)/(user)/staff-services',
+      params: {
+        staff: JSON.stringify(staff),
+      },
+    });
+  }
+
   const renderStaffItem = ({ item }: { item: SalonStaffType }) => (
     <View style={styles.staffCard}>
       <View style={styles.staffInfo}>
@@ -67,19 +78,16 @@ export default function SalonStaffScreen() {
       </View>
 
       <View style={styles.actionButtons}>
-        <TouchableOpacity
-          onPress={()=>showEditStaffScreen(item)}
-          style={styles.editButton}
-        >
-          <AntDesign name="edit" size={20} color="#007AFF" />
-        </TouchableOpacity>
-
-        {/* <TouchableOpacity
-          onPress={() => handleDeleteStaff(Number(item?.id))}
-          style={styles.deleteButton}
-        >
-          <AntDesign name="delete" size={20} color="#FF3B30" />
-        </TouchableOpacity> */}
+        <ButtonText
+          title="Services"
+          onPress={() => showStaffServicesScreen(item)}
+          containerStyle={styles.editButton}
+        />
+        <ButtonText
+          title="Edit"
+          onPress={() => showEditStaffScreen(item)}
+          containerStyle={styles.deleteButton}
+        />
       </View>
     </View>
   );

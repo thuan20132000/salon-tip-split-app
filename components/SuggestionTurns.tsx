@@ -7,6 +7,8 @@ import dayjs from 'dayjs'
 import AddStaffTurnModal from './AddStaffTurnModal'
 import { Colors } from '@/constants/Colors'
 import { commonStyles } from '@/utils/commonStyles'
+import useSalonServicesStore, { SalonServicesState } from '@/store/useSalonServicesStore'
+import { SalonServiceType } from '@/types/salon.types'
 type Props = {}
 
 const SuggestionTurns = (props: Props) => {
@@ -16,7 +18,12 @@ const SuggestionTurns = (props: Props) => {
     salonTurnServices
   } = useTurnManagementStore((state: TurnManagementState) => state)
 
-  const [selectedTurnServices, setSelectedTurnServices] = useState<TurnService[]>([]);
+  const {
+    getSalonServices,
+    salonServices
+  } = useSalonServicesStore((state: SalonServicesState) => state)
+
+  const [selectedTurnServices, setSelectedTurnServices] = useState<SalonServiceType[]>([]);
   const [isShowAddStaffTurnModal, setIsShowAddStaffTurnModal] = useState(false);
   const [staffTurn, setStaffTurn] = useState<StaffTurn>();
 
@@ -24,11 +31,11 @@ const SuggestionTurns = (props: Props) => {
   //   getSuggestionStaffTurns()
   // }, [staffTurns])
 
-  const onSelectTurnServicePress = (turnService: TurnService) => {
-    if (selectedTurnServices.includes(turnService)) {
-      setSelectedTurnServices(selectedTurnServices.filter((s) => s.id !== turnService.id));
+  const onSelectTurnServicePress = (salonService: SalonServiceType) => {
+    if (selectedTurnServices.includes(salonService)) {
+      setSelectedTurnServices(selectedTurnServices.filter((s) => s.id !== salonService.id));
     } else {
-      setSelectedTurnServices([...selectedTurnServices, turnService]);
+      setSelectedTurnServices([...selectedTurnServices, salonService]);
     }
     // update staffTurns priority based on last turnService price
   }
@@ -117,7 +124,7 @@ const SuggestionTurns = (props: Props) => {
             justifyContent: 'space-around'
           }}>
             {
-              salonTurnServices.map((service, index) => (
+              salonServices.map((service, index) => (
                 <TouchableOpacity
                   style={[styles.serviceItem, selectedTurnServices.includes(service) ? { backgroundColor: 'lightgreen' } : {}]}
                   onPress={() => onSelectTurnServicePress(service)}
@@ -134,7 +141,7 @@ const SuggestionTurns = (props: Props) => {
         visible={isShowAddStaffTurnModal}
         onClose={hideAddStaffTurnModal}
         staffTurn={staffTurn as StaffTurn}
-        initialTurnServices={selectedTurnServices}
+        // initialTurnServices={selectedTurnServices}
       />
     </View>
   )
