@@ -1,29 +1,17 @@
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, TextInput } from 'react-native';
 import { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import AddSalonServicesModal from '@/components/AddSalonServicesModal';
-import useSalonServicesStore from '@/store/useSalonServicesStore';
-import ButtonText from '@/components/commons/ButtonText';
-import UpdateSalonServiceModal from '@/components/UpdateSalonServiceModal';
 import { SalonServiceType, StaffServiceFilterType, StaffServiceType } from '@/types/salon.types';
 import SalonServiceItem from '@/components/SalonServiceItem';
 import useStaffServicesStore, { StaffServicesState } from '@/store/useStaffServicesStore';
 import { useLocalSearchParams } from 'expo-router';
 import StaffServiceItem from '@/components/StaffServiceItem';
-import UpdateStaffServiceModal from '@/components/UpdateStaffServicesModal';  
 
 export default function StaffServicesScreen() {
   const { staff } =  useLocalSearchParams<{ staff: string }>();
   const staff_id = JSON.parse(staff).id;
 
-  const [showAddServiceModal, setShowAddServiceModal] = useState(false);
-  const [showUpdateServiceModal, setShowUpdateServiceModal] = useState(false);
-  const [selectedService, setSelectedService] = useState<StaffServiceType | null>(null);
   const { staffServices, getStaffServices } = useStaffServicesStore((state: StaffServicesState) => state);
  
-  const onShowUpdateServiceModal = () => {
-    setShowUpdateServiceModal(true);
-  }
 
   useEffect(() => {
     const filter: StaffServiceFilterType = {
@@ -39,14 +27,8 @@ export default function StaffServicesScreen() {
           <StaffServiceItem key={service.id} service={service} />
         ))}
       </ScrollView>
-      <ButtonText title="Update Services" onPress={onShowUpdateServiceModal} />
-      <UpdateStaffServiceModal
-        visible={showUpdateServiceModal}
-        onClose={() => setShowUpdateServiceModal(false)}
-        service={selectedService || {} as StaffServiceType}
-        currentStaffServices={staffServices}
-        staffId={staff_id}
-      />
+      {/* <ButtonText title="Update Services" onPress={onShowUpdateServiceModal} /> */}
+    
     </View>
   );
 }

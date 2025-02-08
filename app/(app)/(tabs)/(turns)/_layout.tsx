@@ -16,6 +16,7 @@ const TurnLayout = () => {
         <Stack.Screen name="index"
           options={{
             headerShown: false,
+            headerTitle: 'Turns',
           }}
         />
       </Stack>

@@ -32,6 +32,9 @@ const SuggestionTurns = (props: Props) => {
   // }, [staffTurns])
 
   const onSelectTurnServicePress = (salonService: SalonServiceType) => {
+    console.log('salonServiceSelected:: ', salonService)
+    console.log('staffTurns:: ', staffTurns)
+    
     if (selectedTurnServices.includes(salonService)) {
       setSelectedTurnServices(selectedTurnServices.filter((s) => s.id !== salonService.id));
     } else {
@@ -50,12 +53,18 @@ const SuggestionTurns = (props: Props) => {
 
     // filter staffAvailable by selectedTurnServices
     staffAvailable = staffAvailable.filter((staffTurn) => {
-      return staffTurn.staff?.skills?.some((skill) => selectedTurnServices.map((s) => s.id).includes(skill.id));
+      return staffTurn.staff?.skills?.some((skill) => {
+        console.log('skill:: ', skill)
+        console.log('selectedTurnServices:: ', selectedTurnServices)
+        return selectedTurnServices.map((s) => s.id).includes(Number(skill.skill))
+      });
     })
+
+    console.log('staffAvailable:: ', staffAvailable)
 
     // sort staffAvailable by last_turn updated_at
     staffAvailable.sort((a, b) => {
-      if (a.last_turn == null) {
+      if (a.last_turn?.updated_at == null) {
         a.last_turn = {
           created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
           updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
@@ -63,7 +72,7 @@ const SuggestionTurns = (props: Props) => {
           services: []
         }
       }
-      if (b.last_turn == null) {
+      if (b.last_turn?.updated_at == null) {
         b.last_turn = {
           created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
           updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
@@ -126,6 +135,7 @@ const SuggestionTurns = (props: Props) => {
             {
               salonServices.map((service, index) => (
                 <TouchableOpacity
+                  key={index.toString()}
                   style={[styles.serviceItem, selectedTurnServices.includes(service) ? { backgroundColor: 'lightgreen' } : {}]}
                   onPress={() => onSelectTurnServicePress(service)}
                 >
@@ -141,7 +151,7 @@ const SuggestionTurns = (props: Props) => {
         visible={isShowAddStaffTurnModal}
         onClose={hideAddStaffTurnModal}
         staffTurn={staffTurn as StaffTurn}
-        // initialTurnServices={selectedTurnServices}
+        initialTurnServices={selectedTurnServices}
       />
     </View>
   )

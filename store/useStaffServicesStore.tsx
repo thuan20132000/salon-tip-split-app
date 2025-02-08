@@ -35,7 +35,7 @@ const useStaffServicesStore = create<StaffServicesState>((set, get) => ({
     try {
       const res = await salonAPI.updateStaffService(selectedSalon?.id, staffService);
 
-      get().getStaffServices({ staff_id: staffService.staff_id });
+      // get().getStaffServices({ staff_id: staffService.staff_id });
 
     } catch (error) {
       console.log("Error updating staff service:: ", error);

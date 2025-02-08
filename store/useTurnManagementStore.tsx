@@ -2,9 +2,11 @@
 import { create } from 'zustand';
 import { StaffPriceType } from './usePaymentStore';
 import { StaffTurn, Turn, TurnService } from '@/types/turn.types';
-
-
-
+import { salonAPI } from '@/api/salonAPI';
+import { useSalonStore } from './useSalonStore';
+import { SalonServiceType, StaffTurnServiceFilterType } from '@/types/salon.types';
+import useSalonServicesStore from './useSalonServicesStore';
+import dayjs from 'dayjs';
 const TURN_SERVICES: TurnService[] = [
   {
     id: 1,
@@ -65,18 +67,7 @@ const INITIAL_STAFF_TURNS: StaffTurn[] = [
       id: 1,
       first_name: 'JONA',
       avatar: 'https://randomuser.me/api/portraits',
-      skills: [
-        {
-          id: 1,
-          name: 'Pedicure',
-          price: 40.00,
-        },
-        {
-          id: 2,
-          name: 'Manicure',
-          price: 39.00,
-        },
-      ]
+      skills: []
     },
     turns: [
     ],
@@ -88,7 +79,7 @@ const INITIAL_STAFF_TURNS: StaffTurn[] = [
       id: 2,
       first_name: 'TRACY',
       avatar: 'https://randomuser.me/api/portraits',
-      skills: TURN_SERVICES
+      skills: []
     },
     turns: [
     ],
@@ -99,7 +90,7 @@ const INITIAL_STAFF_TURNS: StaffTurn[] = [
     staff: {
       id: 3,
       first_name: 'LINDA',
-      skills: TURN_SERVICES.slice(0, 3)
+      skills: []
     },
     turns: [],
     last_turn: null
@@ -109,7 +100,7 @@ const INITIAL_STAFF_TURNS: StaffTurn[] = [
     staff: {
       id: 4,
       first_name: 'BRYAIN',
-      skills: TURN_SERVICES
+      skills: []
     },
     turns: [],
     last_turn: null
@@ -119,7 +110,7 @@ const INITIAL_STAFF_TURNS: StaffTurn[] = [
     staff: {
       id: 5,
       first_name: 'LYN',
-      skills: TURN_SERVICES
+      skills: []
     },
     turns: [],
     last_turn: null
@@ -179,7 +170,7 @@ const getInitialStaffTurns = () => {
 
 export interface TurnManagementState {
   staffTurns: StaffTurn[];
-  salonTurnServices: TurnService[];
+  salonTurnServices: SalonServiceType[];
   setStaffTurns: (staffTurns: StaffTurn[]) => void;
   addStaffTurn: (staffTurn: StaffTurn, newTurn?: Turn) => void;
   updateStaffTurn: (staffTurns: StaffTurn, updateTurn: Turn) => void;
@@ -187,21 +178,25 @@ export interface TurnManagementState {
   resetStaffTurns: () => void;
   initStaffTurns: () => void;
   getSuggestionStaffTurns: () => void;
+  initStaffServiceSkills: () => Promise<void>;
 
 }
 
 
 export const useTurnManagementStore = create<TurnManagementState>((set, get) => ({
   staffTurns: [],
-  salonTurnServices: TURN_SERVICES,
+  salonTurnServices: [],
   setStaffTurns: (staffTurns) => set({ staffTurns }),
   addStaffTurn: (currentStaffTurn, newTurn) => {
     if (newTurn) {
       currentStaffTurn.turns.push(newTurn);
       currentStaffTurn.last_turn = newTurn;
     }
-    let staffTurns = get().staffTurns;
-    staffTurns = staffTurns.map((st) => st.id === currentStaffTurn.id ? currentStaffTurn : st);
+    let staffTurns = [...get().staffTurns]
+    console.log('currentStaffTurn:: ', currentStaffTurn);
+    console.log('staffTurns:: ', staffTurns);
+    
+    staffTurns = staffTurns.map((st) => st.staff?.id === currentStaffTurn.staff?.id ? currentStaffTurn : st);
     set({ staffTurns: staffTurns })
   },
   updateStaffTurn: (currentStaffTurn, updateStaffTurn) => {
@@ -210,13 +205,13 @@ export const useTurnManagementStore = create<TurnManagementState>((set, get) => 
     currentStaffTurn.turns = newStaffTurns;
     currentStaffTurn.last_turn = updateStaffTurn;
     let staffTurns = get().staffTurns;
-    staffTurns = staffTurns.map((st) => st.id === currentStaffTurn.id ? currentStaffTurn : st);
+    staffTurns = staffTurns.map((st) => st.staff?.id === currentStaffTurn.staff?.id ? currentStaffTurn : st);
     set({ staffTurns: staffTurns })
   },
   removeStaffTurn: (staffTurns: StaffTurn, updateTurn: Turn) => {
     staffTurns.turns = staffTurns.turns.filter((turn) => turn.id !== updateTurn.id);
     staffTurns.last_turn = staffTurns.turns.length > 0 ? staffTurns.turns[staffTurns.turns.length - 1] : null;
-    let newStaffTurns = get().staffTurns.map((st) => st.id === staffTurns.id ? staffTurns : st);
+    let newStaffTurns = get().staffTurns.map((st) => st.staff?.id === staffTurns.staff?.id ? staffTurns : st);
     set({ staffTurns: newStaffTurns })
   },
   resetStaffTurns: () => {
@@ -229,7 +224,44 @@ export const useTurnManagementStore = create<TurnManagementState>((set, get) => 
   initStaffTurns: () => {
     set({ staffTurns: getInitialStaffTurns() })
   },
+
   getSuggestionStaffTurns: () => {
+  },
+
+  initStaffServiceSkills: async () => {
+    
+    const { salonServices} = useSalonServicesStore.getState();
+
+    try {
+      const selectedSalon = useSalonStore.getState().selectedSalon;
+      if (!selectedSalon) {
+        throw new Error('Salon not found');
+      }
+      const filter: StaffTurnServiceFilterType = {
+        salon_id: selectedSalon.id
+      }
+      const response = await salonAPI.getStaffTurnServices(selectedSalon.id, filter);
+      
+      const staffTurnServices = response.data.data;
+      const staffTurnServicesWithSkills = staffTurnServices.map((st) => {
+        return {
+          ...st,
+          last_turn: {
+            ...st.last_turn,
+            created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+            updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+          }
+        }
+      })
+      
+
+      set({ staffTurns: staffTurnServicesWithSkills, salonTurnServices: salonServices })
+
+
+    } catch (error) {
+
+    }
+
   }
 
 

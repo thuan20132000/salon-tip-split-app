@@ -14,6 +14,14 @@ export const GENDER_CHOICES: GenderOption[] = [
   { value: 'O', label: 'Other' }
 ];
 
+export interface SalonStaffSkillType {
+  id?: number;
+  skill?: number;
+  staff?: number;
+  is_active?: boolean;
+  created_at?: string;
+}
+
 export interface SalonStaffType {
   id?: number;
   first_name?: string | null;
@@ -31,7 +39,7 @@ export interface SalonStaffType {
   role?: string;
   commission_rate?: string;
   avatar?: string;
-  skills?: TurnService[];
+  skills?: SalonStaffSkillType[];
 }
 
 // For creating new staff member (partial type without auto-generated fields)

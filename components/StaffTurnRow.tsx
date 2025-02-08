@@ -14,7 +14,6 @@ type Props = {
 const StaffTurnRow = ({
   staffTurn,
 }: Props) => {
-  const [isShowUpdateStaffTurnModal, setIsShowUpdateStaffTurnModal] = useState(false)
   const [isShowAddStaffTurnModal, setIsShowAddStaffTurnModal] = useState(false)
 
 

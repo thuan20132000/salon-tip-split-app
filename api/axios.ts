@@ -6,7 +6,7 @@ import { router } from 'expo-router';
 import { AuthState, useAuthStore } from '@/store/authStore';
 
 // Local
-const API_URL = "http://192.168.2.226:8000/api/";
+// const API_URL = "http://192.168.2.226:8000/api/";
 
 // Development
 // const API_URL = "https://salon-tipsplit-dev.thuandev.site/api/";
@@ -15,7 +15,7 @@ const API_URL = "http://192.168.2.226:8000/api/";
 // const API_URL = "https://salon-tipsplit-dev-v2.thuandev.site/api/";
 
 // V3
-// const API_URL = "https://salon-tipsplit-dev-v3.thuandev.site/api/";
+const API_URL = "https://salon-tipsplit-dev-v3.thuandev.site/api/";
 
 class APIClient {
   private static instance: APIClient;

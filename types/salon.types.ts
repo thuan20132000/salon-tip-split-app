@@ -66,6 +66,10 @@ type StaffServiceFilterType = {
   salon_id?: number;
 }
 
+type StaffTurnServiceFilterType = {
+  salon_id?: number;
+}
+
 // Type guard
 function isSalon(obj: any): obj is Salon {
   return (
@@ -86,7 +90,8 @@ export type {
   SalonServiceType,
   StaffServiceType,
   StaffServiceFilterType,
-  UpdateStaffServiceType
+  UpdateStaffServiceType,
+  StaffTurnServiceFilterType
 };
 
 export {

@@ -20,7 +20,6 @@ interface ServiceFormData {
 
 export default function SalonServicesScreen() {
   const { salonServices, getSalonServices } = useSalonServicesStore();
-  const [services, setServices] = useState<TurnService[]>([]);
   const [showAddServiceModal, setShowAddServiceModal] = useState(false);
   const [showUpdateServiceModal, setShowUpdateServiceModal] = useState(false);
   const [selectedService, setSelectedService] = useState<SalonServiceType | null>(null);
@@ -43,7 +42,7 @@ export default function SalonServicesScreen() {
     <View style={styles.container}>
       <ScrollView style={styles.serviceList}>
         {salonServices.map((service) => (
-          <SalonServiceItem key={service.id} service={service} />
+          <SalonServiceItem key={service.id.toString()} service={service} />
         ))}
       </ScrollView>
       <ButtonText title="Add Service" onPress={onShowAddServiceModal} />

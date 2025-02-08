@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  TextInput,
 } from 'react-native';
 import { ms } from 'react-native-size-matters';
 import ButtonText from './commons/ButtonText';
@@ -16,11 +17,15 @@ import { TurnStatusEnums } from '@/enums/TurnEnums';
 import ButtonIcon from './commons/ButtonIcon';
 import { commonStyles } from '@/utils/commonStyles';
 import { Colors } from '@/constants/Colors';
+import { SalonServiceType } from '@/types/salon.types';
+import CurrencyInput from 'react-native-currency-input';
+import { formatCurrency } from '@/utils/receiptUtils';
+import useSalonServicesStore, { SalonServicesState } from '@/store/useSalonServicesStore';
 interface AddStaffTurnModalProps {
   visible: boolean;
   onClose: () => void;
   staffTurn: StaffTurn;
-  initialTurnServices?: TurnService[];
+  initialTurnServices?: SalonServiceType[];
 }
 
 
@@ -34,13 +39,17 @@ const AddStaffTurnModal: React.FC<AddStaffTurnModalProps> = ({
 
   const {
     addStaffTurn,
-    salonTurnServices
   } = useTurnManagementStore((state: TurnManagementState) => state)
 
-  console.log('initialTurnServices::', JSON.stringify(initialTurnServices, null, 4));
+  const {
+    getSalonServices,
+    salonServices
+  } = useSalonServicesStore((state: SalonServicesState) => state);
+
 
   const [turn, setTurn] = useState<Turn>();
-  const [selectedTurnServices, setSelectedTurnServices] = useState<TurnService[]>(initialTurnServices || []);
+  const [selectedTurnServices, setSelectedTurnServices] = useState<SalonServiceType[]>(initialTurnServices || []);
+  const [customPrice, setCustomPrice] = useState<number>(0);
 
   useEffect(() => {
     if (initialTurnServices) {
@@ -63,18 +72,27 @@ const AddStaffTurnModal: React.FC<AddStaffTurnModalProps> = ({
   const onConfirm = () => {
     if (addStaffTurn) {
       let newTurn: Turn = turn as Turn;
+      newTurn.sub_total = getTotalPrice();
+      newTurn.discount_percentage = 0;
+      newTurn.discount_amount = 0;
+      newTurn.total = newTurn.sub_total;
+      if (customPrice > 0) {
+        newTurn.custom_price = customPrice;
+        newTurn.total = customPrice;
+      }
       addStaffTurn(staffTurn, newTurn);
       clearTurn();
+      setCustomPrice(0);
       onClose();
     }
   }
 
-  const onSelectTurnService = (turnService: TurnService) => {
+  const onSelectTurnService = (salonService: SalonServiceType) => {
     let turnServices = [...selectedTurnServices];
-    if (turnServices.includes(turnService)) {
-      turnServices = turnServices.filter((s) => s.id !== turnService.id);
+    if (turnServices.includes(salonService)) {
+      turnServices = turnServices.filter((s) => s.id !== salonService.id);
     } else {
-      turnServices.push(turnService);
+      turnServices.push(salonService);
     }
 
     setSelectedTurnServices(turnServices);
@@ -89,7 +107,9 @@ const AddStaffTurnModal: React.FC<AddStaffTurnModalProps> = ({
 
   }
 
-
+  const getTotalPrice = () => {
+    return selectedTurnServices.reduce((acc, s) => acc + (Number(s.price) || 0), 0)
+  }
 
   return (
     <Modal
@@ -108,33 +128,57 @@ const AddStaffTurnModal: React.FC<AddStaffTurnModalProps> = ({
         />
         <Text style={styles.title}>Add Turn for {staffTurn?.staff?.first_name}</Text>
         <View>
-          <View>
-            <Text style={commonStyles.textH5}>Services</Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-              {
-                selectedTurnServices.map((s) => (
-                  <View style={[styles.selectedServiceBadge]}>
-                    <Text style={[commonStyles.textParagraph, {
-                      fontWeight: '500',
-                      color: Colors.primary.dark
-                    }]}>{s.name} </Text>
-                    <Text style={[commonStyles.textParagraph, {
-                      fontWeight: '500',
-                      color: Colors.primary.dark
-                    }]}>{s.price}</Text>
-                  </View>
-                ))
-              }
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}>
+            <View style={{ flex: 1 }}>
+              <Text style={commonStyles.textH5}>Services</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                {
+                  selectedTurnServices.map((s) => (
+                    <View style={[styles.selectedServiceBadge]} key={s.id.toString()}>
+                      <Text style={[commonStyles.textParagraph, {
+                        fontWeight: '500',
+                        color: Colors.primary.dark
+                      }]}>{s.name} </Text>
+                      <Text style={[commonStyles.textParagraph, {
+                        fontWeight: '500',
+                        color: Colors.primary.dark
+                      }]}>{s.price}</Text>
+                    </View>
+                  ))
+                }
+              </View>
             </View>
+            <View>
+              <Text style={commonStyles.textH5}>Sub Total</Text>
+              <Text style={commonStyles.textH4}>{formatCurrency(getTotalPrice())}</Text>
+            </View>
+
           </View>
+
           <View>
-            <Text style={commonStyles.textH5}>Total</Text>
-            <Text style={commonStyles.textParagraph}>{selectedTurnServices.reduce((acc, s) => acc + (s.price || 0), 0)}</Text>
+            <Text style={commonStyles.textH5}>Custom Price</Text>
+            <CurrencyInput
+              value={customPrice}
+              onChangeValue={(value) => setCustomPrice(value ?? 0)}
+              prefix="$ "
+              delimiter="."
+              separator="."
+              precision={2}
+              minValue={0}
+              showPositiveSign={false}
+              onChangeText={(formattedValue) => {
+                console.log(formattedValue); // R$ +2.310,46
+              }}
+              style={styles.currencyInput}
+            />
           </View>
         </View>
         <ScrollView horizontal style={styles.scrollContent}>
           {
-            salonTurnServices.map((service, index) => (
+            salonServices.map((service, index) => (
               <TouchableOpacity
                 onPress={() => onSelectTurnService(service)}
                 key={index.toString()}
@@ -215,7 +259,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     minWidth: ms(42),
-    height: ms(42),
+    height: ms(22),
     backgroundColor: '#ffd33d',
     justifyContent: 'center',
     marginRight: 10,
@@ -230,9 +274,24 @@ const styles = StyleSheet.create({
     marginRight: ms(2),
     backgroundColor: Colors.primary.lightGreen,
 
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: Colors.primary.dark,
+    borderRadius: 5,
+    padding: 10,
+    marginVertical: 10,
+  },
+  currencyInput: {
+    backgroundColor: '#fff',
+    padding: 8,
+    marginBottom: 8,
+    borderRadius: 8,
+    height: 45,
+    minWidth: ms(140),
+    fontSize: ms(16),
+    fontWeight: 'bold',
   }
-
-
 });
 
 export default AddStaffTurnModal;

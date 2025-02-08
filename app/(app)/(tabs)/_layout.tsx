@@ -51,6 +51,15 @@ export default function TabLayout() {
           title: 'Profile',
         }}
       />
+       <Tabs.Screen
+        name="(turns)"
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="accessibility" color={color} size={24} />
+          ),
+          title: 'Turns',
+        }}
+      />
     </Tabs>
   );
 }

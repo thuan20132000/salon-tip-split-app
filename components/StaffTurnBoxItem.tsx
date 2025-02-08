@@ -31,9 +31,10 @@ const StaffTurnBoxItem = ({
   }
 
   const getTotalTurnAmount = () => {
-    let totalServiceAmount = turn?.services?.reduce((total, service) => total + Number(service?.price), 0)
+    let totalServiceAmount = turn?.total
     return formatCurrency(totalServiceAmount)
   }
+
 
   const getTurnServiceShortname = () => {
     let shortname = ''

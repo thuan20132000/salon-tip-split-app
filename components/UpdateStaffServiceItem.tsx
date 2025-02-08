@@ -24,10 +24,10 @@ const UpdateStaffServiceItem = ({ service, currentStaffServices, staffId }: Prop
       setIsActive(isActive);
 
     let input: UpdateStaffServiceType = {
-      id: service.id,
       is_active: isActive,
       skill_id: service.id,
       staff_id: staffId,
+      id: service.id,
     }
 
       await updateStaffService(input);

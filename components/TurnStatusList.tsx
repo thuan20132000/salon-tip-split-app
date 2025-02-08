@@ -1,7 +1,7 @@
 import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import { TurnStatusEnums } from '@/enums/TurnEnums'
-
+import { Colors } from '@/constants/Colors'
 
 const DEFAULT_TURN_STATUS = [
   {
@@ -43,7 +43,7 @@ const TurnStatusList = (props: Props) => {
               key={index.toString()}
               style={[
                 styles.itemBox,
-                selectedTurnStatus === id && { backgroundColor: 'blue' }
+                selectedTurnStatus === id && { backgroundColor: Colors.primary.blue }
               ]}
               onPress={() => onSelectTurnStatus(id)}
             >
@@ -64,10 +64,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     marginRight: 10,
-    borderWidth: 1,
     borderColor: '#666',
     borderRadius: 8,
-    backgroundColor: '#ffd33d',
+    backgroundColor: Colors.primary.lightGreen,
   },
   label: {
     fontSize: 16,
