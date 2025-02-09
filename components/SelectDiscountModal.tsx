@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Modal,
   View,
   Text,
   TouchableOpacity,
@@ -10,7 +9,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { PaymentDiscountRateEnums, PaymentMethodsEnums, PaymentRatesEnums } from '@/enums/PaymentEnums';
-
+import Modal from 'react-native-modal';
+import { ms } from 'react-native-size-matters';
 
 // Payment Methods
 
@@ -18,13 +18,13 @@ import { PaymentDiscountRateEnums, PaymentMethodsEnums, PaymentRatesEnums } from
 
 // Payment Method Display Names and Icons
 const PAYMENT_METHOD_INFO: Record<PaymentDiscountRateEnums, { label: string; icon: string }> = {
-  [PaymentDiscountRateEnums.DISC_5_PERCENT]: { label: '5% Discount', icon:'gift-outline' },
-  [PaymentDiscountRateEnums.DISC_10_PERCENT]: { label: '10% Discount', icon: 'gift-outline' },
-  [PaymentDiscountRateEnums.DISC_15_PERCENT]: { label: '15% Discount', icon: 'gift-outline' },
-  [PaymentDiscountRateEnums.DISC_20_PERCENT]: { label: '20% Discount', icon: 'gift-outline' },
-  [PaymentDiscountRateEnums.DISC_25_PERCENT]: { label: '25% Discount', icon: 'gift-outline' },
-  [PaymentDiscountRateEnums.DISC_30_PERCENT]: { label: '30% Discount', icon: 'gift-outline' },
-  [PaymentDiscountRateEnums.DISC_0_PERCENT]: { label: 'No Discount', icon: 'gift-outline' },
+  [PaymentDiscountRateEnums.DISC_5_PERCENT]: { label: '5% ', icon: 'gift-outline' },
+  [PaymentDiscountRateEnums.DISC_10_PERCENT]: { label: '10% ', icon: 'gift-outline' },
+  [PaymentDiscountRateEnums.DISC_15_PERCENT]: { label: '15% ', icon: 'gift-outline' },
+  [PaymentDiscountRateEnums.DISC_20_PERCENT]: { label: '20% ', icon: 'gift-outline' },
+  [PaymentDiscountRateEnums.DISC_25_PERCENT]: { label: '25% ', icon: 'gift-outline' },
+  [PaymentDiscountRateEnums.DISC_30_PERCENT]: { label: '30% ', icon: 'gift-outline' },
+  [PaymentDiscountRateEnums.DISC_0_PERCENT]: { label: 'No ', icon: 'gift-outline' },
 };
 
 interface PaymentMethodModalProps {
@@ -42,26 +42,31 @@ const SelectDiscountModal: React.FC<PaymentMethodModalProps> = ({
 }) => {
   return (
     <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
+      isVisible={visible}
+      onBackButtonPress={onClose}
+      onBackdropPress={onClose}
     >
-      <View style={styles.modalOverlay}>
-        <SafeAreaView style={styles.modalContainer}>
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Select Payment Method</Text>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={onClose}
-            >
-              <Ionicons name="close" size={24} color="#666" />
-            </TouchableOpacity>
-          </View>
+      <View style={styles.methodContent}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Select Payment Method</Text>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={onClose}
+          >
+            <Ionicons name="close" size={24} color="#666" />
+          </TouchableOpacity>
+        </View>
 
-          {/* Payment Methods List */}
-          <ScrollView style={styles.methodsList}>
+        {/* Payment Methods List */}
+        <ScrollView style={styles.methodsList}>
+          <View style={{
+            flex: 1,
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+              alignContent: 'center',
+           }}>
             {Object.entries(PAYMENT_METHOD_INFO).map(([method, info]) => (
               <TouchableOpacity
                 key={method}
@@ -79,7 +84,7 @@ const SelectDiscountModal: React.FC<PaymentMethodModalProps> = ({
                     <Ionicons
                       name={info.icon as any}
                       size={24}
-                      color={selectedMethod === method ? '#007AFF' : '#666'}
+                      color="#007AFF"
                     />
                   </View>
                   <Text style={[
@@ -89,13 +94,12 @@ const SelectDiscountModal: React.FC<PaymentMethodModalProps> = ({
                     {info.label}
                   </Text>
                 </View>
-                {selectedMethod === method && (
-                  <Ionicons name="checkmark" size={24} color="#007AFF" />
-                )}
+                
               </TouchableOpacity>
             ))}
-          </ScrollView>
-        </SafeAreaView>
+
+          </View>
+        </ScrollView>
       </View>
     </Modal>
   );
@@ -141,11 +145,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 8,
     backgroundColor: '#f8f9fa',
+    marginRight: 8,
   },
   methodContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: ms(10),
+    maxHeight: '80%',
   },
   methodIcon: {
     width: 40,
@@ -157,8 +163,10 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   methodLabel: {
-    fontSize: 16,
+    fontSize: ms(12),
     color: '#333',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   selectedMethod: {
     backgroundColor: '#e3f2fd',

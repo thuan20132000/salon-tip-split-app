@@ -1,12 +1,8 @@
 import PendingPaymentReceipts from '@/components/PendingPaymentReceipts';
 import StaffPaymentItem from '@/components/StaffPaymentItem';
-import { StaffRoleEnums } from '@/enums/StaffRoleEnums';
 import { AuthState, useAuthStore } from '@/store/authStore';
-import { SalonPaymentState, useSalonPaymentStore } from '@/store/useSalonPaymentStore';
-import { SalonStaffState, useSalonStaffStore } from '@/store/useSalonStaffStore';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
 import { SalonPaymentUpdateState, useSalonPaymentUpdateStore } from '@/store/useSalonUpdatePaymentStore';
-import { StaffState, StaffType, useStaffStore } from '@/store/useStaffStore';
 import { SalonStaffType } from '@/types/staff.types';
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';

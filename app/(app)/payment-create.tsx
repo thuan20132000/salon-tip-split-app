@@ -46,6 +46,8 @@ import ReceiptPrintModal from '@/components/ReceiptPrintModal';
 import { RootState, useRootStore } from '@/store/useRootStore';
 import { NavigationBar } from '@/components/NavigationBar';
 import { AuthState, useAuthStore } from '@/store/authStore';
+import SalonServicesSelectionModal from '@/components/SalonServicesSelectionModal';
+import StaffReceiptPaymentItem from '@/components/StaffReceiptPaymentItem';
 
 
 export default function StaffPaymentScreen() {
@@ -59,6 +61,8 @@ export default function StaffPaymentScreen() {
   const [isShowDatetimePicker, setIsShowDateTimePicker] = useState<boolean>(false);
   const [selectedPaymentDate, setSelectedPaymentDate] = useState<Date | null>(new Date());
   const [isShowReceiptPrintModal, setIsShowReceiptPrintModal] = useState<boolean>(false);
+  const [isShowSalonServicesModal, setIsShowSalonServicesModal] = useState<boolean>(false);
+
   const {
     isLoading,
     setIsLoading
@@ -115,7 +119,7 @@ export default function StaffPaymentScreen() {
           tip_amount: 0,
           discount_percent: 0,
           discount_price: 0,
-          service_name: 'Service Name',
+          service_name: '',
           id: new Date().getTime() + index
         }
       });
@@ -172,7 +176,7 @@ export default function StaffPaymentScreen() {
             service_amount: staffReceipt.service_amount,
             tip_amount: staffReceipt.tip_amount,
             staff: Number(staffReceipt.staff?.id),
-            service_name: 'Service',
+            service_name: staffReceipt.service_name || 'Service',
             discount_percent: (Number(staffReceipt.discount_percent)),
             discount_price: (Number(staffReceipt.discount_price)),
             created_at: dayjs(selectedPaymentDate).format(),
@@ -210,25 +214,6 @@ export default function StaffPaymentScreen() {
   } = calculatePayments();
 
 
-  const [selectedStaffDiscount, setSelectedStaffDiscount] = useState<StaffBillType | null>(null);
-  const [isShowDiscountModal, setIsShowDiscountModal] = useState<boolean>(false);
-
-  const onSelectStaffDiscount = (staff: StaffBillType) => {
-    setSelectedStaffDiscount(staff);
-    setIsShowDiscountModal(true);
-  }
-
-  const onSelectDiscount = (discount: PaymentDiscountRateEnums) => {
-    if (selectedStaffDiscount) {
-      addStaffBillDiscount(selectedStaffDiscount, discount);
-    }
-    setIsShowDiscountModal(false);
-  }
-
-  const hideDiscountModal = () => {
-    setIsShowDiscountModal(false);
-  }
-
   const handleAddPaymentStaff = (staff: SalonStaffType) => {
 
     addNewSalonPaymentReceiptStaff(staff);
@@ -240,41 +225,6 @@ export default function StaffPaymentScreen() {
     setIsShowSelectStaffModal(true);
 
 
-  }
-
-  const renderDiscountButton = (staff: StaffBillType) => {
-    return (
-      <TouchableOpacity
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}
-        onPress={() => onSelectStaffDiscount(staff)}
-      >
-        <Ionicons
-          name="gift-outline"
-          size={24}
-          color="#007AFF"
-          style={{ marginLeft: 8 }}
-        />
-        {
-          Number(staff.discount_price) > 0 && (
-            <Text>({handleNumberToPercent(Number(staff.discount_percent))}) {formatCurrency(Number(staff.discount_price))}</Text>
-          )
-        }
-      </TouchableOpacity>
-    )
-  }
-
-  const renderTipBadge = (staff: StaffBillType) => {
-    if (Number(staff?.tip_amount) <= 0) {
-      return null;
-    }
-
-    return (
-      <TipBadge amount={Number(staff.tip_amount)} containerStyle={{ marginHorizontal: 6 }} />
-    )
   }
 
   const onChangeTotalTip = (value: number) => {
@@ -338,7 +288,6 @@ export default function StaffPaymentScreen() {
   }
 
 
-  const navigation = useNavigation();
   useEffect(() => {
     handleInitialStaffPrice()
 
@@ -380,60 +329,13 @@ export default function StaffPaymentScreen() {
         <View style={styles.section}>
           {/* Staff  Price Input */}
           {selectedSalonReceipt?.staff_receipts?.map((staff, index) => (
-            <View key={index} style={[styles.staffReceiptItem]}>
-              <Text style={styles.staffName}>{staff.staff?.first_name}</Text>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                }}
-              >
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    flex: 1
-                  }}
-                >
-                  <CurrencyInput
-                    value={staff.service_amount}
-                    onChangeValue={(value) => updateReceiptStaffPrice(staff, value)}
-                    prefix="$ "
-                    delimiter="."
-                    separator="."
-                    precision={2}
-                    minValue={0}
-                    showPositiveSign={false}
-                    onChangeText={(formattedValue) => {
-                      console.log(formattedValue); // R$ +2.310,46
-                    }}
-                    style={styles.priceInput}
-                    keyboardType='numeric'
-                    returnKeyType='done'
-                    returnKeyLabel='Done'
-                  />
-                  {
-                    renderDiscountButton(staff)
-                  }
-                  {
-                    renderTipBadge(staff)
-                  }
-                </View>
-                <View>
-                  <ButtonIcon
-                    iconName="trash-outline"
-                    onPress={() => handleRemoveStaffBill(staff)}
-                    containerStyle={{
-                      flex: 1,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: 40,
-                    }}
-                    size={14}
-                  />
-                </View>
-              </View>
-            </View>
+            <StaffReceiptPaymentItem
+              key={index}
+              index={index}
+              staff={staff}
+              updateReceiptStaffPrice={updateReceiptStaffPrice}
+              handleRemoveStaffBill={handleRemoveStaffBill}
+            />
           ))}
           <ButtonIcon
             // title="Add Staff"
@@ -658,11 +560,7 @@ export default function StaffPaymentScreen() {
           }
 
         </View>
-        <SelectDiscountModal
-          visible={isShowDiscountModal}
-          onClose={hideDiscountModal}
-          onSelect={onSelectDiscount}
-        />
+
         <ConfirmReceiptModal
           visible={isShowConfirmModal}
           onClose={() => { setIsShowConfirmModal(false) }}
@@ -718,6 +616,7 @@ export default function StaffPaymentScreen() {
           display='inline'
 
         />
+
       </KeyboardAwareScrollView>
     </>
 

@@ -78,6 +78,7 @@ export default function PendingPaymentReceipts() {
         <Text key={index} style={styles.staffItem}>
           {staffItem.staff?.first_name} - {formatCurrency(Number(staffItem.service_amount))}
           {Number(staffItem.tip_amount) > 0 && ` (Tip: ${formatCurrency(Number(staffItem.tip_amount))})`}
+          {staffItem.service_name && ` (${staffItem.service_name})`}
         </Text>
         {
           Number(staffItem?.discount_price) > PaymentDiscountRateEnums.DISC_0_PERCENT &&

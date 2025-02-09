@@ -7,7 +7,7 @@ import { receiptAPIs } from '@/api/receiptAPI';
 import { CreateSalonReceiptInput, CreateSalonReceiptType, PaymentInvoiceDetailType, PaymentInvoiceDetailUpdateType, SalonReceipt, SalonStaffPriceType, StaffBillType } from '@/types/receipt.type';
 import { formatCurrency, getCashPayment, getDebitPayment, handleDiscountPrice } from '@/utils/receiptUtils';
 import { getSubtotalDiscountPrice, getSubtotalWithoutDiscountPrice, getTotalServicePrice } from '@/utils/receiptUpdateUtils';
-
+import { SalonServiceType } from '@/types/salon.types';
 
 
 interface Staff {
@@ -116,6 +116,7 @@ export interface SalonPaymentUpdateState {
   updateGiftAmount: (amount: number) => void;
   updateStaffReceiptPrice: (staffReceipt: StaffBillType, price: number) => void;
   addNewSalonPaymentReceiptStaff: (staff: SalonStaffType) => void
+  updateStaffReceiptServices: (staffReceipt: StaffBillType, services: SalonServiceType[]) => void
 }
 
 export interface SalonPaymentCalculations {
@@ -574,12 +575,32 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
     });
   },
 
+
   deleteStaffReceipt: async (staffReceipt) => {
     try {
       await receiptAPIs.deleteStaffReceipt(Number(staffReceipt.id));
     } catch (error) {
       console.error(error);
     }
-  },
+    },
+
+  updateStaffReceiptServices: (staffReceipt, services) => {
+    set((state) => {
+      const staffReceipts = state.selectedSalonReceipt?.staff_receipts || [];
+      const newStaffReceipts = staffReceipts.map((st) => {
+        if (st.id === staffReceipt.id) {
+          st.service_name = services.map((s) => s.name).join(', ');
+        }
+        return st
+      })
+
+      return {
+        selectedSalonReceipt: {
+          ...state.selectedSalonReceipt,
+          staff_receipts: newStaffReceipts
+        }
+      };
+    });
+  }
 
 }));
