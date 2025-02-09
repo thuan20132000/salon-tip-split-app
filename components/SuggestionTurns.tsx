@@ -32,8 +32,6 @@ const SuggestionTurns = (props: Props) => {
   // }, [staffTurns])
 
   const onSelectTurnServicePress = (salonService: SalonServiceType) => {
-    console.log('salonServiceSelected:: ', salonService)
-    console.log('staffTurns:: ', staffTurns)
     
     if (selectedTurnServices.includes(salonService)) {
       setSelectedTurnServices(selectedTurnServices.filter((s) => s.id !== salonService.id));
@@ -54,8 +52,6 @@ const SuggestionTurns = (props: Props) => {
     // filter staffAvailable by selectedTurnServices
     staffAvailable = staffAvailable.filter((staffTurn) => {
       return staffTurn.staff?.skills?.some((skill) => {
-        console.log('skill:: ', skill)
-        console.log('selectedTurnServices:: ', selectedTurnServices)
         return selectedTurnServices.map((s) => s.id).includes(Number(skill.skill))
       });
     })
@@ -82,21 +78,18 @@ const SuggestionTurns = (props: Props) => {
       }
 
       if (a.last_turn && b.last_turn) {
-        return new Date(a?.last_turn?.updated_at).getTime() - new Date(b?.last_turn?.updated_at).getTime();
+        return new Date(a?.last_turn?.finished_at || '').getTime() - new Date(b?.last_turn?.finished_at || '').getTime();
       }
       return 0;
     })
 
     // if a has no last_turn, then sort by staffTurn id
 
-
-
     // const staffAvailableWithTurns = staffAvailable.map((staffTurn) => {
     return staffAvailable
   }
 
   const onSelectStaffTurnPress = (staffTurn: StaffTurn) => {
-    console.log(staffTurn)
     setStaffTurn(staffTurn)
     setIsShowAddStaffTurnModal(true)
   }

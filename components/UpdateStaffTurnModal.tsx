@@ -23,7 +23,9 @@ import { SalonServiceType } from '@/types/salon.types';
 import useSalonServicesStore, { SalonServicesState } from '@/store/useSalonServicesStore';
 import CurrencyInput from 'react-native-currency-input';
 import { formatCurrency } from '@/utils/receiptUtils';
-
+import Badge from './commons/Badge';
+import { TurnStatusEnums } from '@/enums/TurnEnums';
+import { router } from 'expo-router';
 interface UpdateStaffTurnModalProps {
   visible: boolean;
   onClose: () => void;
@@ -61,6 +63,35 @@ const UpdateStaffTurnModal: React.FC<UpdateStaffTurnModalProps> = ({
     onClose();
   }
 
+  const onFinishedTurn = () => {
+    let updatedTurn: Turn = {
+      ...updateTurn,
+      status: TurnStatusEnums.PAYMENT_PENDING,
+      finished_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+    }
+    updateStaffTurn(staffTurn, updatedTurn);
+    onClose();
+  }
+
+  const onPaymentPress = () => {
+    let updatedTurn: Turn = {
+      ...updateTurn,
+      status: TurnStatusEnums.PAYMENT_PENDING,
+      finished_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+    }
+
+   
+    onClose();
+    setTimeout(() => {
+      router.push({
+        pathname: '/(app)/payment-create',
+        params: {
+          staff_ids: JSON.stringify([staffTurn.staff?.id]),
+        },
+      });
+    }, 300);
+  }
+
   const onRemoveTurn = () => {
     removeStaffTurn(staffTurn, updateTurn);
     onClose();
@@ -95,9 +126,12 @@ const UpdateStaffTurnModal: React.FC<UpdateStaffTurnModalProps> = ({
 
   const getTotalPrice = () => {
     return selectedService.reduce((acc, s) => acc + (Number(s.price) || 0), 0)
-  } 
+  }
 
 
+  console.log('====================================');
+  console.log('updateTurn:: ', JSON.stringify(updateTurn, null, 2));
+  console.log('====================================');
 
   return (
 
@@ -118,6 +152,16 @@ const UpdateStaffTurnModal: React.FC<UpdateStaffTurnModalProps> = ({
         />
         <Text style={styles.title}>Update Turn for {staffTurn.staff?.first_name}</Text>
         <View>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Badge
+              text={updateTurn.status}
+              color={updateTurn.status === 'finished' ? Colors.primary.lightGreen : Colors.primary.white}
+              containerStyle={{
+                alignSelf: 'flex-start',
+                padding: 6,
+              }}
+            />
+          </View>
           <View
 
           >
@@ -192,13 +236,7 @@ const UpdateStaffTurnModal: React.FC<UpdateStaffTurnModalProps> = ({
             }
           </ScrollView>
         </View>
-        <View>
-          <Text>Status</Text>
-          <TurnStatusList
-            onSelectTurnStatusPress={(status) => setSelectedStatus(status)}
-            selectedTurnStatus={selectedStatus}
-          />
-        </View>
+
         {/* show created_at and updated_at */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
           <Text>Created at: {dayjs(updateTurn.created_at).format('DD/MM/YYYY HH:mm')}</Text>
@@ -211,6 +249,24 @@ const UpdateStaffTurnModal: React.FC<UpdateStaffTurnModalProps> = ({
             textStyle={styles.closeButtonText}
             containerStyle={{
               backgroundColor: 'red',
+              marginTop: 10,
+            }}
+          />
+          <ButtonText
+            title="Finished"
+            onPress={onFinishedTurn}
+            textStyle={styles.closeButtonText}
+            containerStyle={{
+              backgroundColor: '#007AFF',
+              marginTop: 10,
+            }}
+          />
+          <ButtonText
+            title="Payment"
+            onPress={onPaymentPress}
+            textStyle={styles.closeButtonText}
+            containerStyle={{
+              backgroundColor: '#007AFF',
               marginTop: 10,
             }}
           />

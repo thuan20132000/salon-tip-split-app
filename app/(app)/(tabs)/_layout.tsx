@@ -1,9 +1,13 @@
 import { Tabs } from 'expo-router';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
-
-
+import { AuthState, useAuthStore } from '@/store/authStore';
 export default function TabLayout() {
+
+  const {
+    isSalonOwner
+  } = useAuthStore((state: AuthState) => state);
+
 
   return (
     <Tabs
@@ -51,15 +55,18 @@ export default function TabLayout() {
           title: 'Profile',
         }}
       />
-       <Tabs.Screen
-        name="(turns)"
-        options={{
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="accessibility" color={color} size={24} />
-          ),
-          title: 'Turns',
-        }}
-      />
+      {
+        isSalonOwner() && (
+          <Tabs.Screen
+            name="(turns)"
+            options={{
+              tabBarIcon: ({ color }) => (
+                <Ionicons name="accessibility" color={color} size={24} />
+              ),
+              title: 'Turns',
+            }}
+          />
+        )}
     </Tabs>
   );
 }

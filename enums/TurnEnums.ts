@@ -4,4 +4,5 @@ export enum TurnStatusEnums {
   PAID = 'PAID',
   CHECK_IN = 'CHECK_IN',
   CHECK_OUT = 'CHECK_OUT',
+  FINISHED = 'FINISHED',
 }

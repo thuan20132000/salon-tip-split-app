@@ -11,6 +11,7 @@ import { SalonSalaryReportType } from '@/types/report.types';
 import { formatCurrency, formatDate, formatDateTime } from '@/utils/receiptUtils';
 import { ms } from 'react-native-size-matters';
 import Badge from './commons/Badge';
+import { helper } from '@/utils/helper';
 
 interface SalaryReportItemProps {
   item: SalonSalaryReportType;
@@ -30,7 +31,7 @@ const SalaryReportItem: React.FC<SalaryReportItemProps> = ({
         disabled={!onPress}
       >
         <View style={styles.dateContainer}>
-          <Text style={styles.date}>{formatDate(item.date)}</Text>
+          <Text style={styles.date}>{helper.formatDays(item.date)}</Text>
         </View>
         <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'flex-start' }}>
           <View style={styles.amountsContainer}>

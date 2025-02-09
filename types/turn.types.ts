@@ -18,6 +18,8 @@ export interface Turn {
   discount_percentage?: number;
   discount_amount?: number;
   total?: number;
+  finished_at?: string;
+  staff?: SalonStaffType;
 }
 
 export interface TurnService {

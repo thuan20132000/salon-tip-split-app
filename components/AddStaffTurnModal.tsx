@@ -60,6 +60,7 @@ const AddStaffTurnModal: React.FC<AddStaffTurnModalProps> = ({
         created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
         updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
         status: TurnStatusEnums.IN_SERVICE,
+        staff: staffTurn?.staff,
       });
     }
   }, [initialTurnServices])
@@ -80,6 +81,7 @@ const AddStaffTurnModal: React.FC<AddStaffTurnModalProps> = ({
         newTurn.custom_price = customPrice;
         newTurn.total = customPrice;
       }
+      newTurn.staff = staffTurn?.staff;
       addStaffTurn(staffTurn, newTurn);
       clearTurn();
       setCustomPrice(0);
@@ -103,6 +105,7 @@ const AddStaffTurnModal: React.FC<AddStaffTurnModalProps> = ({
       created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
       updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
       status: TurnStatusEnums.IN_SERVICE,
+      staff: staffTurn?.staff,
     });
 
   }

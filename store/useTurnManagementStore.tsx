@@ -193,8 +193,6 @@ export const useTurnManagementStore = create<TurnManagementState>((set, get) => 
       currentStaffTurn.last_turn = newTurn;
     }
     let staffTurns = [...get().staffTurns]
-    console.log('currentStaffTurn:: ', currentStaffTurn);
-    console.log('staffTurns:: ', staffTurns);
     
     staffTurns = staffTurns.map((st) => st.staff?.id === currentStaffTurn.staff?.id ? currentStaffTurn : st);
     set({ staffTurns: staffTurns })
