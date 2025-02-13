@@ -74,7 +74,7 @@ const TicketReportFilter: React.FC<TicketReportFilterProps> = ({ onFilter,
 
           }}
           onItemPress={() => { setIsShowDateRangePicker(true) }}
-          defaultDate={new Date()}
+          defaultDate={startDate}
         />
 
         <SelectSalonStaffModal

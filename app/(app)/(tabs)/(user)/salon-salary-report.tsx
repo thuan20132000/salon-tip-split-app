@@ -15,12 +15,14 @@ import { receiptAPIs } from '@/api/receiptAPI';
 import useSalonSalaryReportStore, { SalonSalaryReportState } from '@/store/useSalonSalaryReportStore';
 import StaffSalaryReportItem from '@/components/StaffSalaryReportItem';
 import StaffReportFilter from '@/components/StaffReportFilter';
+import { StaffSalaryReportType } from '@/types/report.types';
 
 
 
 const SalonSalaryReportScreen: React.FC = () => {
 
-
+  const [startDate, setStartDate] = useState<string>(dayjs(new Date()).format('YYYY-MM-DD'));
+  const [endDate, setEndDate] = useState<string>(dayjs(new Date()).format('YYYY-MM-DD'));
 
   const {
     getStaffSalaryReport,
@@ -42,31 +44,48 @@ const SalonSalaryReportScreen: React.FC = () => {
     }
   }
 
-  useFocusEffect(
-    // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
-    useCallback(() => {
-      // Invoked whenever the route is focused.
-      let filter: SalonReceiptFilterInput = {
-        created_at: dayjs(new Date()).format('YYYY-MM-DD'),
-      };
-      getStaffSalaryReport(filter);
+  // useFocusEffect(
+  //   // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
+  //   useCallback(() => {
+  //     // Invoked whenever the route is focused.
+  //     let filter: SalonReceiptFilterInput = {
+  //       created_at: dayjs(new Date()).format('YYYY-MM-DD'),
+  //     };
+  //     getStaffSalaryReport(filter);
 
-      // Return function is invoked whenever the route gets out of focus.
-      return () => {
-        console.log('This route is now unfocused.');
-      };
-    }, [])
-  );
+  //     // Return function is invoked whenever the route gets out of focus.
+  //     return () => {
+  //       console.log('This route is now unfocused.');
+  //     };
+  //   }, [])
+  // );
 
-  const showStaffTicketReport = () => {
+  useEffect(() => {
+    getStaffSalaryReport({
+      created_at_range_after: startDate,
+      created_at_range_before: endDate,
+    });
+  }, [startDate, endDate])
+
+  const showStaffTicketReport = (staff: StaffSalaryReportType) => {
     router.push({
       pathname: '/(app)/(tabs)/(user)/ticket-report',
+      params: {
+        staffId: staff.staff_id,
+        startDate: startDate,
+        endDate: endDate,
+      }
     });
   }
 
   return (
     <View style={styles.container}>
-      <StaffReportFilter />
+      <StaffReportFilter
+        onFilter={(startDate, endDate) => {
+          setStartDate(startDate);
+          setEndDate(endDate);
+        }}
+      />
       {loading ? (
         <ActivityIndicator size="large" color="#007AFF" style={styles.loader} />
       ) : (
@@ -75,7 +94,7 @@ const SalonSalaryReportScreen: React.FC = () => {
           renderItem={({ item }) =>
             <StaffSalaryReportItem
               item={item}
-              // onPress={() => showStaffTicketReport()}
+              onPress={() => showStaffTicketReport(item)}
             />
           }
           keyExtractor={(item, index) => index.toString()}

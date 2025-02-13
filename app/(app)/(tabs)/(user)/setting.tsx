@@ -19,7 +19,7 @@ import SwitchButton from '@/components/SwitchButton';
 import { SettingState, useSettingsStore } from '@/store/useSettingsStore';
 import ButtonText from '@/components/commons/ButtonText';
 import Dialog from "react-native-dialog";
-
+import SettingItem from '@/components/settings/SettingItem';
 
 
 const SettingScreen = () => {
@@ -46,6 +46,62 @@ const SettingScreen = () => {
     setVisible(false);
   };
 
+
+  const showStaffManagement = () => {
+    if (!canAccessManagement()) {
+      return;
+    }
+    router.push('/(app)/(tabs)/(user)/salon-staff');
+  }
+
+  const showSalonManagement = () => {
+    if (!canAccessManagement()) {
+      return;
+    }
+    router.push('/(app)/(tabs)/(user)/salons');
+  }
+
+  const showTicketReport = () => {
+    if (!canAccessManagement()) {
+      return;
+    }
+    router.push('/(app)/(tabs)/(user)/ticket-report');
+  }
+
+  const showSalonReport = () => {
+    if (!canAccessManagement()) {
+      return;
+    }
+    router.push('/(app)/(tabs)/(user)/salon-report');
+  }
+
+  const showSalaryReport = () => {
+    if (!canAccessManagement()) {
+      return;
+    }
+    router.push('/(app)/(tabs)/(user)/salon-salary-report');
+  }
+
+  const showSettings = () => {
+    router.push('/(app)/(tabs)/(user)/setting');
+  }
+
+  const showSalonService = () => {
+    router.push('/(app)/(tabs)/(user)/salon-services');
+  }
+
+  const canAccessManagement = () => {
+    if (!isAllowAccessManagement) {
+      Alert.alert('Access Denied', 'You are not allowed to access this feature.')
+      return false;
+    }
+    return true;
+  }
+
+  const showSalonServiceReport = () => {
+    router.push('/(app)/(tabs)/(user)/ticket-report');
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -55,14 +111,27 @@ const SettingScreen = () => {
         <SwitchButton
           value={isAllowAccessManagement}
           onValueChange={(value) => {
-            if(value === true) {
+            if (value === true) {
               showDialog();
             } else {
               setAllowAccessManagement(value);
             }
           }}
         />
-
+      </View>
+      <View style={{
+        flex: 1,
+        padding: 16,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 16,
+      }}>
+        <SettingItem label="Salon Salary Report" onPress={showSalaryReport} />
+        <SettingItem label="Salon Service Report" onPress={showSalonServiceReport} />
+        <SettingItem label="Staffs" onPress={showStaffManagement} />
+        <SettingItem label="Services" onPress={showSalonService} />
+        <SettingItem label="Salon" onPress={showSalonManagement} />
+        {/* <SettingItem label="Salon Ticket Report" onPress={showSalonTicketReport} /> */}
       </View>
 
       <View style={styles.dialogContainer}>
@@ -74,7 +143,7 @@ const SettingScreen = () => {
           <Dialog.Input value={settingPasscode} onChangeText={(text) => setSettingPasscode(text)} />
           <Dialog.Button label="Cancel" onPress={handleCancel} />
           <Dialog.Button label="Confirm" onPress={() => {
-            if(verifyPasscode(settingPasscode)) {
+            if (verifyPasscode(settingPasscode)) {
               setAllowAccessManagement(true);
               setSettingPasscode('');
               setVisible(false);

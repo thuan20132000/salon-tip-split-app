@@ -3,9 +3,8 @@ import React from 'react'
 import { ms, mvs } from 'react-native-size-matters'
 import { PaymentMethodsEnums } from '@/enums/PaymentEnums'
 import { SalonReceipt } from '@/types/receipt.type'
-import CurrencyInput from 'react-native-currency-input'
-import { GiftcardPaymentInput } from './GiftcardPaymentInput'
 import { SalonPaymentCalculations } from '@/store/useSalonUpdatePaymentStore'
+import { Colors } from '@/constants/Colors'
 
 interface PaymentMethodsProps {
   onSelectPaymentMethod: (method: PaymentMethodsEnums, value: number) => void
@@ -49,8 +48,21 @@ const PaymentMethods = ({
           }
         >
           <View style={styles.discountRow}>
-            <Text style={styles.paymentMethodTitle} >No Tax</Text>
-            <Text style={styles.paymentMethodPrice} >${subtotal?.toFixed(2)}</Text>
+            <Text
+              style={[
+                styles.paymentMethodTitle,
+                paymentReceipt?.payment_method == PaymentMethodsEnums.NO_TAX &&
+                { color: Colors.secondary.white }]}
+            >
+              No Tax
+            </Text>
+            <Text
+              style={[styles.paymentMethodPrice,
+                paymentReceipt?.payment_method == PaymentMethodsEnums.NO_TAX &&
+                { color: Colors.secondary.white }]}
+            >
+              ${subtotal?.toFixed(2)}
+            </Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity
@@ -63,8 +75,17 @@ const PaymentMethods = ({
           }
         >
           <View style={styles.discountRow}>
-            <Text style={styles.paymentMethodTitle} >Debit (13%)</Text>
-            <Text style={styles.paymentMethodPrice} >${debitPayment?.toFixed(2)}</Text>
+            <Text
+              style={[
+                styles.paymentMethodTitle,
+                paymentReceipt?.payment_method == PaymentMethodsEnums.DEBIT &&
+                { color: Colors.secondary.white }]}
+            >
+              Debit (13%)</Text>
+            <Text style={[styles.paymentMethodPrice,
+                paymentReceipt?.payment_method == PaymentMethodsEnums.DEBIT &&
+                { color: Colors.secondary.white }]}
+            >${debitPayment?.toFixed(2)}</Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity
@@ -77,8 +98,14 @@ const PaymentMethods = ({
           }
         >
           <View style={styles.discountRow}>
-            <Text style={styles.paymentMethodTitle} >Cash (-10%)</Text>
-            <Text style={styles.paymentMethodPrice} >${cashPayment.toFixed(2)}</Text>
+            <Text style={[styles.paymentMethodTitle,
+                paymentReceipt?.payment_method == PaymentMethodsEnums.CASH &&
+                { color: Colors.secondary.white }]}
+            >Cash (-10%)</Text>
+            <Text style={[styles.paymentMethodPrice,
+                paymentReceipt?.payment_method == PaymentMethodsEnums.CASH &&
+                { color: Colors.secondary.white }]}
+            >${cashPayment.toFixed(2)}</Text>
           </View>
         </TouchableOpacity>
 
@@ -92,8 +119,14 @@ const PaymentMethods = ({
           }
         >
           <View style={styles.discountRow}>
-            <Text style={styles.paymentMethodTitle} >Loyalty (25%)</Text>
-            <Text style={styles.paymentMethodPrice} >${loyaltyDiscount.toFixed(2)}</Text>
+            <Text style={[styles.paymentMethodTitle,
+                paymentReceipt?.payment_method == PaymentMethodsEnums.LOYALTY &&
+                { color: Colors.secondary.white }]}
+            >Loyalty (25%)</Text>
+            <Text style={[styles.paymentMethodPrice,
+                paymentReceipt?.payment_method == PaymentMethodsEnums.LOYALTY &&
+                { color: Colors.secondary.white }]}
+            >${loyaltyDiscount.toFixed(2)}</Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity
@@ -175,7 +208,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     borderRadius: 8,
     flexDirection: 'row',
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
+    padding: 8,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    shadowColor: '#000',
   },
   discountTitle: {
     fontSize: ms(12),
@@ -190,6 +227,15 @@ const styles = StyleSheet.create({
     width: ms(120),
     flex: 1,
     marginRight: 8,
+    // shadowColor: '#000',
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 2,
+    // },
+    // shadowOpacity: 0.25,
+    // shadowRadius: 3.84,
+    // elevation: 5, // This is for Android shadow
+    
 
   },
   discountRow: {
@@ -215,7 +261,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   selectedPayment: {
-    backgroundColor: '#ffd33d',
+    backgroundColor: Colors.secondary.blue,
   },
   paymentText: {
     fontSize: 22,

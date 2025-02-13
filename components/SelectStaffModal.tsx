@@ -3,11 +3,10 @@ import { ScrollView, StyleSheet, TouchableOpacity, View, Modal } from 'react-nat
 import { Text } from 'react-native';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
 import { SalonStaffType } from '@/types/staff.types';
+import SelectStaffItem from './SelectStaffItem';
+import ButtonIcon from './commons/ButtonIcon';
+import { commonStyles } from '@/utils/commonStyles';
 
-interface Staff {
-  id: number;
-  name: string;
-}
 
 interface SelectStaffModalProps {
   visible: boolean;
@@ -32,29 +31,24 @@ const SelectStaffModal: React.FC<SelectStaffModalProps> = ({ visible, onSelect, 
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Select Staff</Text>
-          <ScrollView>
-            {salonStaffs?.map((staff) => (
-              <TouchableOpacity
-                key={staff.id}
-                style={styles.staffItem}
-                onPress={() => onSelect(staff)}
-              >
-                <Text style={styles.staffName}>{staff.first_name}</Text>
-              </TouchableOpacity>
-            ))}
-            <TouchableOpacity
-              style={styles.staffItem}
-              onPress={() => onSelect({ id: undefined, first_name: 'ALL' })}
-            >
-              <Text style={styles.staffName}>ALL</Text>
-            </TouchableOpacity>
+          <ButtonIcon
+            iconName="close"
+            onPress={onCancel}
+            containerStyle={commonStyles.closeButtonView}
+          />  
+          <ScrollView >
+            <View style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              alignItems: 'center',
+              alignSelf: 'center',
+            }}>
+              {salonStaffs?.map((staff) => (
+                <SelectStaffItem key={staff.id} staff={staff} isSelected={false} onSelect={() => onSelect(staff)} />
+              ))}
+            </View>
           </ScrollView>
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={() => onCancel()}
-          >
-            <Text style={styles.closeButtonText}>Close</Text>
-          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -119,10 +113,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    borderBottomLeftRadius:20,
-    borderBottomRightRadius:20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
     padding: 16,
-    maxHeight: '70%',
+    maxHeight: '80%',
+    width: '90%',
+    alignSelf: 'center',
   },
   modalTitle: {
     fontSize: 20,
@@ -149,5 +145,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
     color: '#007AFF',
+  },
+  staffList: {
+    padding: 16,
+    flexWrap: 'wrap',
   },
 });

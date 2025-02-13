@@ -64,6 +64,7 @@ const StaffReportFilter: React.FC<StaffReportFilterProps> = ({ onFilter }) => {
               })
 
             }
+            onFilter && onFilter(stDate, edDate);
             setIsShowDateRangePicker(false);
 
           }}
@@ -83,6 +84,7 @@ const StaffReportFilter: React.FC<StaffReportFilterProps> = ({ onFilter }) => {
             })
             setSelectedStaff(staff)
             setIsShowSelectStaffModal(false)
+            onFilter && onFilter(startDate, endDate);
           }}
           onItemPress={() => { setIsShowSelectStaffModal(true) }}
           selectedStaff={selectedStaff}

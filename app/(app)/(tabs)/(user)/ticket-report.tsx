@@ -21,9 +21,15 @@ import { RootState, useRootStore } from '@/store/useRootStore';
 
 const TicketReportScreen: React.FC = () => {
 
+  const filter = useLocalSearchParams();
+  const staffId = filter.staffId as string;
+  const startDate = filter.startDate as string;
+  const endDate = filter.endDate as string;
+
   const {
     salonStaffBills,
-    getSalonStaffBills
+    getSalonStaffBills,
+    salonStaffs
   } = useSalonStore((state: SalonState) => state);
 
   // State
@@ -65,25 +71,25 @@ const TicketReportScreen: React.FC = () => {
     );
   }
 
-  useFocusEffect(
+  useEffect(() => {
     // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
-    useCallback(() => {
-      // Invoked whenever the route is focused.
-      let filter: SalonReceiptFilterInput = {
-        created_at: dayjs(new Date()).format('YYYY-MM-DD'),
-      };
-      getSalonStaffBills(filter);
+    let filter: SalonReceiptFilterInput = {
+      staff: Number(staffId),
+      created_at_range_after: startDate,
+      created_at_range_before: endDate,
+    };
 
-      // Return function is invoked whenever the route gets out of focus.
-      return () => {
-        console.log('This route is now unfocused.');
-      };
-    }, [])
-  );
+    getSalonStaffBills(filter);
+
+  }, [startDate, endDate, staffId])
 
   return (
     <View style={styles.container}>
-      <TicketReportFilter />
+      <TicketReportFilter
+        defaultStartDate={startDate}
+        defaultEndDate={endDate}
+        defaultStaff={salonStaffs?.find((staff) => staff?.id === Number(staffId))}
+      />
       <FlatList
         data={salonStaffBills}
         renderItem={({ item }) =>

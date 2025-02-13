@@ -28,11 +28,7 @@ const useSalonSalaryReportStore = create<SalonSalaryReportState>((set) => ({
     try {
       let selectedSalon = useSalonStore.getState().selectedSalon;
       const res = await salonAPI.getStaffStatistics(Number(selectedSalon?.id), filter);
-      console.log('====================================');
-      console.log('filter:: ', filter);
       
-      console.log('get staff-receipts-statistics: ', res.data);
-
       set({ salaryReport: res.data.data, summary: res.data.summary });
     } catch (error) {
       console.error('get staff-receipts-statistics error:', error);
@@ -42,11 +38,7 @@ const useSalonSalaryReportStore = create<SalonSalaryReportState>((set) => ({
     try {
       let selectedSalon = useSalonStore.getState().selectedSalon;
       const res = await salonAPI.getStaffSalaryReport(Number(selectedSalon?.id), filter);
-      console.log('====================================');
-      console.log('filter:: ', filter);
       
-      console.log('get staff salary report: ', res.data);
-
       set({ staffSalaryReport: res.data.data, summary: res.data.summary });
     } catch (error) {
       set({ staffSalaryReport: [], summary: { total_service_amount: 0, total_tip_amount: 0, total_turn: 0 } });

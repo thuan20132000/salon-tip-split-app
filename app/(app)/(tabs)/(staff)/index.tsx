@@ -1,6 +1,7 @@
 import PendingPaymentReceipts from '@/components/PendingPaymentReceipts';
 import StaffPaymentItem from '@/components/StaffPaymentItem';
 import { AuthState, useAuthStore } from '@/store/authStore';
+import useSalonServicesStore, { SalonServicesState } from '@/store/useSalonServicesStore';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
 import { SalonPaymentUpdateState, useSalonPaymentUpdateStore } from '@/store/useSalonUpdatePaymentStore';
 import { SalonStaffType } from '@/types/staff.types';
@@ -19,8 +20,12 @@ const StaffScreen = () => {
     getSalonStaffs,
     salonStaffs,
     initSelectedSalon,
-    selectedSalon
+    selectedSalon,
   } = useSalonStore((state: SalonState) => state);
+
+  const {
+    getSalonServices
+  } = useSalonServicesStore((state: SalonServicesState) => state);
 
   const {
     selectPaymentStaff,
@@ -45,6 +50,7 @@ const StaffScreen = () => {
 
   useEffect(() => {
     initSelectedSalon();
+    getSalonServices();
   }, [])
 
   useEffect(() => {

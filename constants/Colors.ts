@@ -22,6 +22,15 @@ export const Colors = {
     lightBrown: '#A52A2A',
   },
 
+  secondary: {
+    blue: '#03A9F4',
+    dark: '#1E293B',
+    white: '#FFFFFF',
+    lightGray: '#F1F5F9',
+    lightRed: '#FF0000',
+    lightYellow: '#ffd33d',
+  },
+
   // Status Colors
   status: {
     success: '#22C55E',

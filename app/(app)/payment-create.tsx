@@ -23,9 +23,7 @@ import {
 } from '@/types/receipt.type';
 import { receiptAPIs } from '@/api/receiptAPI';
 import { formatCurrency, handleNumberToPercent } from '@/utils/receiptUtils';
-import SelectDiscountModal from '@/components/SelectDiscountModal';
 import ConfirmReceiptModal from '@/components/CofirmReceiptModal';
-import { Ionicons } from '@expo/vector-icons';
 import ButtonIcon from '@/components/commons/ButtonIcon';
 import ButtonText from '@/components/commons/ButtonText';
 import { SalonStaffType } from '@/types/staff.types';
@@ -34,7 +32,6 @@ import { SalonState, useSalonStore } from '@/store/useSalonStore';
 import SelectStaffModal from '@/components/SelectStaffModal';
 import PaymentMethods from '@/components/PaymentMethods';
 import AddStaffTipModal from '@/components/AddStaffTipModal';
-import TipBadge from '@/components/TipBadge';
 import AddDiscountModal from '@/components/AddDiscountModal';
 import { ms, s } from 'react-native-size-matters';
 import { helper } from '@/utils/helper';
@@ -46,8 +43,8 @@ import ReceiptPrintModal from '@/components/ReceiptPrintModal';
 import { RootState, useRootStore } from '@/store/useRootStore';
 import { NavigationBar } from '@/components/NavigationBar';
 import { AuthState, useAuthStore } from '@/store/authStore';
-import SalonServicesSelectionModal from '@/components/SalonServicesSelectionModal';
 import StaffReceiptPaymentItem from '@/components/StaffReceiptPaymentItem';
+import { Colors } from '@/constants/Colors';
 
 
 export default function StaffPaymentScreen() {
@@ -61,7 +58,6 @@ export default function StaffPaymentScreen() {
   const [isShowDatetimePicker, setIsShowDateTimePicker] = useState<boolean>(false);
   const [selectedPaymentDate, setSelectedPaymentDate] = useState<Date | null>(new Date());
   const [isShowReceiptPrintModal, setIsShowReceiptPrintModal] = useState<boolean>(false);
-  const [isShowSalonServicesModal, setIsShowSalonServicesModal] = useState<boolean>(false);
 
   const {
     isLoading,
@@ -77,7 +73,6 @@ export default function StaffPaymentScreen() {
     setCashPaymentPrice,
     calculatePayments,
     resetPayment,
-    addStaffBillDiscount,
     selectedSalonReceipt,
     setSelectedSalonReceipt,
     onUpdateTipRate,
@@ -148,12 +143,10 @@ export default function StaffPaymentScreen() {
       payment_method: method,
       payment_method_price: String(price),
     })
-    // setPaymentReceipt(newPaymentReceipt);
     setReceive(Number(receiveFormatted));
   }
 
   const updateReceiptStaffPrice = (staffReceipt: StaffBillType, price: number | null) => {
-    // let newStaffPrices = [...paymentReceipt?.staffs || []];
     updateStaffReceiptPrice(staffReceipt, Number(price))
 
   }
@@ -416,7 +409,7 @@ export default function StaffPaymentScreen() {
               flexDirection: 'row',
               justifyContent: 'space-between',
               alignItems: 'center',
-              backgroundColor: '#03A9F4',
+              backgroundColor: Colors.secondary.lightYellow,
               borderRadius: 5,
               flex: 1,
               paddingHorizontal: 10,
@@ -631,6 +624,18 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 12,
+     // Adding shadow properties
+     shadowColor: '#000',
+     shadowOffset: {
+       width: 0.2,
+       height: 0.2,
+     },
+     shadowOpacity: 0.1,
+     shadowRadius: 3.84,
+     elevation: 5, // This is for Android shadow
+     backgroundColor: '#fff',
+     borderRadius: 8,
+     padding: 8,
   },
   sectionTitle: {
     fontSize: 18,
@@ -743,7 +748,6 @@ const styles = StyleSheet.create({
     fontSize: ms(16),
     fontWeight: 'bold',
     marginHorizontal: ms(20),
-    color: '#ffffff',
   },
   finalTotalAmount: {
     fontSize: 20,

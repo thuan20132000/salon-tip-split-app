@@ -152,27 +152,6 @@ const UserScreen: React.FC<UserScreenProps> = () => {
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Management</Text>
-          {
-            isSalonOwner() &&
-            <>
-              <ButtonText
-                title="Salons"
-                onPress={showSalonManagement}
-                style={styles.managementItem}
-                textStyle={styles.managementItemText}
-              />
-              <ButtonText
-                title="Staffs"
-                onPress={showStaffManagement}
-                style={styles.managementItem}
-                textStyle={styles.managementItemText}
-
-              />
-
-            </>
-          }
-
-
           <ButtonText
             title="Ticket Reports"
             onPress={showTicketReport}
@@ -183,26 +162,6 @@ const UserScreen: React.FC<UserScreenProps> = () => {
           {
             isSalonOwner() && (
               <>
-                <ButtonText
-                  title="Salon Reports"
-                  onPress={showSalonReport}
-                  style={styles.managementItem}
-                  textStyle={styles.managementItemText}
-                />
-                <ButtonText
-                  title="Salon Salary Reports"
-                  onPress={showSalaryReport}
-                  style={styles.managementItem}
-                  textStyle={styles.managementItemText}
-
-                />
-                <ButtonText
-                  title="Salon Services"
-                  onPress={showSalonService}
-                  style={styles.managementItem}
-                  textStyle={styles.managementItemText}
-
-                />
                 <ButtonText
                   title="Settings"
                   onPress={showSettings}
@@ -319,6 +278,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     marginBottom: 24,
+    marginTop: 54,
   },
   logoutText: {
     color: 'white',
