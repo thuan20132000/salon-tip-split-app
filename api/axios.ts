@@ -2,8 +2,6 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import { AuthResponse, APIError } from '../types/api.types';
 import * as SecureStore from 'expo-secure-store';
-import { router } from 'expo-router';
-import { AuthState, useAuthStore } from '@/store/authStore';
 
 // Local
 const API_URL = "http://192.168.2.226:8000/api/";

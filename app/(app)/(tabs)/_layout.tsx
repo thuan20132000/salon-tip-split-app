@@ -46,15 +46,6 @@ export default function TabLayout() {
         }}
 
       />
-      <Tabs.Screen
-        name="(user)"
-        options={{
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="person" color={color} size={24} />
-          ),
-          title: 'Profile',
-        }}
-      />
       {
         isSalonOwner() && (
           <Tabs.Screen
@@ -67,6 +58,16 @@ export default function TabLayout() {
             }}
           />
         )}
+      <Tabs.Screen
+        name="(user)"
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="person" color={color} size={24} />
+          ),
+          title: 'Profile',
+        }}
+      />
+
     </Tabs>
   );
 }

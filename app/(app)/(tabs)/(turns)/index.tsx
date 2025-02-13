@@ -3,10 +3,10 @@ import React, { useCallback, useEffect } from 'react'
 import { NavigationBar } from '@/components/NavigationBar'
 import StaffTurnRow from '@/components/StaffTurnRow'
 import { TurnManagementState, useTurnManagementStore } from '@/store/useTurnManagementStore'
-import ButtonText from '@/components/commons/ButtonText'
 import { ms, s } from 'react-native-size-matters'
 import SuggestionTurns from '@/components/SuggestionTurns'
-import { useFocusEffect } from 'expo-router'
+import { useSalonStore, SalonState } from '@/store/useSalonStore'
+import useSalonServicesStore from '@/store/useSalonServicesStore'
 
 type Props = {}
 
@@ -14,12 +14,13 @@ const index = (props: Props) => {
 
   const {
     staffTurns,
-    resetStaffTurns,
     initStaffServiceSkills
   } = useTurnManagementStore((state: TurnManagementState) => state)
 
+  const { getSalonServices } = useSalonServicesStore();
 
   useEffect(() => {
+    getSalonServices();
     initStaffServiceSkills()
   }, [])
 
