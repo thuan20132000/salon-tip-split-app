@@ -128,6 +128,7 @@ const SettingScreen = () => {
       }}>
         <SettingItem label="Salon Salary Report" onPress={showSalaryReport} />
         <SettingItem label="Salon Service Report" onPress={showSalonServiceReport} />
+        <SettingItem label="Staff Report" onPress={showSalonReport} />
         <SettingItem label="Staffs" onPress={showStaffManagement} />
         <SettingItem label="Services" onPress={showSalonService} />
         <SettingItem label="Salon" onPress={showSalonManagement} />

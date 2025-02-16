@@ -13,6 +13,8 @@ export interface SalonSalaryReportState {
   staffSalaryReport: StaffSalaryReportType[];
   getSalaryReport: (filter: SalonSalaryReportFilterType) => Promise<void>;
   getStaffSalaryReport: (filter: StaffSalaryReportFilterType) => Promise<void>;
+  resetSalaryReport: () => void;
+  resetStaffSalaryReport: () => void;
 }
 
 const useSalonSalaryReportStore = create<SalonSalaryReportState>((set) => ({
@@ -44,6 +46,12 @@ const useSalonSalaryReportStore = create<SalonSalaryReportState>((set) => ({
       set({ staffSalaryReport: [], summary: { total_service_amount: 0, total_tip_amount: 0, total_turn: 0 } });
       console.error('get staff-salary-statistics error:', error);
     }
+  },
+  resetSalaryReport: () => {
+    set({ salaryReport: [], summary: { total_service_amount: 0, total_tip_amount: 0, total_turn: 0 } });
+  },
+  resetStaffSalaryReport: () => {
+    set({ staffSalaryReport: [], summary: { total_service_amount: 0, total_tip_amount: 0, total_turn: 0 } });
   }
 }));
 

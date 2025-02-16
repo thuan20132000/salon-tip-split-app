@@ -4,6 +4,8 @@ export type SalonSalaryReportType = {
   total_tip_amount: number;
   total_discount_amount?: number;
   total_turn?: number;
+  staff_name?: string;
+  staff_id?: number;
 };
 
 export type SalonSalaryReportResponseType = {

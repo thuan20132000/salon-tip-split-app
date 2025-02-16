@@ -86,7 +86,7 @@ const UserScreen: React.FC<UserScreenProps> = () => {
     router.push('/(app)/(tabs)/(user)/ticket-report');
   }
 
-  const showSalonReport = () => {
+  const showStaffReport = () => {
     if (!canAccessManagement()) {
       return;
     }
@@ -152,9 +152,16 @@ const UserScreen: React.FC<UserScreenProps> = () => {
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Management</Text>
-          <ButtonText
+          {/* <ButtonText
             title="Ticket Reports"
             onPress={showTicketReport}
+            style={styles.managementItem}
+            textStyle={styles.managementItemText}
+
+          /> */}
+          <ButtonText
+            title="Staff Reports"
+            onPress={showStaffReport}
             style={styles.managementItem}
             textStyle={styles.managementItemText}
 

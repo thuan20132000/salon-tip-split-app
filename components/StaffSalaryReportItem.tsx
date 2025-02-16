@@ -33,7 +33,7 @@ const StaffSalaryReportItem: React.FC<SalaryReportItemProps> = ({
         <View style={[styles.box, { alignItems: 'flex-start' }]}>
           {/* <Text style={styles.label}>Staff</Text> */}
           <Badge
-            color="#4CAF50"
+            // color="#4CAF50"
             text={item?.staff__first_name}
             textStyle={{ color: 'white', padding: 2, fontSize: s(8) }}
             containerStyle={{

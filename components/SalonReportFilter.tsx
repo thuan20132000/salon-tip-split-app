@@ -10,9 +10,10 @@ import { SalonReceiptFilterInput } from '@/types/receipt.type';
 import useSalonSalaryReportStore, { SalonSalaryReportState } from '@/store/useSalonSalaryReportStore';
 import ButtonIcon from './commons/ButtonIcon';
 import { ms } from 'react-native-size-matters';
+import SelectStaffModal from './SelectStaffModal';
 
 interface SalonReportFilterProps {
-  onFilter?: (startDate: string, endDate: string) => void;
+  onFilter?: (startDate: string, endDate: string, staffId: number) => void;
 }
 
 const SalonReportFilter: React.FC<SalonReportFilterProps> = ({ onFilter }) => {
@@ -35,6 +36,14 @@ const SalonReportFilter: React.FC<SalonReportFilterProps> = ({ onFilter }) => {
     setIsShowSummary(!isShowSummary);
   }
 
+  const handleSelectStaff = (staff: SalonStaffType) => {
+    setSelectedStaff(staff);
+    setIsShowSelectStaffModal(false);
+    if (staff.id) {
+      onFilter?.(startDate, endDate, staff.id);
+    }
+  }
+
   return (
     <View style={styles.container}>
       <View
@@ -52,16 +61,15 @@ const SalonReportFilter: React.FC<SalonReportFilterProps> = ({ onFilter }) => {
             setStartDate(stDate);
             setEndDate(edDate);
             if (stDate === edDate) {
-              getSalaryReport({
-                staff: selectedStaff?.id,
-                created_at: dayjs(startDate).format('YYYY-MM-DD')
-              })
+            
+              if (selectedStaff && selectedStaff.id) {
+                onFilter?.(stDate, edDate, selectedStaff.id);
+              }
             } else {
-              getSalaryReport({
-                staff: selectedStaff?.id,
-                created_at_range_after: stDate,
-                created_at_range_before: edDate
-              })
+            
+              if (selectedStaff && selectedStaff.id) {
+                onFilter?.(stDate, edDate, selectedStaff.id);
+              }
 
             }
             setIsShowDateRangePicker(false);
@@ -70,23 +78,16 @@ const SalonReportFilter: React.FC<SalonReportFilterProps> = ({ onFilter }) => {
           onItemPress={() => { setIsShowDateRangePicker(true) }}
           defaultDate={dayjs(new Date()).format('YYYY-MM-DD')}
         />
-        <SelectSalonStaffModal
-          isVisible={isShowSelectStaffModal}
-          onClose={() => { setIsShowSelectStaffModal(false) }}
-          staffList={salonStaffs}
-          onSelectStaff={(staff) => {
-            console.log('selected staff:', staff);
-
-            getSalaryReport({
-              staff: staff.id,
-              created_at_range_after: startDate?.toString(),
-              created_at_range_before: endDate?.toString()
-            })
-            setSelectedStaff(staff)
-            setIsShowSelectStaffModal(false)
-          }}
-          onItemPress={() => { setIsShowSelectStaffModal(true) }}
-          selectedStaff={selectedStaff}
+        <SelectStaffModal
+          visible={isShowSelectStaffModal}
+          onSelect={handleSelectStaff}
+          onCancel={() => { setIsShowSelectStaffModal(false) }}
+        />
+        <ButtonIcon
+          onPress={() => { setIsShowSelectStaffModal(true) }}
+          iconName='people'
+          containerStyle={{ marginLeft: ms(4) }}
+          title={selectedStaff?.first_name || ''}
         />
         <ButtonIcon
           onPress={toggleShowSummary}

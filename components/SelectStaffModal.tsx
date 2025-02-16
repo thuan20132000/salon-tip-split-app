@@ -6,7 +6,7 @@ import { SalonStaffType } from '@/types/staff.types';
 import SelectStaffItem from './SelectStaffItem';
 import ButtonIcon from './commons/ButtonIcon';
 import { commonStyles } from '@/utils/commonStyles';
-
+import { AuthState, useAuthStore } from '@/store/authStore';
 
 interface SelectStaffModalProps {
   visible: boolean;
@@ -20,7 +20,18 @@ const SelectStaffModal: React.FC<SelectStaffModalProps> = ({ visible, onSelect, 
     salonStaffs,
   } = useSalonStore((state: SalonState) => state);
 
+  const {
+    isSalonOwner,
+    user
+  } = useAuthStore((state: AuthState) => state);
 
+  const getSalonStaffs = (): SalonStaffType[] => {
+    if (isSalonOwner()) {
+      return salonStaffs || [];
+    }
+    let filteredStaffs = salonStaffs?.filter((staff) => staff.id === user?.staff_detail?.id);
+    return filteredStaffs || [];
+  }
 
   return (
     <Modal
@@ -35,7 +46,7 @@ const SelectStaffModal: React.FC<SelectStaffModalProps> = ({ visible, onSelect, 
             iconName="close"
             onPress={onCancel}
             containerStyle={commonStyles.closeButtonView}
-          />  
+          />
           <ScrollView >
             <View style={{
               flexDirection: 'row',
@@ -44,7 +55,7 @@ const SelectStaffModal: React.FC<SelectStaffModalProps> = ({ visible, onSelect, 
               alignItems: 'center',
               alignSelf: 'center',
             }}>
-              {salonStaffs?.map((staff) => (
+              {getSalonStaffs()?.map((staff) => (
                 <SelectStaffItem key={staff.id} staff={staff} isSelected={false} onSelect={() => onSelect(staff)} />
               ))}
             </View>

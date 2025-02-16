@@ -23,6 +23,9 @@ const SalaryReportItem: React.FC<SalaryReportItemProps> = ({
   onPress,
 }) => {
 
+
+  
+
   return (
     <View>
       <TouchableOpacity
@@ -32,6 +35,7 @@ const SalaryReportItem: React.FC<SalaryReportItemProps> = ({
       >
         <View style={styles.dateContainer}>
           <Text style={styles.date}>{helper.formatDays(item.date)}</Text>
+          <Text style={styles.date}>{item.staff_name}</Text>
         </View>
         <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'flex-start' }}>
           <View style={styles.amountsContainer}>

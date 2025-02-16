@@ -15,16 +15,15 @@ import { receiptAPIs } from '@/api/receiptAPI';
 import SalaryReportItem from '@/components/SalaryReportItem';
 import useSalonSalaryReportStore, { SalonSalaryReportState } from '@/store/useSalonSalaryReportStore';
 import SalonReportFilter from '@/components/SalonReportFilter';
-
-
+import { SalonSalaryReportType } from '@/types/report.types';
+import { router } from 'expo-router';
 
 const SalonReportScreen: React.FC = () => {
 
-  
-  
   const {
     getSalaryReport,
-    salaryReport
+    salaryReport,
+    resetSalaryReport,
   } = useSalonSalaryReportStore((state: SalonSalaryReportState) => state);
 
   // State
@@ -32,36 +31,35 @@ const SalonReportScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
 
-  const onDeleteReceipt = async (receipt: StaffBillType) => {
-    try {
-      await receiptAPIs.deleteStaffReceipt(Number(receipt.id));
-      Alert.alert('Staff Receipt is deleted successfully');
-      // getStaffReceipts();
-    } catch (err) {
-      console.error('Error deleting receipt:', err);
-    }
+  const onShowSalonTicketReport = (report: SalonSalaryReportType) => {
+    
+    router.push({
+      pathname: '/(app)/(tabs)/(user)/ticket-report',
+      params: {
+        startDate: report.date,
+        endDate: report.date,
+        staffId: report.staff_id,
+      }
+    });
   }
 
-
-  useFocusEffect(
-    // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
-    useCallback(() => {
-      // Invoked whenever the route is focused.
-      let filter: SalonReceiptFilterInput = {
-        created_at: dayjs(new Date()).format('YYYY-MM-DD'),
-      };
-      getSalaryReport(filter);
-
-      // Return function is invoked whenever the route gets out of focus.
-      return () => {
-        console.log('This route is now unfocused.');
-      };
-    }, [])
-  );
+  useEffect(() => {
+    return () => {
+      resetSalaryReport();
+    }
+  }, []);
 
   return (
     <View style={styles.container}>
-      <SalonReportFilter/>
+      <SalonReportFilter
+        onFilter={(startDate, endDate, staffId) => {
+          getSalaryReport({
+            created_at_range_after: startDate,
+            created_at_range_before: endDate,
+            staff: staffId,
+          });
+        }}
+      />
       {loading ? (
         <ActivityIndicator size="large" color="#007AFF" style={styles.loader} />
       ) : (
@@ -70,7 +68,7 @@ const SalonReportScreen: React.FC = () => {
           renderItem={({ item }) =>
             <SalaryReportItem
               item={item}
-              // onDeletePress={() => onConfirmDeleteReceipt(item)}
+              onPress={() => onShowSalonTicketReport(item)}
             />
           }
           keyExtractor={(item) => item?.date?.toString() || ''}
