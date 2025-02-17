@@ -43,7 +43,10 @@ import { APIErrorType } from '@/types/api.types';
 import { NavigationBar } from '@/components/NavigationBar';
 import StaffReceiptPaymentItem from '@/components/StaffReceiptPaymentItem';
 import { Colors } from '@/constants/Colors';
-
+import { useAuthStore } from '@/store/authStore';
+import { AuthState } from '@/store/authStore';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import dayjs from 'dayjs';
 
 export default function StaffPaymentScreen() {
   const { payment_receipt } = useLocalSearchParams();
@@ -77,6 +80,13 @@ export default function StaffPaymentScreen() {
     giftAmount,
     updateGiftAmount,
   } = useSalonPaymentUpdateStore((state: SalonPaymentUpdateState) => state);
+
+  const {
+    isSalonOwner
+  } = useAuthStore((state: AuthState) => state);
+
+  const [selectedPaymentDate, setSelectedPaymentDate] = useState<Date | null>(null);
+  const [isShowDateTimePicker, setIsShowDateTimePicker] = useState<boolean>(false);
 
   const {
     selectedSalon
@@ -143,6 +153,8 @@ export default function StaffPaymentScreen() {
             id: Number(staffReceipt.id),
           }
         }),
+        created_at: selectedPaymentDate ? dayjs(selectedPaymentDate).format() : null,
+        updated_at: dayjs(new Date()).format(),
       }
 
       await receiptAPIs.updateSalonReceipt(Number(selectedSalonReceipt?.id), receiptUpdate);
@@ -176,6 +188,8 @@ export default function StaffPaymentScreen() {
   const [selectedStaffDiscount, setSelectedStaffDiscount] = useState<StaffBillType | null>(null);
   const [isShowDiscountModal, setIsShowDiscountModal] = useState<boolean>(false);
 
+
+
   const onSelectStaffDiscount = (staff: StaffBillType) => {
     setSelectedStaffDiscount(staff);
     setIsShowDiscountModal(true);
@@ -190,7 +204,7 @@ export default function StaffPaymentScreen() {
 
   const hideDiscountModal = () => {
     setIsShowDiscountModal(false);
-  }
+    }
 
   const handleAddPaymentStaff = (staff: SalonStaffType) => {
 
@@ -262,7 +276,15 @@ export default function StaffPaymentScreen() {
     setSelectedSalonReceipt(newPaymentReceipt);
   }
 
+  const hideDatePicker = () => {
+    setIsShowDateTimePicker(false);
+  };
 
+  const handleConfirm = (date: Date) => {
+    console.warn("A date has been picked: ", date);
+    setSelectedPaymentDate(date);
+    hideDatePicker();
+  };
 
 
   useEffect(() => {
@@ -540,8 +562,8 @@ export default function StaffPaymentScreen() {
                 { flex: 2, }
               ]}
               textStyle={{
-                color: '#333',
-                fontSize: 22,
+                color: isPayable ? '#fff' : '#007AFF',
+                fontSize: s(12),
                 fontWeight: 'bold'
               }}
               disabled={isPayable ? false : true}
@@ -550,7 +572,29 @@ export default function StaffPaymentScreen() {
           </View>
 
 
+          {
+            isSalonOwner() &&
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <ButtonIcon
+                title={selectedPaymentDate ? selectedPaymentDate.toDateString() : 'Update Date'}
+                iconName="calendar"
+                onPress={() => setIsShowDateTimePicker(true)}
+                containerStyle={{
+                  // flex: 1,
+                  backgroundColor: '#f8f9fa',
+                  alignSelf: 'flex-start',
+                  marginBottom: 16,
+                }}
+                titleStyle={{
+                  fontSize: ms(10),
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textAlign: 'center',
+                }}
+              />
+            </View>
 
+          }
         </View>
         <SelectDiscountModal
           visible={isShowDiscountModal}
@@ -607,6 +651,14 @@ export default function StaffPaymentScreen() {
             setIsShowPaymentMixModal(false)
           }}
           onUpdateTipAmount={onChangeTotalTip}
+        />
+        <DateTimePickerModal
+          isVisible={isShowDateTimePicker}
+          mode="datetime"
+          onConfirm={handleConfirm}
+          onCancel={hideDatePicker}
+          display='inline'
+
         />
 
       </KeyboardAwareScrollView>

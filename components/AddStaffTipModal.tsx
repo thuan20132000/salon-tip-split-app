@@ -12,6 +12,8 @@ import CurrencyInput from 'react-native-currency-input';
 import { ms } from 'react-native-size-matters';
 import ButtonText from './commons/ButtonText';
 import Modal from 'react-native-modal'
+import ButtonIcon from './commons/ButtonIcon';
+import { commonStyles } from '@/utils/commonStyles';
 interface AddStaffTipModalProps {
   visible: boolean;
   onClose: () => void;
@@ -20,9 +22,6 @@ interface AddStaffTipModalProps {
   updateReceiptStaffTip: (index: number, value: number | null) => void;
 }
 
-const formatCurrency = (amount: number): string => {
-  return `$${amount.toFixed(2)}`;
-};
 
 const AddStaffTipModal: React.FC<AddStaffTipModalProps> = ({
   visible,
@@ -45,6 +44,11 @@ const AddStaffTipModal: React.FC<AddStaffTipModalProps> = ({
 
     >
       <View style={styles.modalContent}>
+        <ButtonIcon
+          iconName='close'
+          onPress={onClose}
+          containerStyle={commonStyles.closeButtonView}
+        />
         <Text style={styles.title}>Add Tip</Text>
 
         <ScrollView
@@ -68,6 +72,7 @@ const AddStaffTipModal: React.FC<AddStaffTipModalProps> = ({
                     console.log(formattedValue); // R$ +2.310,46
                   }}
                   style={styles.priceInput}
+                  returnKeyType='done'
                 />
 
               </View>
@@ -76,11 +81,11 @@ const AddStaffTipModal: React.FC<AddStaffTipModalProps> = ({
           ))}
         </ScrollView>
 
-        <ButtonText
+        {/* <ButtonText
           title="Close"
           onPress={onClose}
           textStyle={styles.closeButtonText}
-        />
+        /> */}
       </View>
     </Modal>
   );
@@ -97,10 +102,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 16,
     padding: 20,
-    maxHeight: '80%',
   },
   title: {
-    fontSize: 24,
+    fontSize: ms(14),
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
