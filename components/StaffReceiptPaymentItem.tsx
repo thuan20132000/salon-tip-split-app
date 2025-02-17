@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, Alert } from 'react-native'
 import React, { useState } from 'react'
 import CurrencyInput from 'react-native-currency-input';
 import { StaffBillType } from '@/types/receipt.type';
@@ -6,14 +6,11 @@ import ButtonIcon from './commons/ButtonIcon';
 import { formatCurrency } from '@/utils/receiptUtils';
 import TipBadge from './TipBadge';
 import { handleNumberToPercent } from '@/utils/receiptUtils';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { ms } from 'react-native-size-matters';
-import AddDiscountModal from './AddDiscountModal';
 import { useSalonPaymentUpdateStore, SalonPaymentUpdateState } from '@/store/useSalonUpdatePaymentStore';
 import SelectDiscountModal from './SelectDiscountModal';
 import { PaymentDiscountRateEnums } from '@/enums/PaymentEnums';
 import SalonServicesSelectionModal from './SalonServicesSelectionModal';
-import ButtonText from './commons/ButtonText';
 import { SalonServiceType } from '@/types/salon.types';
 type Props = {
   staff: StaffBillType;
@@ -68,14 +65,54 @@ const StaffReceiptPaymentItem = (props: Props) => {
     }
 
     return (
-      <TipBadge amount={Number(props.staff.tip_amount)} containerStyle={{ marginHorizontal: 6 }} />
+      <TipBadge amount={Number(props.staff.tip_amount)} containerStyle={{ marginHorizontal: 6, padding: ms(4) }} />
     )
+  }
+
+  const getDiscountTitle = () => {
+    let title = '';
+    if (Number(props.staff.discount_price) > 0) {
+      title = `(${handleNumberToPercent(Number(props.staff.discount_percent))}) ${formatCurrency(Number(props.staff.discount_price))}`;
+    }
+    return title;
+  }
+
+  const onConfirmRemoveStaffBill = () => {
+    Alert.alert('Remove Staff Bill', `Are you sure you want to remove ${props.staff.staff?.first_name} from the bill?`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Remove', style: 'destructive', onPress: () => props.handleRemoveStaffBill(props.staff) }
+    ]);
   }
 
   return (
     <View>
       <View style={[styles.staffReceiptItem]}>
-        <Text style={styles.staffName}>{props.staff.staff?.first_name}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: ms(4) }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: ms(4), flex: 1 }}>
+            <Text style={styles.staffName}>{props.staff.staff?.first_name}</Text>
+            {
+              renderTipBadge()
+            }
+            <ButtonIcon
+              iconName="gift"
+              onPress={onSelectStaffDiscount}
+              containerStyle={{ marginLeft: 8, padding: ms(4), backgroundColor: '#007AFF', borderRadius: 8 }}
+              title={getDiscountTitle()}
+              titleStyle={{ fontSize: ms(8), color: '#fff' }}
+              color="#fff"
+            />
+          </View>
+          <ButtonIcon
+            iconName="trash-outline"
+            onPress={onConfirmRemoveStaffBill}
+            containerStyle={{
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 40,
+            }}
+            size={14}
+          />
+        </View>
         <View
           style={{
             flexDirection: 'row',
@@ -106,51 +143,6 @@ const StaffReceiptPaymentItem = (props: Props) => {
               returnKeyType='done'
               returnKeyLabel='Done'
             />
-            <TouchableOpacity
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}
-              onPress={() => onSelectStaffDiscount()}
-            >
-              <Ionicons
-                name="gift-outline"
-                size={24}
-                color="#007AFF"
-                style={{ marginLeft: 8 }}
-              />
-              {
-                Number(props.staff.discount_price) > 0 && (
-                  <Text>({handleNumberToPercent(Number(props.staff.discount_percent))}) {formatCurrency(Number(props.staff.discount_price))}</Text>
-                )
-              }
-            </TouchableOpacity>
-            {
-              renderTipBadge()
-            }
-           
-            <View style={{ marginLeft: 8, flexDirection: 'row', alignItems: 'center' }}>
-              <Text>{props.staff.service_name}</Text>
-              <ButtonIcon
-                iconName="pencil-outline"
-                onPress={showSalonServicesModal}
-                containerStyle={{ marginLeft: 8 }}
-              />
-            </View>
-          </View>
-          <View>
-            <ButtonIcon
-              iconName="trash-outline"
-              onPress={() => props.handleRemoveStaffBill(props.staff)}
-              containerStyle={{
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 40,
-              }}
-              size={14}
-            />
           </View>
         </View>
       </View>
@@ -175,7 +167,9 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginBottom: 3,
     paddingHorizontal: ms(8),
-    paddingVertical: ms(4)
+    paddingVertical: ms(4),
+    borderBottomWidth: 1,
+    borderBottomColor: '#d8d8d8',
   },
   staffName: {
     fontSize: 16,

@@ -8,6 +8,8 @@ export default function TabLayout() {
     isSalonOwner
   } = useAuthStore((state: AuthState) => state);
 
+  console.log('is salon owner:: ', isSalonOwner());
+  
 
   return (
     <Tabs
@@ -46,18 +48,6 @@ export default function TabLayout() {
         }}
 
       />
-      {
-        isSalonOwner() && (
-          <Tabs.Screen
-            name="(turns)"
-            options={{
-              tabBarIcon: ({ color }) => (
-                <Ionicons name="accessibility" color={color} size={24} />
-              ),
-              title: 'Turns',
-            }}
-          />
-        )}
       <Tabs.Screen
         name="(user)"
         options={{

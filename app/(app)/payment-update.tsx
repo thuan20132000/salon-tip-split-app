@@ -41,6 +41,8 @@ import AddGiftModal from '@/components/AddGiftCardModal';
 import PaymentMixModal from '@/components/PaymentMixModal';
 import { APIErrorType } from '@/types/api.types';
 import { NavigationBar } from '@/components/NavigationBar';
+import StaffReceiptPaymentItem from '@/components/StaffReceiptPaymentItem';
+import { Colors } from '@/constants/Colors';
 
 
 export default function StaffPaymentScreen() {
@@ -309,61 +311,13 @@ export default function StaffPaymentScreen() {
         <View style={styles.section}>
           {/* Staff  Price Input */}
           {selectedSalonReceipt?.staff_receipts?.map((staff, index) => (
-            <View key={index} style={[styles.staffReceiptItem]}>
-              <Text style={styles.staffName}>{staff.staff?.first_name}</Text>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                }}
-              >
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    flex: 1
-                  }}
-                >
-                  <CurrencyInput
-                    value={staff.service_amount}
-                    onChangeValue={(value) => updateReceiptStaffPrice(staff, value)}
-                    prefix="$ "
-                    delimiter="."
-                    separator="."
-                    precision={2}
-                    minValue={0}
-                    showPositiveSign={false}
-                    onChangeText={(formattedValue) => {
-                      console.log(formattedValue); // R$ +2.310,46
-                    }}
-                    style={styles.priceInput}
-                    keyboardType='numeric'
-                    returnKeyType='done'
-                    returnKeyLabel='Done'
-                    keyboardAppearance='light'
-                  />
-                  {
-                    renderDiscountButton(staff)
-                  }
-                  {
-                    renderTipBadge(staff)
-                  }
-                </View>
-                <View>
-                  <ButtonIcon
-                    iconName="trash-outline"
-                    onPress={() => handleRemoveStaffBill(staff)}
-                    containerStyle={{
-                      flex: 1,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: 40,
-                    }}
-                    size={14}
-                  />
-                </View>
-              </View>
-            </View>
+            <StaffReceiptPaymentItem
+              key={index}
+              index={index}
+              staff={staff}
+              updateReceiptStaffPrice={updateReceiptStaffPrice}
+              handleRemoveStaffBill={handleRemoveStaffBill}
+            />
           ))}
           <ButtonIcon
             iconName="add"
@@ -373,7 +327,6 @@ export default function StaffPaymentScreen() {
               backgroundColor: '#f8f9fa',
               justifyContent: 'center'
               // alignSelf: 'flex-start',
-
             }}
           />
 
@@ -399,47 +352,88 @@ export default function StaffPaymentScreen() {
             setSelectedSalonReceipt={setSelectedSalonReceipt}
             subtotal={subtotal}
           />
-          <View style={{flexDirection:'row'}}>
-            <View style={[{ flexDirection: 'row', gap: 8, marginVertical: 2, flexWrap: 'wrap',flex:1 }]}>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              marginTop: 12,
+            }}
+          >
+            <View style={[{
+              flexDirection: 'row',
+              gap: 8,
+              marginVertical: 2,
+              flexWrap: 'wrap',
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'flex-start'
+            }]}>
               <ButtonIcon
                 title={`Gift ${helper.formatCurrency(Number(giftAmount))}`}
                 iconName='gift-outline'
                 containerStyle={{
                   backgroundColor: giftAmount ? '#ffd33d' : '#d3d3d3',
+                  alignItems:'center',
+                  justifyContent:'center',
                 }}
                 onPress={() => setIsShowGiftModal(true)}
+                titleStyle={{
+                  fontSize: ms(10),
+                  alignItems:'center',
+                  justifyContent:'center',
+                  textAlign:'center'
+                }}
               />
               <ButtonIcon
                 title={`Discount ${(Number(customDiscountPercent))}%`}
                 iconName='gift-outline'
                 containerStyle={{
                   backgroundColor: customDiscountPercent ? '#ffd33d' : '#d3d3d3',
+                  alignItems:'center',
+                  justifyContent:'center',
                 }}
                 onPress={() => setIsShowTotalDiscountModal(true)}
+                titleStyle={{
+                  fontSize: ms(10),
+                  alignItems:'center',
+                  justifyContent:'center',
+                  
+                }}
               />
               <ButtonIcon
                 title={`Cash & Debit`}
                 iconName='cash-outline'
                 containerStyle={{
                   backgroundColor: cashPaymentPrice > 0 ? '#ffd33d' : '#d3d3d3',
+                  alignItems:'center',
+                  justifyContent:'center',
+                  
                 }}
                 onPress={() => setIsShowPaymentMixModal(true)}
+                titleStyle={{
+                  fontSize: ms(10),
+                  alignItems:'center',
+                  justifyContent:'center',
+
+                }}
               />
             </View>
             <View style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                backgroundColor: '#ffd33d',
-                borderRadius: 5,
-                flex: 1,
-                paddingHorizontal: 10,
-                paddingVertical: 10
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              backgroundColor: Colors.secondary.lightYellow,
+              borderRadius: 5,
+              flex: 1,
+              paddingHorizontal: 10,
+              paddingVertical: 10
             }}>
               <Text style={styles.finalTotalText}>Total: {formatCurrency(calculatePayments().total)}</Text>
               <ButtonIcon
                 iconName='print-sharp'
-                onPress={() => { }}
+                onPress={() => {
+                  console.log('print');
+                }}
               />
             </View>
           </View>
@@ -607,7 +601,7 @@ export default function StaffPaymentScreen() {
             console.log('Payment Mix', calculatePayments().total.toFixed(2));
             console.log('====================================');
             setIsShowPaymentMixModal(false)
-           }}
+          }}
           onCancel={() => {
             setCashPaymentPrice(0)
             setIsShowPaymentMixModal(false)

@@ -1,6 +1,7 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, Text, ViewStyle } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, ViewStyle, TextStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { s, ms } from 'react-native-size-matters';
 
 interface ButtonIconProps {
   onPress: () => void;
@@ -9,6 +10,7 @@ interface ButtonIconProps {
   color?: string;
   size?: number;
   containerStyle?: ViewStyle;
+  titleStyle?: TextStyle;
 }
 
 const ButtonIcon: React.FC<ButtonIconProps> = ({
@@ -16,14 +18,15 @@ const ButtonIcon: React.FC<ButtonIconProps> = ({
   iconName,
   title,
   color = 'black',
-  size = 24,
-  containerStyle
+  size = ms(12),
+  containerStyle,
+  titleStyle
 }) => {
   return (
     <TouchableOpacity style={[styles.button, containerStyle]} onPress={onPress}>
       <Ionicons name={iconName} size={size} color={color} />
       {
-        title && <Text style={[styles.text, { color }]}>{title}</Text>
+        title && <Text style={[styles.text, { color }, titleStyle]}>{title}</Text>
       }
     </TouchableOpacity>
   );
@@ -32,14 +35,19 @@ const ButtonIcon: React.FC<ButtonIconProps> = ({
 const styles = StyleSheet.create({
   button: {
     flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
+    // alignItems: 'center',
+    padding: ms(6),
     backgroundColor: '#f0f0f0',
     borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   text: {
-    marginLeft: 10,
-    fontSize: 16,
+    fontSize: s(10),
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginLeft: ms(2),
+    
   },
 });
 

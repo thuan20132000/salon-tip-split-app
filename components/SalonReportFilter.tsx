@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
 import DateRangePickerModal from './DateRangePickerModal';
 import SelectSalonStaffModal from './SelectSalonStaffModal';
 import SummaryCard from './SummaryCard';
@@ -25,10 +25,6 @@ const SalonReportFilter: React.FC<SalonReportFilterProps> = ({ onFilter }) => {
   const [isShowSummary, setIsShowSummary] = useState<boolean>(false);
 
   const {
-    salonStaffs,
-  } = useSalonStore((state: SalonState) => state);
-  const {
-    getSalaryReport,
     summary,
   } = useSalonSalaryReportStore((state: SalonSalaryReportState) => state);
 
@@ -46,11 +42,7 @@ const SalonReportFilter: React.FC<SalonReportFilterProps> = ({ onFilter }) => {
 
   return (
     <View style={styles.container}>
-      <View
-        style={{
-          flexDirection: 'row',
-        }}
-      >
+      <ScrollView horizontal={true}>
         <DateRangePickerModal
           isVisible={isShowDateRangePicker}
           onClose={() => { setIsShowDateRangePicker(false) }}
@@ -95,7 +87,7 @@ const SalonReportFilter: React.FC<SalonReportFilterProps> = ({ onFilter }) => {
           containerStyle={{ marginLeft: ms(4) }}
           color={isShowSummary ? 'green' : 'black'}
         />
-      </View>
+      </ScrollView>
 
       {
         isShowSummary &&

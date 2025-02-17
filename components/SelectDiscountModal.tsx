@@ -11,6 +11,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { PaymentDiscountRateEnums, PaymentMethodsEnums, PaymentRatesEnums } from '@/enums/PaymentEnums';
 import Modal from 'react-native-modal';
 import { ms } from 'react-native-size-matters';
+import ButtonIcon from './commons/ButtonIcon';
+import { commonStyles } from '@/utils/commonStyles';
 
 // Payment Methods
 
@@ -24,7 +26,7 @@ const PAYMENT_METHOD_INFO: Record<PaymentDiscountRateEnums, { label: string; ico
   [PaymentDiscountRateEnums.DISC_20_PERCENT]: { label: '20% ', icon: 'gift-outline' },
   [PaymentDiscountRateEnums.DISC_25_PERCENT]: { label: '25% ', icon: 'gift-outline' },
   [PaymentDiscountRateEnums.DISC_30_PERCENT]: { label: '30% ', icon: 'gift-outline' },
-  [PaymentDiscountRateEnums.DISC_0_PERCENT]: { label: 'No ', icon: 'gift-outline' },
+  [PaymentDiscountRateEnums.DISC_0_PERCENT]: { label: '0% ', icon: 'gift-outline' },
 };
 
 interface PaymentMethodModalProps {
@@ -48,54 +50,46 @@ const SelectDiscountModal: React.FC<PaymentMethodModalProps> = ({
     >
       <View style={styles.methodContent}>
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Select Payment Method</Text>
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={onClose}
-          >
-            <Ionicons name="close" size={24} color="#666" />
-          </TouchableOpacity>
-        </View>
-
+        <Text style={styles.headerTitle}>Select Service Discount(%)</Text>
+        <ButtonIcon
+          iconName="close-outline"
+          onPress={onClose}
+          containerStyle={commonStyles.closeButtonView}
+        />
         {/* Payment Methods List */}
         <ScrollView style={styles.methodsList}>
           <View style={{
-            flex: 1,
             flexDirection: 'row',
             flexWrap: 'wrap',
             alignItems: 'center',
-              alignContent: 'center',
-           }}>
+            alignContent: 'center',
+            gap: ms(10),
+            justifyContent: 'center',
+          }}>
             {Object.entries(PAYMENT_METHOD_INFO).map(([method, info]) => (
-              <TouchableOpacity
-                key={method}
-                style={[
-                  styles.methodItem,
-                  selectedMethod === method && styles.selectedMethod
-                ]}
+              <ButtonIcon
+                iconName={'gift-outline'}
                 onPress={() => {
                   onSelect(method as unknown as PaymentDiscountRateEnums);
                   onClose();
                 }}
-              >
-                <View style={styles.methodContent}>
-                  <View style={styles.methodIcon}>
-                    <Ionicons
-                      name={info.icon as any}
-                      size={24}
-                      color="#007AFF"
-                    />
-                  </View>
-                  <Text style={[
-                    styles.methodLabel,
-                    selectedMethod === method && styles.selectedMethodText
-                  ]}>
-                    {info.label}
-                  </Text>
-                </View>
-                
-              </TouchableOpacity>
+                containerStyle={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'column',
+                  width: ms(60),
+                  height: ms(60),
+                }}
+                title={info.label}
+                titleStyle={{
+                  fontSize: ms(12),
+                  color: '#333',
+                  fontWeight: 'bold',
+                  textAlign: 'center',
+                }}
+                color="#007AFF"
+
+              />
             ))}
 
           </View>
@@ -127,9 +121,10 @@ const styles = StyleSheet.create({
     borderBottomColor: '#eee',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: ms(16),
     fontWeight: '600',
     color: '#333',
+    textAlign: 'center',
   },
   closeButton: {
     padding: 4,

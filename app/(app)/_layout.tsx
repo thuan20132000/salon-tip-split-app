@@ -18,7 +18,9 @@ export default function AppLayout() {
         title: 'Salon',
         headerShown: false,
       }}
-    />
+    >
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+    </Stack>
 
   )
 }

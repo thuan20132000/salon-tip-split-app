@@ -1,6 +1,6 @@
 import { Colors } from "@/constants/Colors";
 import { StyleSheet } from "react-native";
-import { s } from "react-native-size-matters";
+import { s, ms } from "react-native-size-matters";
 
 
 export const commonStyles = StyleSheet.create({
@@ -37,12 +37,14 @@ export const commonStyles = StyleSheet.create({
 
   },
   closeButtonView: {
-    width: 50,
-    height: 50,
+    width: ms(30),
+    height: ms(30),
     position: 'absolute',
-    right: 8,
-    top: 8,
-    zIndex: 999
+    right: ms(8),
+    top: ms(8),
+    zIndex: 999,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   textH1: {
     fontSize: s(14),

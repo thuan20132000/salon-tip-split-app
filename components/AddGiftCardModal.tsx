@@ -7,12 +7,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Modal,
 } from 'react-native';
 import CurrencyInput from 'react-native-currency-input';
 import { ms, s } from 'react-native-size-matters';
 import ButtonText from './commons/ButtonText';
 import ButtonIcon from './commons/ButtonIcon';
+import Modal from 'react-native-modal';
+import { commonStyles } from '@/utils/commonStyles';
 
 interface AddGiftModalProps {
   visible: boolean;
@@ -42,52 +43,43 @@ const AddGiftModal: React.FC<AddGiftModalProps> = ({
 
   return (
     <Modal
-      visible={visible}
-      animationType="fade"
-      transparent
-      onRequestClose={onClose}
+      isVisible={visible}
+      animationIn="slideInUp"
+      animationOut="slideOutDown"
+      onBackdropPress={onClose}
+      avoidKeyboard={true}
 
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <ButtonIcon
-            iconName='close'
-            containerStyle={{
-              width: 50,
-              height: 50,
-              position: 'absolute',
-              right: 8,
-              top: 8,
-              zIndex: 999,
-              justifyContent: 'center',
-            }}
-            onPress={onClose}
-          />
-          <View>
-            <Text style={styles.title}>Gift Card</Text>
-          </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Gift Card Amount ($)</Text>
-            <CurrencyInput
-              style={styles.input}
-              value={amount}
-              onChangeValue={(value) => setAmount(Number(value))}
-              prefix="$"
-              keyboardType="decimal-pad"
-              placeholder="Enter gift card amount"
-            />
-          </View>
-
-          <ButtonText
-            title="Confirm"
-            onPress={onConfirm}
-            textStyle={styles.closeButtonText}
-            containerStyle={{
-              marginVertical: 8
-            }}
-          />
-
+      <View style={styles.modalContent}>
+        <ButtonIcon
+          iconName='close'
+          containerStyle={commonStyles.closeButtonView}
+          onPress={onClose}
+        />
+        <View>
+          <Text style={styles.title}>Gift Card</Text>
         </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Gift Card Amount ($)</Text>
+          <CurrencyInput
+            style={styles.input}
+            value={amount}
+            onChangeValue={(value) => setAmount(Number(value))}
+            prefix="$"
+            keyboardType="decimal-pad"
+            placeholder="Enter gift card amount"
+          />
+        </View>
+
+        <ButtonText
+          title="Confirm"
+          onPress={onConfirm}
+          textStyle={styles.closeButtonText}
+          containerStyle={{
+            marginVertical: 8
+          }}
+        />
+
       </View>
     </Modal >
   );
@@ -104,8 +96,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 16,
     padding: 20,
-    width: '90%',
-    maxHeight: '80%',
+   
   },
   title: {
     fontSize: 24,
@@ -181,7 +172,13 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 4,
     padding: 12,
-    fontSize: 16,
+    fontSize: ms(12),
+    fontWeight: 'bold',
+    color: '#000',
+    backgroundColor: '#fff',
+    paddingVertical: 9,
+    paddingHorizontal: 8,
+    marginBottom: 8,
   },
 
 });

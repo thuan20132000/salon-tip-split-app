@@ -368,7 +368,8 @@ export default function StaffPaymentScreen() {
           <View
             style={{
               flex: 1,
-              flexDirection: 'row'
+              flexDirection: 'row',
+              marginTop: 12,
             }}
           >
             <View style={[{
@@ -385,24 +386,49 @@ export default function StaffPaymentScreen() {
                 iconName='gift-outline'
                 containerStyle={{
                   backgroundColor: giftAmount ? '#ffd33d' : '#d3d3d3',
+                  alignItems:'center',
+                  justifyContent:'center',
                 }}
                 onPress={() => setIsShowGiftModal(true)}
+                titleStyle={{
+                  fontSize: ms(10),
+                  alignItems:'center',
+                  justifyContent:'center',
+                  textAlign:'center'
+                }}
               />
               <ButtonIcon
                 title={`Discount ${(Number(customDiscountPercent))}%`}
                 iconName='gift-outline'
                 containerStyle={{
                   backgroundColor: customDiscountPercent ? '#ffd33d' : '#d3d3d3',
+                  alignItems:'center',
+                  justifyContent:'center',
                 }}
                 onPress={() => setIsShowTotalDiscountModal(true)}
+                titleStyle={{
+                  fontSize: ms(10),
+                  alignItems:'center',
+                  justifyContent:'center',
+                  
+                }}
               />
               <ButtonIcon
                 title={`Cash & Debit`}
                 iconName='cash-outline'
                 containerStyle={{
                   backgroundColor: cashPaymentPrice > 0 ? '#ffd33d' : '#d3d3d3',
+                  alignItems:'center',
+                  justifyContent:'center',
+                  
                 }}
                 onPress={() => setIsShowPaymentMixModal(true)}
+                titleStyle={{
+                  fontSize: ms(10),
+                  alignItems:'center',
+                  justifyContent:'center',
+
+                }}
               />
             </View>
             <View style={{
@@ -776,6 +802,8 @@ const styles = StyleSheet.create({
     minWidth: ms(140),
     fontSize: ms(16),
     fontWeight: 'bold',
+    borderWidth: 1,
+    borderColor: '#d8d8d8',
   },
   isPaymentActive: {
     backgroundColor: '#007AFF',

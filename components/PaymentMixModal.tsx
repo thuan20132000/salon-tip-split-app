@@ -5,8 +5,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Modal,
 } from 'react-native';
+import Modal from 'react-native-modal';
 import CurrencyInput from 'react-native-currency-input';
 import { ms, s } from 'react-native-size-matters';
 import ButtonText from './commons/ButtonText';
@@ -57,130 +57,132 @@ const PaymentMixModal: React.FC<PaymentMixModalProps> = ({
 
   return (
     <Modal
-      visible={visible}
-      animationType="fade"
-      transparent
-      onRequestClose={onClose}
+      isVisible={visible}
+      animationIn="slideInUp"
+      animationOut="slideOutDown"
+      onBackdropPress={onClose}
+      avoidKeyboard={true}
 
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <Text style={styles.title}>Pay By Debit + Cash</Text>
-          <ButtonIcon
-            iconName='close'
-            containerStyle={commonStyles.closeButtonView}
-            onPress={onClose}
-          />
-          <View style={styles.inputContainer}>
-            <View
-              style={{
-                justifyContent: 'space-between',
-                marginBottom: 16,
-                flexDirection: 'row'
-              }}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                <Text style={styles.discountTitle}>Pay Cash: </Text>
-                <CurrencyInput
-                  value={cashPaymentAmount}
-                  onChangeValue={(value) => {
-                    setCashPaymentAmount(value ?? 0);
-                  }}
-                  prefix="$ "
-                  delimiter="."
-                  separator="."
-                  precision={2}
-                  minValue={0}
-                  showPositiveSign={false}
-                  onChangeText={(formattedValue) => {
-                    console.log(formattedValue); // R$ +2.310,46
-                  }}
-                  style={styles.currencyInput}
-
-                />
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                <Text style={styles.discountTitle}>Pay Debit: </Text>
-                <CurrencyInput
-                  value={debitPaymentAmount}
-                  prefix="$ "
-                  delimiter="."
-                  separator="."
-                  precision={2}
-                  minValue={0}
-                  showPositiveSign={false}
-                  style={styles.currencyInput}
-                  editable={false}
-                />
-              </View>
-
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={styles.discountTitle}>Debit Receive: </Text>
-                <CurrencyInput
-                  value={debitReceivedAmount}
-                  onChangeValue={(value) => {
-                    setDebitReceivedAmount(value ?? 0);
-                  }}
-                  prefix="$ "
-                  delimiter="."
-                  separator="."
-                  precision={2}
-                  minValue={0}
-                  showPositiveSign={false}
-                  onChangeText={(formattedValue) => {
-                    console.log(formattedValue); // R$ +2.310,46
-                  }}
-                  style={styles.currencyInput}
-
-                />
-              </View>
-            </View>
-            <View>
-              <Text style={styles.discountTitle}>Return</Text>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
+      <View style={styles.modalContent}>
+        <Text style={styles.title}>Pay By Debit + Cash</Text>
+        <ButtonIcon
+          iconName='close'
+          containerStyle={commonStyles.closeButtonView}
+          onPress={onClose}
+        />
+        <View style={styles.inputContainer}>
+          <View
+            style={{
+              justifyContent: 'space-between',
+              marginBottom: 16,
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center',}}>
+              <Text style={styles.discountTitle}>Pay Cash: </Text>
+              <CurrencyInput
+                value={cashPaymentAmount}
+                onChangeValue={(value) => {
+                  setCashPaymentAmount(value ?? 0);
                 }}
-              >
-                <Text style={styles.returnPrice}>{formatCurrency(getReturnAmount())}</Text>
-                <TouchableOpacity
-                  style={{ padding: 8 }}
-                  onPress={() => {
-                    if (onUpdateTipAmount) {
-                      onUpdateTipAmount(getReturnAmount())
-                    }
-                  }}
-                >
-                  <Text style={{ color: '#007AFF', fontSize: 16, fontWeight: 'bold' }}>Add to Tip</Text>
-                </TouchableOpacity>
+                prefix="$ "
+                delimiter="."
+                separator="."
+                precision={2}
+                minValue={0}
+                showPositiveSign={false}
+                onChangeText={(formattedValue) => {
+                  console.log(formattedValue); // R$ +2.310,46
+                }}
+                style={styles.currencyInput}
+                returnKeyType='done'
+              />
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center',}}>
+              <Text style={styles.discountTitle}>Pay Debit: </Text>
+              <CurrencyInput
+                value={debitPaymentAmount}
+                prefix="$ "
+                delimiter="."
+                separator="."
+                precision={2}
+                minValue={0}
+                showPositiveSign={false}
+                style={styles.currencyInput}
+                // editable={false}
+                readOnly={true}
+              />
+            </View>
 
-              </View>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={styles.discountTitle}>Receive: </Text>
+              <CurrencyInput
+                value={debitReceivedAmount}
+                onChangeValue={(value) => {
+                  setDebitReceivedAmount(value ?? 0);
+                }}
+                prefix="$ "
+                delimiter="."
+                separator="."
+                precision={2}
+                minValue={0}
+                showPositiveSign={false}
+                onChangeText={(formattedValue) => {
+                  console.log(formattedValue); // R$ +2.310,46
+                }}
+                style={styles.currencyInput}
+                returnKeyType='done'
+
+              />
             </View>
           </View>
+          <View>
+            <Text style={styles.discountTitle}>Return</Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}
+            >
+              <Text style={styles.returnPrice}>{formatCurrency(getReturnAmount())}</Text>
+              <TouchableOpacity
+                style={{ padding: 8 }}
+                onPress={() => {
+                  if (onUpdateTipAmount) {
+                    onUpdateTipAmount(getReturnAmount())
+                  }
+                }}
+              >
+                <Text style={{ color: '#007AFF', fontSize: 16, fontWeight: 'bold' }}>Add to Tip</Text>
+              </TouchableOpacity>
 
-          <ButtonText
-            title="Confirm"
-            onPress={onConfirmPress}
-            textStyle={styles.closeButtonText}
-            containerStyle={{
-              marginVertical: 8
-            }}
-          />
-
-          <ButtonText
-            title="Cancel"
-            onPress={onCancelPress}
-            textStyle={styles.closeButtonText}
-            containerStyle={{
-              marginVertical: 8,
-              backgroundColor: 'red'
-            }}
-          />
-
+            </View>
+          </View>
         </View>
+
+        <ButtonText
+          title="Confirm"
+          onPress={onConfirmPress}
+          textStyle={styles.closeButtonText}
+          containerStyle={{
+            marginVertical: 8
+          }}
+        />
+
+        <ButtonText
+          title="Cancel"
+          onPress={onCancelPress}
+          textStyle={styles.closeButtonText}
+          containerStyle={{
+            marginVertical: 8,
+            backgroundColor: 'red'
+          }}
+        />
+
       </View>
     </Modal >
   );
@@ -197,10 +199,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 16,
     padding: 20,
-    width: '90%',
   },
   title: {
-    fontSize: 24,
+    fontSize: ms(12),
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
@@ -267,6 +268,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     marginBottom: 16,
+    marginTop: 16,
   },
   input: {
     borderWidth: 1,
@@ -283,6 +285,7 @@ const styles = StyleSheet.create({
     fontSize: ms(12),
     fontWeight: '600',
     marginBottom: 12,
+    width: ms(90),
   },
   currencyInput: {
     backgroundColor: '#f1f1f1',

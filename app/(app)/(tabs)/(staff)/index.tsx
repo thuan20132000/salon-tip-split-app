@@ -1,5 +1,7 @@
+import ButtonIcon from '@/components/commons/ButtonIcon';
 import PendingPaymentReceipts from '@/components/PendingPaymentReceipts';
 import StaffPaymentItem from '@/components/StaffPaymentItem';
+import { Colors } from '@/constants/Colors';
 import { AuthState, useAuthStore } from '@/store/authStore';
 import useSalonServicesStore, { SalonServicesState } from '@/store/useSalonServicesStore';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
@@ -62,49 +64,70 @@ const StaffScreen = () => {
 
   return (
     <View style={{ flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom }}>
-      <ScrollView >
-        <View style={{ flex: 1, flexDirection: 'row' }}>
-          <View style={{ flex: 1 }}>
-            <View
-              style={{
-                flexWrap: 'wrap',
-                flexDirection: 'row',
-                paddingHorizontal: ms(10),
-                justifyContent: 'center'
 
-              }}
-            >
-              {salonStaffs?.map((staff) => (
-                <StaffPaymentItem
-                  key={staff.id}
-                  staff={staff}
-                  onPress={() => onSelectStaff(staff)}
-                  customStyle={{
-                    backgroundColor: selectedPaymentStaffs.includes(staff) ? '#ffd33d' : 'white',
-                    borderColor: selectedPaymentStaffs.includes(staff) ? 'blue' : 'white',
-                    minWidth: ms(80),
-                    height: ms(80),
-                    // flex:1
-                  }}
-
-                />
-              ))}
-            </View>
-            <TouchableOpacity
-              onPress={onPaymentPress}
-              style={styles.startPaymentButton}
-              disabled={selectedPaymentStaffs.length === 0}
-
-            >
-              <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Start Payment</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+      <View>
         {
           isSalonOwner() &&
-          <PendingPaymentReceipts />
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            padding: 10,
+            backgroundColor: Colors.primary.white,
+
+          }}>
+            <ButtonIcon
+              iconName="people-circle-outline"
+              onPress={() => router.push('/(app)/turn-management')}
+              size={ms(16)}
+            />
+          </View>
         }
-      </ScrollView>
+
+        <ScrollView >
+          <View style={{ flex: 1, flexDirection: 'row' }}>
+            <View style={{ flex: 1 }}>
+              <View
+                style={{
+                  flexWrap: 'wrap',
+                  flexDirection: 'row',
+                  paddingHorizontal: ms(10),
+                  justifyContent: 'center'
+
+                }}
+              >
+                {salonStaffs?.map((staff) => (
+                  <StaffPaymentItem
+                    key={staff.id}
+                    staff={staff}
+                    onPress={() => onSelectStaff(staff)}
+                    customStyle={{
+                      backgroundColor: selectedPaymentStaffs.includes(staff) ? '#ffd33d' : 'white',
+                      borderColor: selectedPaymentStaffs.includes(staff) ? 'blue' : 'white',
+                      minWidth: ms(80),
+                      height: ms(80),
+                      // flex:1
+                    }}
+
+                  />
+                ))}
+              </View>
+              <TouchableOpacity
+                onPress={onPaymentPress}
+                style={styles.startPaymentButton}
+                disabled={selectedPaymentStaffs.length === 0}
+
+              >
+                <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Start Payment</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          {
+            isSalonOwner() &&
+            <PendingPaymentReceipts />
+          }
+        </ScrollView>
+      </View>
     </View>
   );
 };

@@ -44,7 +44,7 @@ const SalaryReportItem: React.FC<SalaryReportItemProps> = ({
               <Badge
                 color="#4CAF50"
                 text={formatCurrency(item.total_service_amount)}
-                textStyle={{ color: 'white', padding: 2, fontSize: ms(10) }}
+                textStyle={{ color: 'white', padding: 2, fontSize: ms(8) }}
               />
             </View>
             <View style={styles.row}>
@@ -52,7 +52,7 @@ const SalaryReportItem: React.FC<SalaryReportItemProps> = ({
               <Badge
                 backgroundColor="#FF9800"
                 text={formatCurrency(item.total_tip_amount)}
-                textStyle={{ color: 'white', padding: 2, fontSize: ms(10) }}
+                textStyle={{ color: 'white', padding: 2, fontSize: ms(8) }}
               />
             </View>
             <View style={styles.row}>
@@ -60,7 +60,7 @@ const SalaryReportItem: React.FC<SalaryReportItemProps> = ({
               <Badge
                 backgroundColor="#FF9800"
                 text={String(item.total_turn)}
-                textStyle={{ color: 'white', padding: 2, fontSize: ms(10) }}
+                textStyle={{ color: 'white', padding: 2, fontSize: ms(8) }}
               />
             </View>
           </View>

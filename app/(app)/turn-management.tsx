@@ -55,14 +55,6 @@ const index = (props: Props) => {
                 />
               ))
             }
-            {/* <ButtonText
-              title="Reset"
-              onPress={resetStaffTurns}
-              containerStyle={{
-                width: ms(120),
-                alignSelf: 'center'
-              }}
-            /> */}
           </ScrollView>
         </View>
         <View>

@@ -2,7 +2,6 @@ import { SalonPaymentReceiptType } from '@/store/useSalonUpdatePaymentStore';
 import { PaymentInvoiceDetailType } from '@/types/receipt.type';
 import React, { useState } from 'react';
 import {
-  Modal,
   View,
   Text,
   TouchableOpacity,
@@ -14,7 +13,8 @@ import { ms, s } from 'react-native-size-matters';
 import ButtonText from './commons/ButtonText';
 import Badge from './commons/Badge';
 import ButtonIcon from './commons/ButtonIcon';
-
+import Modal from 'react-native-modal';
+import { commonStyles } from '@/utils/commonStyles';
 interface AddDiscountModalProps {
   visible: boolean;
   onClose: () => void;
@@ -23,7 +23,7 @@ interface AddDiscountModalProps {
 }
 
 
-const DISCOUNT_PERCENTAGES = [5, 10, 15, 20, 25];
+const DISCOUNT_PERCENTAGES = [0, 5, 10, 15, 20, 25];
 
 const AddDiscountModal: React.FC<AddDiscountModalProps> = ({
   visible,
@@ -47,103 +47,88 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({
 
   return (
     <Modal
-      visible={visible}
-      animationType="fade"
-      transparent
-      onRequestClose={onClose}
+      isVisible={visible}
+      animationIn="slideInUp"
+      animationOut="slideOutDown"
+      onBackdropPress={onClose}
+      avoidKeyboard={true}
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <ButtonIcon
-            iconName='close'
-            containerStyle={{
-              width: 50,
-              height: 50,
-              position: 'absolute',
-              right: 8,
-              top: 8,
-              zIndex: 999,
-              justifyContent: 'center',
-
-            }}
-            onPress={onClose}
-          />
-          <View>
-            <Text style={styles.title}>Discount(%)</Text>
+      <View style={styles.modalContent}>
+        <ButtonIcon
+          iconName='close'
+          size={ms(12)}
+          containerStyle={commonStyles.closeButtonView}
+          onPress={onClose}
+        />
+        <View>
+          <Text style={styles.title}>Discount(%)</Text>
+        </View>
+        <View>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginBottom: 20, justifyContent: 'center' }}>
+            {
+              DISCOUNT_PERCENTAGES.map((value: number) =>
+                <ButtonIcon
+                  key={value}
+                  iconName={'gift'}
+                  containerStyle={{
+                    width: ms(60),
+                    height: ms(60),
+                    // backgroundColor: value == discount ? '#007BFF' : 'grey',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: ms(12),
+                    borderWidth: value == discount ? 1 : 0,
+                    borderColor: value == discount ? '#007BFF' : 'transparent',
+                    flexDirection: 'column',
+                  }}
+                  size={ms(12)}
+                  onPress={() => onChangeDiscountPercent(value)}
+                  title={`${value}%`}
+                  color={value == discount ? '#007BFF' : 'grey'}
+                />
+              )
+            }
           </View>
-          <View>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginBottom: 20 }}>
-              {
-                DISCOUNT_PERCENTAGES.map((value: number) =>
-                  <ButtonText
-                    key={value}
-                    title={`${value}%`}
-                    style={{
-                      width: ms(60),
-                      height: ms(60),
-                      backgroundColor: value == discount ? '#007BFF' : 'grey',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: ms(12)
-                    }}
-                    textStyle={{
-                      fontWeight: 'bold',
-                      fontSize: s(12)
-                    }}
-                    onPress={() => onChangeDiscountPercent(value)}
-                  />
-                )
-              }
-            </View>
-            <CurrencyInput
-              value={discount || 0}
-              onChangeValue={(value) => onChangeDiscountPercent(Number(value))}
-              prefix=""
-              suffix="%"
-              delimiter="."
-              separator="."
-              precision={0}
-              minValue={0}
-              showPositiveSign={false}
-              onChangeText={(formattedValue) => {
-                console.log(formattedValue); // R$ +2.310,46
-              }}
-              style={styles.priceInput}
-            />
-
-          </View>
-
-          <ButtonText
-            title="Confirm"
-            onPress={onConfirm}
-            textStyle={styles.closeButtonText}
-            containerStyle={{
-              marginVertical: 8
+          <CurrencyInput
+            value={discount || 0}
+            onChangeValue={(value) => onChangeDiscountPercent(Number(value))}
+            prefix=""
+            suffix="%"
+            delimiter="."
+            separator="."
+            precision={0}
+            minValue={0}
+            showPositiveSign={false}
+            onChangeText={(formattedValue) => {
+              console.log(formattedValue); // R$ +2.310,46
             }}
+            style={styles.priceInput}
           />
 
         </View>
+
+        <ButtonText
+          title="Confirm"
+          onPress={onConfirm}
+          textStyle={styles.closeButtonText}
+          containerStyle={{
+            marginVertical: 8
+          }}
+        />
+
       </View>
     </Modal >
   );
 };
 
 const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   modalContent: {
     backgroundColor: 'white',
     borderRadius: 16,
     padding: 20,
-    width: '90%',
-    maxHeight: '80%',
   },
   title: {
-    fontSize: 24,
+    fontSize: ms(12),
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',

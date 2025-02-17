@@ -83,16 +83,24 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   isSalonOwner: () => {
-    const user = useAuthStore.getState().user;
-    if (!user?.staff_detail?.role) {
+    try {
+      const user = useAuthStore.getState().user;
+      if (!user?.staff_detail?.role) {
+        return false;
+      }
+  
+      if (user.staff_detail && Number(user.staff_detail.role) == StaffRoleEnums.OWNER) {
+        return true;
+      }
+  
+      return false;
+
+    } catch (error) {
+      console.log('====================================');
+      console.log('error: ', error);
+      console.log('====================================');
       return false;
     }
-
-    if (user.staff_detail && Number(user.staff_detail.role) == StaffRoleEnums.OWNER) {
-      return true;
-    }
-
-    return false;
   },
 
   logout: async () => {
