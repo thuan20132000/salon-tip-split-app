@@ -47,7 +47,7 @@ import { useAuthStore } from '@/store/authStore';
 import { AuthState } from '@/store/authStore';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import dayjs from 'dayjs';
-
+import { RootState, useRootStore } from '@/store/useRootStore';
 export default function StaffPaymentScreen() {
   const { payment_receipt } = useLocalSearchParams();
   const [isShowConfirmModal, setIsShowConfirmModal] = useState<boolean>(false);
@@ -56,6 +56,10 @@ export default function StaffPaymentScreen() {
   const [isShowTotalDiscountModal, setIsShowTotalDiscountModal] = useState<boolean>(false)
   const [isShowGiftModal, setIsShowGiftModal] = useState<boolean>(false);
   const [isShowPaymentMixModal, setIsShowPaymentMixModal] = useState<boolean>(false);
+
+  const {
+    setIsLoading
+  } = useRootStore((state: RootState) => state);
 
   const {
     receive,
@@ -131,7 +135,7 @@ export default function StaffPaymentScreen() {
   const onCompletePaymentPress = async (paymentStatus?: PaymentReceiptStatusEnums) => {
     try {
 
-
+      setIsLoading(true);
       let receiptUpdate: SalonReceiptUpdateType = {
         ...selectedSalonReceipt,
         tip_total_amount: tipPrice?.toFixed(2),
@@ -153,7 +157,7 @@ export default function StaffPaymentScreen() {
             id: Number(staffReceipt.id),
           }
         }),
-        created_at: selectedPaymentDate ? dayjs(selectedPaymentDate).format() : null,
+        created_at: selectedPaymentDate ? dayjs(selectedPaymentDate).format() : selectedSalonReceipt?.created_at,
         updated_at: dayjs(new Date()).format(),
       }
 
@@ -167,6 +171,7 @@ export default function StaffPaymentScreen() {
 
     } finally {
       resetPayment();
+      setIsLoading(false);
       router.back();
     }
   }
@@ -373,6 +378,7 @@ export default function StaffPaymentScreen() {
             setCashPaymentPrice={setCashPaymentPrice}
             setSelectedSalonReceipt={setSelectedSalonReceipt}
             subtotal={subtotal}
+            taxRate={PaymentRatesEnums.TAX_RATE}
           />
           <View
             style={{

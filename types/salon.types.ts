@@ -70,6 +70,19 @@ type StaffTurnServiceFilterType = {
   salon_id?: number;
 }
 
+type SalonSettingsType = {
+  id: number;
+  salon: number;
+  tax_rate: number;
+  passcode: string;
+  logo: string;
+  logo_url: string;
+  background_color: string;
+  updated_at: string;
+  created_at: string;
+  
+}
+
 // Type guard
 function isSalon(obj: any): obj is Salon {
   return (
@@ -91,7 +104,8 @@ export type {
   StaffServiceType,
   StaffServiceFilterType,
   UpdateStaffServiceType,
-  StaffTurnServiceFilterType
+  StaffTurnServiceFilterType,
+  SalonSettingsType
 };
 
 export {

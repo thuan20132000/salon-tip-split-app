@@ -362,6 +362,7 @@ export default function StaffPaymentScreen() {
             setCashPaymentPrice={setCashPaymentPrice}
             setSelectedSalonReceipt={setSelectedSalonReceipt}
             subtotal={subtotal}
+            taxRate={PaymentRatesEnums.TAX_RATE}
           />
 
 

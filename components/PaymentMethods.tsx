@@ -21,6 +21,7 @@ interface PaymentMethodsProps {
   debitPaymentPrice: number
   setSelectedSalonReceipt: (value: SalonReceipt) => void,
   subtotal: number
+  taxRate: number
 }
 
 const PaymentMethods = ({
@@ -30,8 +31,15 @@ const PaymentMethods = ({
   loyaltyDiscount,
   onSelectPaymentMethod,
   paymentReceipt,
-  subtotal
+  subtotal,
+  taxRate
 }: PaymentMethodsProps) => {
+
+  const getTaxRateLabel = () => {
+    let taxRateLabel = (taxRate * 100).toFixed(0);
+  
+    return `${taxRateLabel}%`
+  }
 
   return (
     <View style={styles.discountsContainer}>
@@ -54,7 +62,7 @@ const PaymentMethods = ({
                 paymentReceipt?.payment_method == PaymentMethodsEnums.NO_TAX &&
                 { color: Colors.secondary.white }]}
             >
-              No Tax
+              Service Amount
             </Text>
             <Text
               style={[styles.paymentMethodPrice,
@@ -81,7 +89,7 @@ const PaymentMethods = ({
                 paymentReceipt?.payment_method == PaymentMethodsEnums.DEBIT &&
                 { color: Colors.secondary.white }]}
             >
-              Debit (13%)</Text>
+              Taxes ({getTaxRateLabel()})</Text>
             <Text style={[styles.paymentMethodPrice,
                 paymentReceipt?.payment_method == PaymentMethodsEnums.DEBIT &&
                 { color: Colors.secondary.white }]}
@@ -285,8 +293,9 @@ const styles = StyleSheet.create({
     color: '#007AFF',
   },
   paymentMethodTitle: {
-    fontSize: mvs(14),
-    fontWeight: 'bold'
+    fontSize: ms(10),
+    fontWeight: '600',
+    marginBottom: 4,
   },
   paymentMethodPrice: {
     fontSize: mvs(12),

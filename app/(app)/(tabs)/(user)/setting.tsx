@@ -9,6 +9,8 @@ import {
   Alert,
   Platform,
   ActivityIndicator,
+  TextInput,
+  Image,
 } from 'react-native';
 import { router } from 'expo-router';
 import { AntDesign } from '@expo/vector-icons';
@@ -20,13 +22,18 @@ import { SettingState, useSettingsStore } from '@/store/useSettingsStore';
 import ButtonText from '@/components/commons/ButtonText';
 import Dialog from "react-native-dialog";
 import SettingItem from '@/components/settings/SettingItem';
+import ButtonIcon from '@/components/commons/ButtonIcon';
+import { helper } from '@/utils/helper';
 
 
 const SettingScreen = () => {
   const {
     isAllowAccessManagement,
     setAllowAccessManagement,
-    verifyPasscode
+    verifyPasscode,
+    getSalonSettings,
+    salonSettings,
+    setSalonSettings
   } = useSettingsStore((state: SettingState) => state);
 
   const [visible, setVisible] = useState(false);
@@ -102,21 +109,55 @@ const SettingScreen = () => {
     router.push('/(app)/(tabs)/(user)/ticket-report');
   }
 
+  const showSettingModal = () => {
+    router.push('/(app)/setting-modal');
+  }
+
+  useEffect(() => {
+    getSalonSettings()
+  }, [])
+
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
 
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16 }}>
-        <Text>Allow Access Management</Text>
-        <SwitchButton
-          value={isAllowAccessManagement}
-          onValueChange={(value) => {
-            if (value === true) {
-              showDialog();
-            } else {
-              setAllowAccessManagement(value);
-            }
-          }}
+      <View
+        style={{
+          justifyContent: 'space-between',
+          padding: 16,
+          gap: 16,
+          backgroundColor: 'white',
+          borderRadius: 12,
+          margin: 16,
+        }}
+      >
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16 }}>
+          <Text>Allow Access Management</Text>
+          <SwitchButton
+            value={isAllowAccessManagement}
+            onValueChange={(value) => {
+              if (value === true) {
+                showDialog();
+              } else {
+                setAllowAccessManagement(value);
+              }
+            }}
+          />
+        </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16 }}>
+          <Text>Setup Tax</Text>
+          <Text>{helper.decimalToPercentage(salonSettings?.tax_rate)}%</Text>
+        </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16 }}>
+          <Text>Setup Logo</Text>
+          <Image
+            source={{ uri: salonSettings?.logo_url }}
+            style={{ width: 40, height: 40 }}
+          />
+        </View>
+        <ButtonIcon
+          iconName="pencil"
+          onPress={showSettingModal}
         />
       </View>
       <View style={{

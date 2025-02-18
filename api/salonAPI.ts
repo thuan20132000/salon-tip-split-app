@@ -4,7 +4,7 @@ import { ApiResponse, StaffReceiptApiResponseType } from '../types/api.types';
 import { CreateStaffAccountInput, SalonStaffType, UpdateSalonStaffInput } from "@/types/staff.types";
 import { SalonReceipt, SalonReceiptFilterInput, StaffBillType } from "@/types/receipt.type";
 import { SalonReportApiResponse, SalonSalaryReportFilterType, SalonSalaryReportResponseType, SalonSalaryReportType, StaffSalaryReportFilterType, StaffSalaryReportResponseType } from "@/types/report.types";
-import { SalonServiceType, StaffServiceType, StaffServiceFilterType, UpdateStaffServiceType, StaffTurnServiceFilterType } from "@/types/salon.types";
+import { SalonServiceType, StaffServiceType, StaffServiceFilterType, UpdateStaffServiceType, StaffTurnServiceFilterType, SalonSettingsType } from "@/types/salon.types";
 import { StaffTurn } from "@/types/turn.types";
 
 export const salonAPI = {
@@ -43,4 +43,8 @@ export const salonAPI = {
   getStaffTurnServices: (salon_id: number | string, filter: StaffTurnServiceFilterType) => api.get<ApiResponse<StaffTurn[]>>(`/salons/${salon_id}/staff-turn-services/`, {
     params: filter
   }),
+
+  // Salon Settings
+  getSalonSettings: (salon_id: number | string) => api.get<ApiResponse<SalonSettingsType>>(`/salons/${salon_id}/settings/`),
+  updateSalonSettings: (salon_id: number | string, data: Partial<SalonSettingsType>) => api.put<ApiResponse<SalonSettingsType>>(`/salons/${salon_id}/update-settings/`, data),
 };

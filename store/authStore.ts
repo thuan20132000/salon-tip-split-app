@@ -6,7 +6,8 @@ import { router } from 'expo-router';
 import { useSalonStore } from './useSalonStore';
 import { intializeOneSignal, registerUserDeviceSubscription, unRegisterUserDeviceSubscription } from '@/services/onesignal.service';
 import { StaffRoleEnums } from '@/enums/StaffRoleEnums';
-
+import { useSettingsStore } from './useSettingsStore';
+  
 
 
 export interface AuthState {
@@ -54,7 +55,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
 
       const res = await authAPI.login(username, password);
-      const staffSalon = res.data.user?.staff_detail?.salon
+      const staff_detail = res.data.user?.staff_detail
+      const staffSalon = staff_detail?.salon
+
+
 
       // Store tokens and user data securely
       await SecureStore.setItemAsync('tokens', JSON.stringify({
@@ -64,6 +68,10 @@ export const useAuthStore = create<AuthState>((set) => ({
       await SecureStore.setItemAsync('user', JSON.stringify(res.data.user));
       await useSalonStore.getState().onSelectedSalon(staffSalon)
       registerUserDeviceSubscription()
+
+      if (staff_detail?.role && Number(staff_detail?.role) == StaffRoleEnums.OWNER) {
+        await useSettingsStore.getState().getSalonSettings()
+      }
       set({
         user: res.data.user,
         tokens: {
@@ -88,11 +96,11 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (!user?.staff_detail?.role) {
         return false;
       }
-  
+
       if (user.staff_detail && Number(user.staff_detail.role) == StaffRoleEnums.OWNER) {
         return true;
       }
-  
+
       return false;
 
     } catch (error) {
@@ -105,7 +113,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: async () => {
     try {
-    
+
       // Clear secure storage
       await unRegisterUserDeviceSubscription()
       await SecureStore.deleteItemAsync('tokens');

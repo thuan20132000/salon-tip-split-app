@@ -79,5 +79,20 @@ export const commonStyles = StyleSheet.create({
   textParagraph: {
     fontSize: s(6),
     color: Colors.primary.dark
+  },
+  textInput: {
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: Colors.primary.white,
+    // borderWidth: 1,
+    borderColor: Colors.primary.dark,
+    // boxshadow
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 10.49,
   }
 });

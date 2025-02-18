@@ -38,10 +38,30 @@ const getInitialsText = (text?: string): string => {
   return ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
 }
 
+const percentageToDecimal = (percentage?: number): number => {
+  if(!percentage) {
+    return 0;
+  }
+  let decimal = Number(percentage) / 100;
+
+  return Number(decimal.toFixed(2));
+}
+
+const decimalToPercentage = (decimal?: number): number => {
+  if(!decimal) {
+    return 0;
+  }
+  
+  let percentage = Number(decimal) * 100;
+  return Number(percentage.toFixed(0));
+}
+
 export const helper = {
   handlePercentToDecimal,
   formatCurrency,
   formatDays,
   showAlertErrorMessage,
-  getInitialsText
+  getInitialsText,
+  percentageToDecimal,
+  decimalToPercentage
 }

@@ -8,7 +8,7 @@ import { CreateSalonReceiptInput, CreateSalonReceiptType, PaymentInvoiceDetailTy
 import { formatCurrency, getCashPayment, getDebitPayment, handleDiscountPrice } from '@/utils/receiptUtils';
 import { getSubtotalDiscountPrice, getSubtotalWithoutDiscountPrice, getTotalServicePrice } from '@/utils/receiptUpdateUtils';
 import { SalonServiceType } from '@/types/salon.types';
-
+import { useSettingsStore } from './useSettingsStore';
 
 interface Staff {
   id: number;
@@ -318,6 +318,11 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
 
     const cashPayment = getCashPayment(subtotalWithoutDiscount) + getSubtotalDiscountPrice(staffReceipts);
 
+    const salonSettings = useSettingsStore.getState().salonSettings;
+
+    PaymentRatesEnums.TAX_RATE = salonSettings?.tax_rate || PaymentRatesEnums.TAX_RATE;
+
+
     // Calculate discounts
     const loyaltyDiscount = debitPayment - (debitPayment * PaymentRatesEnums.LOYALTY);
     const loyaltyDiscountAmount = debitPayment * PaymentRatesEnums.LOYALTY;
@@ -333,7 +338,7 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
 
 
     let isPayable = !!selectedPaymentMethod;
-    if(state.cashPaymentPrice > 0) {
+    if (state.cashPaymentPrice > 0) {
       isPayable = true;
     }
 
@@ -582,7 +587,7 @@ export const useSalonPaymentUpdateStore = create<SalonPaymentUpdateState>((set, 
     } catch (error) {
       console.error(error);
     }
-    },
+  },
 
   updateStaffReceiptServices: (staffReceipt, services) => {
     set((state) => {
