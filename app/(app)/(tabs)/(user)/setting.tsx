@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   TextInput,
   Image,
+  ScrollView,
 } from 'react-native';
 import { router } from 'expo-router';
 import { AntDesign } from '@expo/vector-icons';
@@ -82,6 +83,13 @@ const SettingScreen = () => {
     router.push('/(app)/(tabs)/(user)/salon-report');
   }
 
+  // const showSalonRevenueReport = () => {
+  //   if (!canAccessManagement()) {
+  //     return;
+  //   }
+  //   router.push('/(app)/(tabs)/(user)/salon-revenue-report');
+  // }
+
   const showSalaryReport = () => {
     if (!canAccessManagement()) {
       return;
@@ -118,84 +126,87 @@ const SettingScreen = () => {
   }, [])
 
   return (
-    <View style={styles.container}>
-      <StatusBar style="dark" />
+    <ScrollView style={styles.container}>
 
-      <View
-        style={{
-          justifyContent: 'space-between',
+      <View style={styles.container}>
+        <StatusBar style="dark" />
+
+
+        <View style={{
           padding: 16,
+          flexDirection: 'row',
+          flexWrap: 'wrap',
           gap: 16,
-          backgroundColor: 'white',
-          borderRadius: 12,
-          margin: 16,
-        }}
-      >
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16 }}>
-          <Text>Allow Access Management</Text>
-          <SwitchButton
-            value={isAllowAccessManagement}
-            onValueChange={(value) => {
-              if (value === true) {
-                showDialog();
+        }}>
+          <SettingItem label="Salon Salary Report" onPress={showSalaryReport} />
+          <SettingItem label="Salon Service Report" onPress={showSalonServiceReport} />
+          <SettingItem label="Staff Report" onPress={showSalonReport} />
+          <SettingItem label="Staffs" onPress={showStaffManagement} />
+          <SettingItem label="Services" onPress={showSalonService} />
+          <SettingItem label="Salon" onPress={showSalonManagement} />
+          {/* <SettingItem label="Salon Revenue Report" onPress={showSalonRevenueReport} /> */}
+        </View>
+        <View
+          style={{
+            justifyContent: 'space-between',
+            padding: 16,
+            gap: 16,
+            backgroundColor: 'white',
+            borderRadius: 12,
+            margin: 16,
+          }}
+        >
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16 }}>
+            <Text>Allow Access Management</Text>
+            <SwitchButton
+              value={isAllowAccessManagement}
+              onValueChange={(value) => {
+                if (value === true) {
+                  showDialog();
+                } else {
+                  setAllowAccessManagement(value);
+                }
+              }}
+            />
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16 }}>
+            <Text>Setup Tax</Text>
+            <Text>{helper.decimalToPercentage(salonSettings?.tax_rate)}%</Text>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16 }}>
+            <Text>Setup Logo</Text>
+            <Image
+              source={{ uri: salonSettings?.logo_url }}
+              style={{ width: 40, height: 40 }}
+            />
+          </View>
+          <ButtonIcon
+            iconName="pencil"
+            onPress={showSettingModal}
+          />
+        </View> 
+        <View style={styles.dialogContainer}>
+          <Dialog.Container visible={visible}>
+            <Dialog.Title>Verify passcode</Dialog.Title>
+            <Dialog.Description>
+              Please enter your passcode to proceed
+            </Dialog.Description>
+            <Dialog.Input value={settingPasscode} onChangeText={(text) => setSettingPasscode(text)} />
+            <Dialog.Button label="Cancel" onPress={handleCancel} />
+            <Dialog.Button label="Confirm" onPress={() => {
+              if (verifyPasscode(settingPasscode)) {
+                setAllowAccessManagement(true);
+                setSettingPasscode('');
+                setVisible(false);
               } else {
-                setAllowAccessManagement(value);
+                Alert.alert('Invalid passcode', 'Please enter the correct passcode');
               }
-            }}
-          />
+            }} />
+          </Dialog.Container>
         </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16 }}>
-          <Text>Setup Tax</Text>
-          <Text>{helper.decimalToPercentage(salonSettings?.tax_rate)}%</Text>
-        </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16 }}>
-          <Text>Setup Logo</Text>
-          <Image
-            source={{ uri: salonSettings?.logo_url }}
-            style={{ width: 40, height: 40 }}
-          />
-        </View>
-        <ButtonIcon
-          iconName="pencil"
-          onPress={showSettingModal}
-        />
       </View>
-      <View style={{
-        flex: 1,
-        padding: 16,
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 16,
-      }}>
-        <SettingItem label="Salon Salary Report" onPress={showSalaryReport} />
-        <SettingItem label="Salon Service Report" onPress={showSalonServiceReport} />
-        <SettingItem label="Staff Report" onPress={showSalonReport} />
-        <SettingItem label="Staffs" onPress={showStaffManagement} />
-        <SettingItem label="Services" onPress={showSalonService} />
-        <SettingItem label="Salon" onPress={showSalonManagement} />
-        {/* <SettingItem label="Salon Ticket Report" onPress={showSalonTicketReport} /> */}
-      </View>
+    </ScrollView>
 
-      <View style={styles.dialogContainer}>
-        <Dialog.Container visible={visible}>
-          <Dialog.Title>Verify passcode</Dialog.Title>
-          <Dialog.Description>
-            Please enter your passcode to proceed
-          </Dialog.Description>
-          <Dialog.Input value={settingPasscode} onChangeText={(text) => setSettingPasscode(text)} />
-          <Dialog.Button label="Cancel" onPress={handleCancel} />
-          <Dialog.Button label="Confirm" onPress={() => {
-            if (verifyPasscode(settingPasscode)) {
-              setAllowAccessManagement(true);
-              setSettingPasscode('');
-              setVisible(false);
-            } else {
-              Alert.alert('Invalid passcode', 'Please enter the correct passcode');
-            }
-          }} />
-        </Dialog.Container>
-      </View>
-    </View>
   );
 };
 

@@ -56,7 +56,6 @@ const SuggestionTurns = (props: Props) => {
       });
     })
 
-    console.log('staffAvailable:: ', staffAvailable)
 
     // sort staffAvailable by last_turn updated_at
     staffAvailable.sort((a, b) => {

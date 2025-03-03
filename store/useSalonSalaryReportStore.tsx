@@ -1,6 +1,6 @@
 
 import { salonAPI } from '@/api/salonAPI';
-import { SalonReportSummaryType, SalonSalaryReportFilterType, SalonSalaryReportType, StaffSalaryReportFilterType, StaffSalaryReportType } from '@/types/report.types';
+import { SalonReportSummaryType, SalonSalaryReportFilterType, SalonSalaryReportType, StaffSalaryReportFilterType, StaffSalaryReportType, SalonRevenueReportFilterType, SalonRevenueReportType } from '@/types/report.types';
 import { create } from 'zustand';
 import { useSalonStore } from './useSalonStore';
 import { SalonStaffType } from '@/types/staff.types';
@@ -15,6 +15,8 @@ export interface SalonSalaryReportState {
   getStaffSalaryReport: (filter: StaffSalaryReportFilterType) => Promise<void>;
   resetSalaryReport: () => void;
   resetStaffSalaryReport: () => void;
+  getSalonRevenueReport: (filter: SalonRevenueReportFilterType) => Promise<void>;
+  salonRevenueReport: SalonRevenueReportType[];
 }
 
 const useSalonSalaryReportStore = create<SalonSalaryReportState>((set) => ({
@@ -25,6 +27,7 @@ const useSalonSalaryReportStore = create<SalonSalaryReportState>((set) => ({
     total_tip_amount: 0,
     total_turn: 0,
   },
+  salonRevenueReport: [],
   reportStaffs: [],
   getSalaryReport: async (filter) => {
     try {
@@ -52,7 +55,16 @@ const useSalonSalaryReportStore = create<SalonSalaryReportState>((set) => ({
   },
   resetStaffSalaryReport: () => {
     set({ staffSalaryReport: [], summary: { total_service_amount: 0, total_tip_amount: 0, total_turn: 0 } });
-  }
+  },
+  getSalonRevenueReport: async (filter) => {
+    try {
+      let selectedSalon = useSalonStore.getState().selectedSalon;
+      const res = await salonAPI.getSalonRevenueReport(Number(selectedSalon?.id), filter);
+      set({ salonRevenueReport: res.data.data });
+    } catch (error) {
+      console.error('get salon-revenue-report error:', error);
+    }
+  } 
 }));
 
 export default useSalonSalaryReportStore;

@@ -22,6 +22,19 @@ export interface SalonSalaryReportFilterType {
   salon?: number;
 }
 
+export type SalonRevenueReportType = {
+  date: string;
+  total_service_amount: number;
+  total_tip_amount: number;
+  total_turn?: number;
+}
+
+export interface SalonRevenueReportFilterType {
+  created_at_range_after?: Date | string;
+  created_at_range_before?: Date | string;
+  created_at?: Date | string;
+}
+
 export type StaffSalaryReportType = {
   date: string;
   total_service_amount: number;

@@ -323,7 +323,7 @@ export default function StaffPaymentScreen() {
           {/* Staff  Price Input */}
           {selectedSalonReceipt?.staff_receipts?.map((staff, index) => (
             <StaffReceiptPaymentItem
-              key={index}
+              key={`${index}${staff.id}`}
               index={index}
               staff={staff}
               updateReceiptStaffPrice={updateReceiptStaffPrice}

@@ -68,6 +68,7 @@ const SelectDiscountModal: React.FC<PaymentMethodModalProps> = ({
           }}>
             {Object.entries(PAYMENT_METHOD_INFO).map(([method, info]) => (
               <ButtonIcon
+                key={method.toString()}
                 iconName={'gift-outline'}
                 onPress={() => {
                   onSelect(method as unknown as PaymentDiscountRateEnums);

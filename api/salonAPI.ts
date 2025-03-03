@@ -3,7 +3,7 @@ import { Salon } from "@/types/user.type";
 import { ApiResponse, StaffReceiptApiResponseType } from '../types/api.types';
 import { CreateStaffAccountInput, SalonStaffType, UpdateSalonStaffInput } from "@/types/staff.types";
 import { SalonReceipt, SalonReceiptFilterInput, StaffBillType } from "@/types/receipt.type";
-import { SalonReportApiResponse, SalonSalaryReportFilterType, SalonSalaryReportResponseType, SalonSalaryReportType, StaffSalaryReportFilterType, StaffSalaryReportResponseType } from "@/types/report.types";
+import { SalonReportApiResponse, SalonSalaryReportFilterType, SalonSalaryReportResponseType, SalonSalaryReportType, StaffSalaryReportFilterType, StaffSalaryReportResponseType, SalonRevenueReportType, SalonRevenueReportFilterType } from "@/types/report.types";
 import { SalonServiceType, StaffServiceType, StaffServiceFilterType, UpdateStaffServiceType, StaffTurnServiceFilterType, SalonSettingsType } from "@/types/salon.types";
 import { StaffTurn } from "@/types/turn.types";
 
@@ -25,6 +25,10 @@ export const salonAPI = {
   }),
   addSalonStaff: (data: Partial<CreateStaffAccountInput>) => api.post<ApiResponse<SalonStaffType>>(`/salons/${data.salon_id}/add-staff/`, data),
   updateSalonStaff: (data: Partial<UpdateSalonStaffInput>) => api.put<ApiResponse<SalonStaffType>>(`/salons/${data.salon_id}/update-staff/`, data),
+  
+  getSalonRevenueReport: (salon_id: number | string, filter: SalonRevenueReportFilterType) => api.get<ApiResponse<SalonRevenueReportType[]>>(`/salons/${salon_id}/salon-revenue-report/`, {
+    params: filter
+  }),
 
   // Salon Services
   getSalonServices: (salon_id: number | string) => api.get<ApiResponse<SalonServiceType[]>>(`/salons/${salon_id}/services/`),
