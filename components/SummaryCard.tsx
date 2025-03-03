@@ -8,6 +8,7 @@ interface SummaryCardProps {
   totalTip: number;
   period?: string;
   totalTurn?: number;
+  commissionAmount?: number;
   onPeriodChange?: () => void;
 }
 
@@ -16,9 +17,10 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   totalTip,
   period,
   totalTurn,
+  commissionAmount,
   onPeriodChange,
 }) => {
-  const grandTotal = totalAmount + totalTip;
+    const grandTotal = totalAmount + totalTip;
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -57,6 +59,19 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
               {totalTurn}
             </Text>
           </View>
+
+          {/* Commission Amount Card */}
+          {Number(commissionAmount) > 0 && (
+            <View style={[styles.card, styles.tipsCard]}>
+              <View style={styles.cardHeader}>
+                <Ionicons name="cash-outline" size={24} color="#4CAF50" />
+              <Text style={styles.cardLabel}>Commission</Text>
+            </View>
+            <Text style={[styles.amount, styles.tipsAmount]}>
+              ${commissionAmount?.toFixed(2)}
+              </Text>
+            </View>
+          )}
         </View>
 
       </View>

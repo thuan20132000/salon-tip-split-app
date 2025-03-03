@@ -3,24 +3,15 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  RefreshControl,
   Alert,
   Platform,
-  ActivityIndicator,
-  TextInput,
   Image,
   ScrollView,
 } from 'react-native';
 import { router } from 'expo-router';
-import { AntDesign } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
-import { Salon } from '@/types/salon.types';
-import { SalonState, useSalonStore } from '@/store/useSalonStore';
-import SwitchButton from '@/components/SwitchButton';
 import { SettingState, useSettingsStore } from '@/store/useSettingsStore';
-import ButtonText from '@/components/commons/ButtonText';
+import SwitchButton from '@/components/SwitchButton';
 import Dialog from "react-native-dialog";
 import SettingItem from '@/components/settings/SettingItem';
 import ButtonIcon from '@/components/commons/ButtonIcon';
@@ -83,12 +74,12 @@ const SettingScreen = () => {
     router.push('/(app)/(tabs)/(user)/salon-report');
   }
 
-  // const showSalonRevenueReport = () => {
-  //   if (!canAccessManagement()) {
-  //     return;
-  //   }
-  //   router.push('/(app)/(tabs)/(user)/salon-revenue-report');
-  // }
+  const showSalonRevenueReport = () => {
+    if (!canAccessManagement()) {
+      return;
+    }
+    router.push('/(app)/(tabs)/(user)/salon-revenue-report');
+  }
 
   const showSalaryReport = () => {
     if (!canAccessManagement()) {
@@ -140,6 +131,7 @@ const SettingScreen = () => {
         }}>
           <SettingItem label="Salon Salary Report" onPress={showSalaryReport} />
           <SettingItem label="Salon Service Report" onPress={showSalonServiceReport} />
+          <SettingItem label="Salon Revenue Report" onPress={showSalonRevenueReport} />
           <SettingItem label="Staff Report" onPress={showSalonReport} />
           <SettingItem label="Staffs" onPress={showStaffManagement} />
           <SettingItem label="Services" onPress={showSalonService} />

@@ -19,7 +19,6 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { PaymentDiscountRateEnums, PaymentMethodsEnums, PaymentRatesEnums, PaymentReceiptStatusEnums } from '@/enums/PaymentEnums';
 
 import { GiftcardPaymentInput } from '@/components/GiftcardPaymentInput';
-import { SalonStaffState, useSalonStaffStore } from '@/store/useSalonStaffStore';
 import { SalonPaymentReceiptType, SalonPaymentState, useSalonPaymentStore } from '@/store/useSalonPaymentStore';
 import { CreateSalonReceiptType, SalonReceipt, SalonStaffPriceType } from '@/types/receipt.type';
 import { receiptAPIs } from '@/api/receiptAPI';
@@ -30,7 +29,6 @@ import { Ionicons } from '@expo/vector-icons';
 import ButtonIcon from '@/components/commons/ButtonIcon';
 import ButtonText from '@/components/commons/ButtonText';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
-import CustomDateTimePicker from '@/components/DateTimePicker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import dayjs from 'dayjs';
 import { ms, mvs, scale } from 'react-native-size-matters';

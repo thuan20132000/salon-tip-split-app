@@ -1,22 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import DateRangePickerModal from './DateRangePickerModal';
-import SelectSalonStaffModal from './SelectSalonStaffModal';
-import SummaryCard from './SummaryCard';
+// import DateRangePickerModal from '../commons/DateRangePickerModal';
+// import SelectSalonStaffModal from '../commons/SelectSalonStaffModal';
+// import SummaryCard from '../commons/SummaryCard';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
 import dayjs from 'dayjs';
 import { SalonStaffType } from '@/types/staff.types';
 import { SalonReceiptFilterInput } from '@/types/receipt.type';
 import useSalonSalaryReportStore, { SalonSalaryReportState } from '@/store/useSalonSalaryReportStore';
-import ButtonIcon from './commons/ButtonIcon';
+import ButtonIcon from '../commons/ButtonIcon';
 import { ms } from 'react-native-size-matters';
-import { SalonReportSummaryType } from '@/types/report.types';
-interface StaffReportFilterProps {
+import { SalonStaffSalaryReportSummaryType } from '@/types/report.types';
+import DateRangePickerModal from '../DateRangePickerModal';
+import SelectSalonStaffModal from '../SelectSalonStaffModal';
+import SummaryCard from '../SummaryCard';
+import SelectStaffModal from '../SelectStaffModal';
+interface SalonStaffSalaryReportFilterProps {
   onFilter?: (startDate: string, endDate: string, staffId?: number) => void;
-  summary?: SalonReportSummaryType;
+  summary?: SalonStaffSalaryReportSummaryType;
 }
 
-const StaffReportFilter: React.FC<StaffReportFilterProps> = ({ onFilter, summary }) => {
+const SalonStaffSalaryReportFilter: React.FC<SalonStaffSalaryReportFilterProps> = ({ onFilter, summary }) => {
   const [startDate, setStartDate] = useState(dayjs(new Date()).format('YYYY-MM-DD'));
   const [endDate, setEndDate] = useState(dayjs(new Date()).format('YYYY-MM-DD'));
   const [isShowDateRangePicker, setIsShowDateRangePicker] = useState(false);
@@ -27,10 +31,6 @@ const StaffReportFilter: React.FC<StaffReportFilterProps> = ({ onFilter, summary
   const {
     salonStaffs,
   } = useSalonStore((state: SalonState) => state);
-  // const {
-  //   getStaffSalaryReport,
-  //   summary
-  // } = useSalonSalaryReportStore((state: SalonSalaryReportState) => state);
 
   const toggleShowSummary = () => {
     setIsShowSummary(!isShowSummary);
@@ -59,17 +59,20 @@ const StaffReportFilter: React.FC<StaffReportFilterProps> = ({ onFilter, summary
           onItemPress={() => { setIsShowDateRangePicker(true) }}
           defaultDate={dayjs(new Date()).format('YYYY-MM-DD')}
         />
-        <SelectSalonStaffModal
-          isVisible={isShowSelectStaffModal}
-          onClose={() => { setIsShowSelectStaffModal(false) }}
-          staffList={salonStaffs}
-          onSelectStaff={(staff) => {
+        <SelectStaffModal
+          visible={isShowSelectStaffModal}
+          onSelect={(staff) => {
             setSelectedStaff(staff)
             setIsShowSelectStaffModal(false)
             onFilter && onFilter(startDate, endDate, staff.id);
           }}
-          onItemPress={() => { setIsShowSelectStaffModal(true) }}
-          selectedStaff={selectedStaff}
+          onCancel={() => { setIsShowSelectStaffModal(false) }}
+        />
+        <ButtonIcon
+          onPress={() => { setIsShowSelectStaffModal(true) }}
+          iconName='people'
+          containerStyle={{ marginLeft: ms(4) }}
+          title={selectedStaff?.first_name || ''}
         />
         <ButtonIcon
           onPress={toggleShowSummary}
@@ -85,6 +88,7 @@ const StaffReportFilter: React.FC<StaffReportFilterProps> = ({ onFilter, summary
           totalAmount={summary?.total_service_amount || 0}
           totalTip={summary?.total_tip_amount || 0}
           totalTurn={summary?.total_turn || 0}
+          commissionAmount={summary?.total_commission_amount || 0}
           period="Today"
           onPeriodChange={() => { }}
         />
@@ -112,4 +116,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StaffReportFilter;
+export default SalonStaffSalaryReportFilter;

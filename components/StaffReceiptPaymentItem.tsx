@@ -22,8 +22,6 @@ type Props = {
 const StaffReceiptPaymentItem = (props: Props) => {
 
   const {
-    customDiscountPercent,
-    updateCustomDiscountPercent,
     addStaffBillDiscount,
     updateStaffReceiptServices
   } = useSalonPaymentUpdateStore((state: SalonPaymentUpdateState) => state);
@@ -33,11 +31,6 @@ const StaffReceiptPaymentItem = (props: Props) => {
 
   const onSelectStaffDiscount = () => {
     setIsShowDiscountModal(true);
-  }
-
-
-  const showSalonServicesModal = () => {
-    setIsShowSalonServicesModal(true);
   }
 
   const hideDiscountModal = () => {

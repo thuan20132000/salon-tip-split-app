@@ -67,6 +67,12 @@ export default function StaffLayout() {
             title: 'Staff Service',
           }}
         />
+        <Stack.Screen
+          name="salon-revenue-report"
+          options={{
+            title: 'Salon Revenue Report',
+          }}
+        />
       </Stack>
     </KeyboardProvider>
   );

@@ -37,7 +37,7 @@ const StaffSalaryReportItem: React.FC<SalaryReportItemProps> = ({
             text={item?.staff__first_name}
             textStyle={{ color: 'white', padding: 2, fontSize: s(8) }}
             containerStyle={{
-              borderTopRightRadius:0,
+              borderTopRightRadius: 0,
               borderBottomLeftRadius: 0,
             }}
           />
@@ -61,19 +61,23 @@ const StaffSalaryReportItem: React.FC<SalaryReportItemProps> = ({
               textStyle={{ color: 'white', padding: 2, fontSize: ms(8) }}
             />
           </View>
-          <View style={styles.box}>
-            <Text style={styles.label}>Rate</Text>
-            <Badge
-              backgroundColor="#FF9800"
-              text={String(item.staff__commission_rate)}
-              textStyle={{ color: 'white', padding: 2, fontSize: ms(8) }}
-            />
-          </View>
+          {
+
+            <View style={styles.box}>
+              <Text style={styles.label}>Rate</Text>
+              <Badge
+                backgroundColor="#FF9800"
+                text={String(item.staff__commission_rate)}
+                textStyle={{ color: 'white', padding: 2, fontSize: ms(8) }}
+              />
+            </View>
+
+          }
           <View style={styles.box}>
             <Text style={styles.label}>Revenue</Text>
             <Badge
               backgroundColor="#FF9800"
-              text={formatCurrency(Number(item.service_revenue))}
+              text={formatCurrency(Number(item.commission_amount))}
               textStyle={{ color: 'white', padding: 2, fontSize: ms(8) }}
             />
           </View>
