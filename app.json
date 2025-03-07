@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "salon-tip-split",
-    "slug": "salon-tip-split",
+    "slug": "salon-pos-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/appstore.png",
@@ -20,7 +20,6 @@
       },
       "package": "com.thuan20132000.salontipsplit"
     },
-   
     "plugins": [
       "expo-router",
       [
@@ -33,12 +32,12 @@
         }
       ],
       "expo-secure-store",
-     [
-      "onesignal-expo-plugin",
-      {
-        "mode":"development"
-      }
-     ]
+      [
+        "onesignal-expo-plugin",
+        {
+          "mode": "development"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -48,8 +47,44 @@
         "origin": false
       },
       "eas": {
-        "projectId": "6c7c8386-cde6-445f-9a1d-1fc3740f8b3b"
+        "projectId": "c13f9cf8-6a1c-47af-8ed6-1a73b4bd0404",
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "targetName": "OneSignalNotificationServiceExtension",
+                  "bundleIdentifier": "com.thuan20132000.salon-tip-split.OneSignalNotificationServiceExtension",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.com.thuan20132000.salon-tip-split.onesignal"
+                    ]
+                  }
+                },
+                {
+                  "targetName": "OneSignalNotificationServiceExtension",
+                  "bundleIdentifier": "com.thuan20132000.salon-tip-split.OneSignalNotificationServiceExtension",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.com.thuan20132000.salon-tip-split.onesignal"
+                    ]
+                  }
+                },
+                {
+                  "targetName": "OneSignalNotificationServiceExtension",
+                  "bundleIdentifier": "com.thuan20132000.salon-tip-split.OneSignalNotificationServiceExtension",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.com.thuan20132000.salon-tip-split.onesignal"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
       }
-    }
+    },
+    "owner": "thuan20132000"
   }
 }
