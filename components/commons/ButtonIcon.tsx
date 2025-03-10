@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, Text, ViewStyle, TextStyle } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, ViewStyle, TextStyle, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { s, ms } from 'react-native-size-matters';
 
@@ -11,6 +11,7 @@ interface ButtonIconProps {
   size?: number;
   containerStyle?: ViewStyle;
   titleStyle?: TextStyle;
+  isLoading?: boolean;
 }
 
 const ButtonIcon: React.FC<ButtonIconProps> = ({
@@ -20,13 +21,17 @@ const ButtonIcon: React.FC<ButtonIconProps> = ({
   color = 'black',
   size = ms(12),
   containerStyle,
-  titleStyle
+  titleStyle,
+  isLoading
 }) => {
   return (
     <TouchableOpacity style={[styles.button, containerStyle]} onPress={onPress}>
       <Ionicons name={iconName} size={12} color={color} />
       {
         title && <Text style={[styles.text, { color }, titleStyle]}>{title}</Text>
+      }
+      {
+        isLoading && <ActivityIndicator size="small" color={color} />
       }
     </TouchableOpacity>
   );

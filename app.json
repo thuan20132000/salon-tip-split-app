@@ -1,24 +1,20 @@
 {
   "expo": {
-    "name": "salon-tip-split",
-    "slug": "salon-pos-app",
+    "name": "Salon POS",
+    "slug": "Salon-POS",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/appstore.png",
-    "scheme": "myapp",
+    "scheme": "salonpos",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.thuan20132000.salon-tip-split",
-      "googleServicesFile": "assets/GoogleService-Info.plist"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "package": "com.thuan20132000.salontipsplit"
+      "bundleIdentifier": "com.ethantruong.salon-pos",
+      "googleServicesFile": "assets/GoogleService-Info.plist",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "plugins": [
       "expo-router",
@@ -47,44 +43,29 @@
         "origin": false
       },
       "eas": {
-        "projectId": "c13f9cf8-6a1c-47af-8ed6-1a73b4bd0404",
         "build": {
           "experimental": {
             "ios": {
               "appExtensions": [
                 {
                   "targetName": "OneSignalNotificationServiceExtension",
-                  "bundleIdentifier": "com.thuan20132000.salon-tip-split.OneSignalNotificationServiceExtension",
+                  "bundleIdentifier": "com.ethantruong.salon-pos.OneSignalNotificationServiceExtension",
                   "entitlements": {
                     "com.apple.security.application-groups": [
-                      "group.com.thuan20132000.salon-tip-split.onesignal"
-                    ]
-                  }
-                },
-                {
-                  "targetName": "OneSignalNotificationServiceExtension",
-                  "bundleIdentifier": "com.thuan20132000.salon-tip-split.OneSignalNotificationServiceExtension",
-                  "entitlements": {
-                    "com.apple.security.application-groups": [
-                      "group.com.thuan20132000.salon-tip-split.onesignal"
-                    ]
-                  }
-                },
-                {
-                  "targetName": "OneSignalNotificationServiceExtension",
-                  "bundleIdentifier": "com.thuan20132000.salon-tip-split.OneSignalNotificationServiceExtension",
-                  "entitlements": {
-                    "com.apple.security.application-groups": [
-                      "group.com.thuan20132000.salon-tip-split.onesignal"
+                      "group.com.ethantruong.salon-pos.onesignal"
                     ]
                   }
                 }
               ]
             }
           }
-        }
+        },
+        "projectId": "c7236b7d-4494-49c7-83b6-d2ea8093a6f5"
       }
     },
-    "owner": "thuan20132000"
+    "owner": "ethantruong1602",
+    "android": {
+      "package": "com.ethantruong.salonpos"
+    }
   }
 }

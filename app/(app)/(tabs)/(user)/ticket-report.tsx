@@ -16,20 +16,22 @@ import { receiptAPIs } from '@/api/receiptAPI';
 import { SalonState, useSalonStore } from '@/store/useSalonStore';
 import TicketReportFilter from '@/components/TicketReportFilter';
 import { RootState, useRootStore } from '@/store/useRootStore';
-
-
+import { ms } from 'react-native-size-matters';
+import ButtonIcon from '@/components/commons/ButtonIcon';
+import { AuthState, useAuthStore } from '@/store/authStore';
 
 const TicketReportScreen: React.FC = () => {
 
   const filter = useLocalSearchParams();
   const staffId = filter.staffId as string;
-  const startDate = filter.startDate as string;
-  const endDate = filter.endDate as string;
-
+  const [startDate, setStartDate] = useState<string>(filter.startDate as string);
+  const [endDate, setEndDate] = useState<string>(filter.endDate as string);
+  const [isSendingEmail, setIsSendingEmail] = useState<boolean>(false);
   const {
     salonStaffBills,
     getSalonStaffBills,
-    salonStaffs
+    salonStaffs,
+    sendSalonStaffBillsToEmail,
   } = useSalonStore((state: SalonState) => state);
 
   // State
@@ -37,8 +39,13 @@ const TicketReportScreen: React.FC = () => {
   // const [loading, setLoading] = useState<boolean>(false);
   const {
     isLoading,
-    setIsLoading
+    setIsLoading,
   } = useRootStore((state: RootState) => state);
+
+  const {
+    isAuthenticated,
+    isSalonOwner
+  } = useAuthStore((state: AuthState) => state);
 
   const onDeleteReceipt = async (receipt: StaffBillType) => {
     try {
@@ -71,6 +78,32 @@ const TicketReportScreen: React.FC = () => {
     );
   }
 
+  const onConfirmToSendEmail = () => {
+    Alert.alert(
+      'Send Email',
+      'Are you sure you want to send email report?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Send', style: 'default', onPress: onSendEmail },
+      ],
+    );
+  }
+
+  const onSendEmail = async () => {
+    try {
+      setIsSendingEmail(true);
+      if (dayjs(startDate).isSame(dayjs(endDate), 'day')) {
+        await sendSalonStaffBillsToEmail(Number(staffId), startDate);
+        Alert.alert('Email sent successfully');
+      } else {
+        Alert.alert('Please select the same date to send email!');
+      }
+    } catch (err) {
+      console.error('Error sending email:', err);
+    } finally {
+      setIsSendingEmail(false);
+    }
+  }
   useEffect(() => {
     // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
     let filter: SalonReceiptFilterInput = {
@@ -89,7 +122,21 @@ const TicketReportScreen: React.FC = () => {
         defaultStartDate={startDate}
         defaultEndDate={endDate}
         defaultStaff={salonStaffs?.find((staff) => staff?.id === Number(staffId))}
+        onFilter={(startDate, endDate) => {
+          setStartDate(startDate);
+          setEndDate(endDate);
+        }}
       />
+      {
+        isSalonOwner() && (
+          <ButtonIcon
+            onPress={onConfirmToSendEmail}
+            iconName='send-sharp'
+            containerStyle={{ marginHorizontal: ms(4), width: ms(40), flex: 1, backgroundColor: '#ffffff' }}
+            isLoading={isSendingEmail}
+          />
+        )
+      }
       <FlatList
         data={salonStaffBills}
         renderItem={({ item }) =>

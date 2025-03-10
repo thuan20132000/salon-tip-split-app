@@ -8,7 +8,7 @@ export const intializeOneSignal = () => {
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
 
   // OneSignal Initialization
-  OneSignal.initialize("1d12544a-bd54-440d-b316-27e21e248ba2")
+  OneSignal.initialize("e22d044d-f575-43b7-be88-46f1b03291be")
 
   // requestPermission will show the native iOS or Android notification permission prompt.
   // We recommend removing the following code and instead using an In-App Message to prompt for notification permission

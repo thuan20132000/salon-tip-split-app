@@ -20,7 +20,6 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   commissionAmount,
   onPeriodChange,
 }) => {
-    const grandTotal = totalAmount + totalTip;
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>

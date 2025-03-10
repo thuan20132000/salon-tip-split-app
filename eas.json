@@ -5,11 +5,17 @@
   },
   "build": {
     "development": {
-      "developmentClient": true,
-      "distribution": "internal"
+      "ios": {
+        "simulator": false,
+        "channel": "development",
+        "scheme": "salon-pos",
+        "buildConfiguration": "Debug",
+        
+      }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "autoIncrement": true
     },
     "production": {
       "autoIncrement": true

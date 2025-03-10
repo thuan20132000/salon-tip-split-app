@@ -51,4 +51,12 @@ export const salonAPI = {
   // Salon Settings
   getSalonSettings: (salon_id: number | string) => api.get<ApiResponse<SalonSettingsType>>(`/salons/${salon_id}/settings/`),
   updateSalonSettings: (salon_id: number | string, data: Partial<SalonSettingsType>) => api.put<ApiResponse<SalonSettingsType>>(`/salons/${salon_id}/update-settings/`, data),
+
+  // Send Salon Staff Bills to Email
+  sendReceiptEmail: (salon_id: number | string, staff_id: number | string, receipt_date: string) => api.get<ApiResponse<void>>(`/salons/${salon_id}/send-receipt-email/`, {
+    params: {
+      staff: staff_id,
+      created_at: receipt_date
+    }
+  }),
 };

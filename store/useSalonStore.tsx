@@ -27,6 +27,7 @@ export interface SalonState {
   getSalonReceipts: (filter?: SalonReceiptFilterInput) => Promise<void>;
   pendingPaymentReceipts: SalonReceipt[] | null;
   getSalonPendingPaymentReceipts: (filter?: SalonReceiptFilterInput) => Promise<void>;
+  sendSalonStaffBillsToEmail: (staffId: number, receiptDate: string) => Promise<void>;
 }
 
 export const useSalonStore = create<SalonState>((set) => ({
@@ -136,6 +137,19 @@ export const useSalonStore = create<SalonState>((set) => ({
     }
   },
 
+  sendSalonStaffBillsToEmail: async (staffId: number, receiptDate: string) => {
+    try {
+      const { selectedSalon } = get();
+      const res = await salonAPI.sendReceiptEmail(
+        Number(selectedSalon?.id),
+        staffId,
+        receiptDate
+      );
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }));
 
 function get() {

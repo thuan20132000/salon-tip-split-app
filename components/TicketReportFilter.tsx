@@ -18,10 +18,11 @@ interface TicketReportFilterProps {
   defaultStaff?: SalonStaffType | null;
 }
 
-const TicketReportFilter: React.FC<TicketReportFilterProps> = ({ onFilter,
+const TicketReportFilter: React.FC<TicketReportFilterProps> = ({
   defaultStartDate,
   defaultEndDate,
-  defaultStaff
+  defaultStaff,
+  onFilter
 }) => {
   const [startDate, setStartDate] = useState(defaultStartDate || dayjs(new Date()).format('YYYY-MM-DD'));
   const [endDate, setEndDate] = useState(defaultEndDate || dayjs(new Date()).format('YYYY-MM-DD'));
@@ -71,7 +72,7 @@ const TicketReportFilter: React.FC<TicketReportFilterProps> = ({ onFilter,
 
             }
             setIsShowDateRangePicker(false);
-
+            onFilter?.(stDate, edDate);
           }}
           onItemPress={() => { setIsShowDateRangePicker(true) }}
           defaultDate={startDate}
